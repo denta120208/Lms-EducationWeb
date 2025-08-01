@@ -1,35 +1,52 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
-import { User, Lock, AlertCircle } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { User, Mail, Lock, AlertCircle } from 'lucide-react';
+import { authAPI } from '../services/api';
 import { useAuth } from '../contexts/AuthContext';
 
-const LoginPage = () => {
+const SignUpPage = () => {
   const navigate = useNavigate();
-  const location = useLocation();
-  const { login, isAuthenticated, isLoading, error, clearError } = useAuth();
+  const { isAuthenticated } = useAuth();
   
+  const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [rememberPassword, setRememberPassword] = useState(false);
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [validationErrors, setValidationErrors] = useState<{email?: string, password?: string}>({});
+  const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState<string | null>(null);
+  const [validationErrors, setValidationErrors] = useState<{
+    fullName?: string;
+    email?: string;
+    password?: string;
+    confirmPassword?: string;
+  }>({});
 
   // Redirect if already authenticated
   useEffect(() => {
     if (isAuthenticated) {
-      const from = location.state?.from?.pathname || '/dashboard';
-      navigate(from, { replace: true });
+      navigate('/dashboard', { replace: true });
     }
-  }, [isAuthenticated, navigate, location]);
+  }, [isAuthenticated, navigate]);
 
-  // Clear errors when component mounts or inputs change
+  // Clear errors when inputs change
   useEffect(() => {
-    clearError();
+    setError(null);
     setValidationErrors({});
-  }, [email, password, clearError]);
+  }, [fullName, email, password, confirmPassword]);
 
   const validateForm = () => {
-    const errors: {email?: string, password?: string} = {};
+    const errors: {
+      fullName?: string;
+      email?: string;
+      password?: string;
+      confirmPassword?: string;
+    } = {};
+    
+    if (!fullName.trim()) {
+      errors.fullName = 'Full name is required';
+    }
     
     if (!email.trim()) {
       errors.email = 'Email is required';
@@ -41,6 +58,12 @@ const LoginPage = () => {
       errors.password = 'Password is required';
     } else if (password.length < 6) {
       errors.password = 'Password must be at least 6 characters';
+    }
+    
+    if (!confirmPassword) {
+      errors.confirmPassword = 'Please confirm your password';
+    } else if (password !== confirmPassword) {
+      errors.confirmPassword = 'Passwords do not match';
     }
     
     setValidationErrors(errors);
@@ -55,20 +78,32 @@ const LoginPage = () => {
     }
 
     setIsSubmitting(true);
+    setError(null);
+    setSuccess(null);
     
     try {
-      await login(email, password);
-      // Navigation will be handled by useEffect above
-    } catch (error) {
-      // Error is handled by AuthContext
-      console.error('Login failed:', error);
+      await authAPI.register({
+        name: fullName,
+        email,
+        password
+      });
+      
+      setSuccess('Registration successful! Please login with your credentials.');
+      
+      // Redirect to login after 2 seconds
+      setTimeout(() => {
+        navigate('/login');
+      }, 2000);
+      
+    } catch (error: any) {
+      setError(error.message || 'Registration failed');
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  const handleSignUpClick = () => {
-    navigate('/signup');
+  const handleLoginClick = () => {
+    navigate('/login');
   };
 
   const styles = {
@@ -178,26 +213,43 @@ const LoginPage = () => {
       color: 'white',
       cursor: 'pointer'
     },
-    loginButton: {
+    signupCard: {
+      backgroundColor: '#799EFF',
+      borderRadius: '16px',
+      padding: '40px',
+      width: '100%',
+      maxWidth: '400px',
+      boxShadow: '0 10px 25px rgba(0, 0, 0, 0.1)',
+      position: 'relative'
+    },
+    signupTitle: {
+      fontSize: '24px',
+      fontWeight: '600',
+      color: '#000000ff',
+      textAlign: 'center',
+      marginBottom: '32px',
+      margin: 0
+    },
+    signupButton: {
       backgroundColor: '#FFDE63',
       color: '#1f2937',
       border: 'none',
-      borderRadius: '8px',
-      padding: '12px 24px',
-      fontSize: '16px',
+      borderRadius: '10px',
+      padding: '16px 28px',
+      fontSize: '18px',
       fontWeight: '600',
       cursor: 'pointer',
       transition: 'background-color 0.2s',
-      marginTop: '8px'
+      marginTop: '12px'
     },
-    signupText: {
-      fontSize: '14px',
+    loginText: {
+      fontSize: '16px',
       color: 'white',
       textAlign: 'center',
-      marginTop: '16px',
+      marginTop: '20px',
       margin: 0
     },
-    signupLink: {
+    loginLink: {
       color: '#fbbf24',
       textDecoration: 'underline',
       cursor: 'pointer'
@@ -212,8 +264,23 @@ const LoginPage = () => {
       alignItems: 'center',
       gap: '8px'
     },
+    successContainer: {
+      backgroundColor: '#f0fdf4',
+      border: '1px solid #bbf7d0',
+      borderRadius: '8px',
+      padding: '12px',
+      marginBottom: '16px',
+      display: 'flex',
+      alignItems: 'center',
+      gap: '8px'
+    },
     errorText: {
       color: '#dc2626',
+      fontSize: '14px',
+      margin: 0
+    },
+    successText: {
+      color: '#16a34a',
       fontSize: '14px',
       margin: 0
     },
@@ -230,7 +297,7 @@ const LoginPage = () => {
   };
 
   return (
-      <div style={styles.container}>
+    <div style={styles.container}>
       {/* Logo */}
       <div style={styles.logo}>
         <img 
@@ -240,9 +307,9 @@ const LoginPage = () => {
         />
       </div>
 
-      {/* Login Card */}
-      <div style={styles.loginCard}>
-        <h2 style={styles.loginTitle}>Login</h2>
+      {/* Sign Up Card */}
+      <div style={styles.signupCard}>
+        <h2 style={styles.signupTitle}>Sign Up</h2>
         
         {/* Error Display */}
         {error && (
@@ -252,10 +319,36 @@ const LoginPage = () => {
           </div>
         )}
         
+        {/* Success Display */}
+        {success && (
+          <div style={styles.successContainer}>
+            <AlertCircle size={16} color="#16a34a" />
+            <p style={styles.successText}>{success}</p>
+          </div>
+        )}
+        
         <form onSubmit={handleSubmit} style={styles.form}>
-          {/* Email Input */}
+          {/* Full Name Input */}
           <div style={styles.inputGroup}>
             <User size={20} style={styles.inputIcon} />
+            <input
+              type="text"
+              placeholder="enter name"
+              value={fullName}
+              onChange={(e) => setFullName(e.target.value)}
+              style={styles.input}
+              onFocus={(e) => (e.target as HTMLInputElement).style.boxShadow = '0 0 0 2px rgba(251, 191, 36, 0.5)'}
+              onBlur={(e) => (e.target as HTMLInputElement).style.boxShadow = 'none'}
+              disabled={isSubmitting}
+            />
+            {validationErrors.fullName && (
+              <div style={styles.fieldError}>{validationErrors.fullName}</div>
+            )}
+          </div>
+
+          {/* Email Input */}
+          <div style={styles.inputGroup}>
+            <Mail size={20} style={styles.inputIcon} />
             <input
               type="email"
               placeholder="enter your email"
@@ -275,7 +368,7 @@ const LoginPage = () => {
           <div style={styles.inputGroup}>
             <Lock size={20} style={styles.inputIcon} />
             <input
-              type="password"
+              type={showPassword ? "text" : "password"}
               placeholder="enter password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
@@ -289,26 +382,44 @@ const LoginPage = () => {
             )}
           </div>
 
-          {/* Remember Password Checkbox */}
+          {/* Confirm Password Input */}
+          <div style={styles.inputGroup}>
+            <Lock size={20} style={styles.inputIcon} />
+            <input
+              type={showPassword ? "text" : "password"}
+              placeholder="confirm password"
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              style={styles.input}
+              onFocus={(e) => (e.target as HTMLInputElement).style.boxShadow = '0 0 0 2px rgba(251, 191, 36, 0.5)'}
+              onBlur={(e) => (e.target as HTMLInputElement).style.boxShadow = 'none'}
+              disabled={isSubmitting}
+            />
+            {validationErrors.confirmPassword && (
+              <div style={styles.fieldError}>{validationErrors.confirmPassword}</div>
+            )}
+          </div>
+
+          {/* Show Password Checkbox */}
           <div style={styles.checkboxContainer}>
             <input
               type="checkbox"
-              id="rememberPassword"
-              checked={rememberPassword}
-              onChange={(e) => setRememberPassword(e.target.checked)}
+              id="showPassword"
+              checked={showPassword}
+              onChange={(e) => setShowPassword(e.target.checked)}
               style={styles.checkbox}
             />
-            <label htmlFor="rememberPassword" style={styles.checkboxLabel}>
-              Save Password
+            <label htmlFor="showPassword" style={styles.checkboxLabel}>
+              Show Password
             </label>
           </div>
 
-          {/* Login Button */}
+          {/* Sign Up Button */}
           <button
             type="submit"
             disabled={isSubmitting}
             style={{
-              ...styles.loginButton,
+              ...styles.signupButton,
               ...(isSubmitting ? styles.loadingButton : {})
             }}
             onMouseEnter={(e) => {
@@ -318,17 +429,17 @@ const LoginPage = () => {
             }}
             onMouseLeave={(e) => {
               if (!isSubmitting) {
-                (e.target as HTMLButtonElement).style.backgroundColor = '#fbbf24';
+                (e.target as HTMLButtonElement).style.backgroundColor = '#FFDE63';
               }
             }}
           >
-            {isSubmitting ? 'Logging in...' : 'Login'}
+            {isSubmitting ? 'Signing Up...' : 'Sign Up'}
           </button>
 
-          {/* Signup Link */}
-          <p style={styles.signupText}>
-            Don't Have an account yet? {' '}
-            <span style={styles.signupLink} onClick={handleSignUpClick}>Sign Up</span>
+          {/* Login Link */}
+          <p style={styles.loginText}>
+            already have an account? {' '}
+            <span style={styles.loginLink} onClick={handleLoginClick}>Login</span>
           </p>
         </form>
       </div>
@@ -336,4 +447,4 @@ const LoginPage = () => {
   );
 };
 
-export default LoginPage;
+export default SignUpPage;
