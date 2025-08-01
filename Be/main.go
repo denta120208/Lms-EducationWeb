@@ -22,9 +22,8 @@ func main() {
 	// Inisialisasi router
 	r := mux.NewRouter()
 
-	// Test endpoint untuk database
-	r.HandleFunc("/api/test-db", testDBConnection).Methods("GET")
-	r.HandleFunc("/api/db-status", getDBStatus).Methods("GET")
+	// Health check endpoint
+	r.HandleFunc("/api/health", healthCheck).Methods("GET")
 
 	// Endpoint dasar (dummy)
 	r.HandleFunc("/api/auth/login", func(w http.ResponseWriter, r *http.Request) {
@@ -54,71 +53,24 @@ func main() {
 	}
 
 	fmt.Printf("🚀 Server berjalan di http://localhost:%s\n", port)
-	fmt.Println("📊 Test database connection: http://localhost:" + port + "/api/test-db")
+	fmt.Printf("📊 Health check: http://localhost:%s/api/health\n", port)
 	log.Fatal(http.ListenAndServe(":"+port, r))
 }
 
-// Fungsi untuk test koneksi database
-func testDBConnection(w http.ResponseWriter, r *http.Request) {
+// Health check endpoint - sederhana dan bersih
+func healthCheck(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
-	if DB == nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		w.Write([]byte(`{"status": "error", "message": "Database connection is nil"}`))
-		return
-	}
-
-	if err := DB.Ping(); err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		w.Write([]byte(fmt.Sprintf(`{"status": "error", "message": "Database ping failed: %v"}`, err)))
-		return
-	}
-
-	w.WriteHeader(http.StatusOK)
-	w.Write([]byte(`{"status": "success", "message": "Database connection is working!"}`))
-}
-
-// Fungsi untuk mendapatkan status database dan tabel
-func getDBStatus(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json")
-
-	if DB == nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		w.Write([]byte(`{"status": "error", "message": "Database connection is nil"}`))
-		return
-	}
-
-	// Test koneksi
-	if err := DB.Ping(); err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		w.Write([]byte(fmt.Sprintf(`{"status": "error", "message": "Database ping failed: %v"}`, err)))
-		return
-	}
-
-	// Ambil daftar tabel
-	rows, err := DB.Query("SHOW TABLES")
-	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		w.Write([]byte(fmt.Sprintf(`{"status": "error", "message": "Failed to show tables: %v"}`, err)))
-		return
-	}
-	defer rows.Close()
-
-	var tables []string
-	for rows.Next() {
-		var tableName string
-		if err := rows.Scan(&tableName); err != nil {
-			continue
-		}
-		tables = append(tables, tableName)
+	// Check database connection
+	dbStatus := "connected"
+	if DB == nil || DB.Ping() != nil {
+		dbStatus = "disconnected"
 	}
 
 	response := map[string]interface{}{
-		"status":      "success",
-		"message":     "Database is connected and working!",
-		"database":    "lms_garage",
-		"tables":      tables,
-		"table_count": len(tables),
+		"status":   "ok",
+		"message":  "LMS Garage API is running",
+		"database": dbStatus,
 	}
 
 	w.WriteHeader(http.StatusOK)
