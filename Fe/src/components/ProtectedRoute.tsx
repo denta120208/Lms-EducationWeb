@@ -19,7 +19,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
         alignItems: 'center',
         height: '100vh',
         backgroundColor: '#f8fafc',
-        fontFamily: 'system-ui, -apple-system, sans-serif'
+
       }}>
         <div style={{
           display: 'flex',

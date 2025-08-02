@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { User, Mail, Lock, AlertCircle } from 'lucide-react';
 import { authAPI } from '../services/api';
 import { useAuth } from '../contexts/AuthContext';
+import type { CSSProperties } from 'react';
 
 const SignUpPage = () => {
   const navigate = useNavigate();
@@ -22,6 +23,7 @@ const SignUpPage = () => {
     password?: string;
     confirmPassword?: string;
   }>({});
+  const [windowWidth, setWindowWidth] = useState(window.innerWidth);
 
   // Redirect if already authenticated
   useEffect(() => {
@@ -35,6 +37,13 @@ const SignUpPage = () => {
     setError(null);
     setValidationErrors({});
   }, [fullName, email, password, confirmPassword]);
+
+  // Handle window resize for responsiveness
+  useEffect(() => {
+    const handleResize = () => setWindowWidth(window.innerWidth);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   const validateForm = () => {
     const errors: {
@@ -106,24 +115,26 @@ const SignUpPage = () => {
     navigate('/login');
   };
 
-  const styles = {
+  const styles: Record<string, CSSProperties> = {
     container: {
-      width: '100vw',
-      height: '100vh',
+      minHeight: '100vh',
+      width: '100%',
       backgroundColor: '#f8fafc',
       display: 'flex',
       flexDirection: 'column',
       alignItems: 'center',
       justifyContent: 'center',
-      fontFamily: 'system-ui, -apple-system, sans-serif',
+
       margin: 0,
-      padding: 20,
-      boxSizing: 'border-box'
+      padding: '16px',
+      boxSizing: 'border-box',
+      overflowX: 'hidden',
+      overflowY: 'auto'
     },
     logo: {
-      width: '80px',
-      height: '80px',
-      marginBottom: '40px',
+      width: '60px',
+      height: '60px',
+      marginBottom: '24px',
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center'
@@ -172,7 +183,7 @@ const SignUpPage = () => {
     form: {
       display: 'flex',
       flexDirection: 'column',
-      gap: '20px'
+      gap: '16px'
     },
     inputGroup: {
       position: 'relative'
@@ -204,31 +215,36 @@ const SignUpPage = () => {
       marginTop: '8px'
     },
     checkbox: {
-      width: '16px',
-      height: '16px',
+      width: '12px',
+      height: '12px',
       accentColor: '#fbbf24'
     },
     checkboxLabel: {
-      fontSize: '14px',
+      fontSize: '12px',
       color: 'white',
       cursor: 'pointer'
     },
     signupCard: {
       backgroundColor: '#799EFF',
       borderRadius: '16px',
-      padding: '40px',
+      padding: '24px',
       width: '100%',
       maxWidth: '400px',
+      minWidth: '280px',
       boxShadow: '0 10px 25px rgba(0, 0, 0, 0.1)',
-      position: 'relative'
+      position: 'relative',
+      margin: '0 auto',
+      boxSizing: 'border-box'
     },
     signupTitle: {
-      fontSize: '24px',
+      fontSize: '20px',
       fontWeight: '600',
       color: '#000000ff',
       textAlign: 'center',
-      marginBottom: '32px',
-      margin: 0
+      marginBottom: '24px',
+      marginTop: 0,
+      marginLeft: 0,
+      marginRight: 0
     },
     signupButton: {
       backgroundColor: '#FFDE63',
@@ -247,7 +263,9 @@ const SignUpPage = () => {
       color: 'white',
       textAlign: 'center',
       marginTop: '20px',
-      margin: 0
+      marginBottom: 0,
+      marginLeft: 0,
+      marginRight: 0
     },
     loginLink: {
       color: '#fbbf24',
@@ -296,20 +314,81 @@ const SignUpPage = () => {
     }
   };
 
+  // Dynamic styles based on screen size
+  const getResponsiveStyles = () => {
+    const isMobile = windowWidth <= 480;
+    const isTablet = windowWidth <= 768;
+    const isSmallMobile = windowWidth <= 360;
+    
+    return {
+      ...styles,
+      container: {
+        ...styles.container,
+        padding: isSmallMobile ? '8px' : isMobile ? '12px' : isTablet ? '16px' : '20px',
+        minHeight: '100vh'
+      },
+      signupCard: {
+        ...styles.signupCard,
+        padding: isSmallMobile ? '16px' : isMobile ? '20px' : isTablet ? '22px' : '24px',
+        maxWidth: isSmallMobile ? '95%' : isMobile ? '90%' : isTablet ? '350px' : '400px',
+        minWidth: isSmallMobile ? '280px' : '300px'
+      },
+      logo: {
+        ...styles.logo,
+        width: isSmallMobile ? '40px' : isMobile ? '50px' : '60px',
+        height: isSmallMobile ? '40px' : isMobile ? '50px' : '60px',
+        marginBottom: isSmallMobile ? '12px' : isMobile ? '16px' : '24px'
+      },
+      signupTitle: {
+        ...styles.signupTitle,
+        fontSize: isSmallMobile ? '18px' : isMobile ? '19px' : '20px'
+      },
+      input: {
+        ...styles.input,
+        fontSize: isSmallMobile ? '16px' : isMobile ? '16px' : '14px',
+        padding: isSmallMobile ? '10px 14px 10px 44px' : '12px 16px 12px 48px'
+      },
+      signupButton: {
+        ...styles.signupButton,
+        fontSize: isSmallMobile ? '16px' : '18px',
+        padding: isSmallMobile ? '14px 24px' : '16px 28px'
+      },
+      form: {
+        ...styles.form,
+        gap: isSmallMobile ? '14px' : '16px'
+      },
+      checkbox: {
+        ...styles.checkbox,
+        width: isSmallMobile ? '14px' : isMobile ? '16px' : '18px',
+        height: isSmallMobile ? '14px' : isMobile ? '16px' : '18px',
+        transform: isSmallMobile ? 'scale(1)' : isMobile ? 'scale(1.1)' : 'scale(1.3)'
+      },
+      checkboxLabel: {
+        ...styles.checkboxLabel,
+        fontSize: isSmallMobile ? '11px' : isMobile ? '12px' : '14px'
+      }
+    };
+  };
+
+  const responsiveStyles = getResponsiveStyles();
+
   return (
-    <div style={styles.container}>
+    <div style={responsiveStyles.container}>
       {/* Logo */}
-      <div style={styles.logo}>
+      <div style={responsiveStyles.logo}>
         <img 
           src="/logo.png" 
           alt="Arma Garage Logo" 
-          style={{width: '80px', height: '80px'}}
+          style={{
+            width: windowWidth <= 480 ? '50px' : '60px', 
+            height: windowWidth <= 480 ? '50px' : '60px'
+          }}
         />
       </div>
 
       {/* Sign Up Card */}
-      <div style={styles.signupCard}>
-        <h2 style={styles.signupTitle}>Sign Up</h2>
+      <div style={responsiveStyles.signupCard}>
+        <h2 style={responsiveStyles.signupTitle} className="poppins-bold">Sign Up</h2>
         
         {/* Error Display */}
         {error && (
@@ -327,7 +406,7 @@ const SignUpPage = () => {
           </div>
         )}
         
-        <form onSubmit={handleSubmit} style={styles.form}>
+        <form onSubmit={handleSubmit} style={responsiveStyles.form}>
           {/* Full Name Input */}
           <div style={styles.inputGroup}>
             <User size={20} style={styles.inputIcon} />
@@ -336,7 +415,7 @@ const SignUpPage = () => {
               placeholder="enter name"
               value={fullName}
               onChange={(e) => setFullName(e.target.value)}
-              style={styles.input}
+              style={responsiveStyles.input}
               onFocus={(e) => (e.target as HTMLInputElement).style.boxShadow = '0 0 0 2px rgba(251, 191, 36, 0.5)'}
               onBlur={(e) => (e.target as HTMLInputElement).style.boxShadow = 'none'}
               disabled={isSubmitting}
@@ -354,7 +433,7 @@ const SignUpPage = () => {
               placeholder="enter your email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              style={styles.input}
+              style={responsiveStyles.input}
               onFocus={(e) => (e.target as HTMLInputElement).style.boxShadow = '0 0 0 2px rgba(251, 191, 36, 0.5)'}
               onBlur={(e) => (e.target as HTMLInputElement).style.boxShadow = 'none'}
               disabled={isSubmitting}
@@ -372,7 +451,7 @@ const SignUpPage = () => {
               placeholder="enter password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              style={styles.input}
+              style={responsiveStyles.input}
               onFocus={(e) => (e.target as HTMLInputElement).style.boxShadow = '0 0 0 2px rgba(251, 191, 36, 0.5)'}
               onBlur={(e) => (e.target as HTMLInputElement).style.boxShadow = 'none'}
               disabled={isSubmitting}
@@ -390,7 +469,7 @@ const SignUpPage = () => {
               placeholder="confirm password"
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
-              style={styles.input}
+              style={responsiveStyles.input}
               onFocus={(e) => (e.target as HTMLInputElement).style.boxShadow = '0 0 0 2px rgba(251, 191, 36, 0.5)'}
               onBlur={(e) => (e.target as HTMLInputElement).style.boxShadow = 'none'}
               disabled={isSubmitting}
@@ -407,9 +486,9 @@ const SignUpPage = () => {
               id="showPassword"
               checked={showPassword}
               onChange={(e) => setShowPassword(e.target.checked)}
-              style={styles.checkbox}
+              style={responsiveStyles.checkbox}
             />
-            <label htmlFor="showPassword" style={styles.checkboxLabel}>
+            <label htmlFor="showPassword" style={responsiveStyles.checkboxLabel}>
               Show Password
             </label>
           </div>
@@ -419,7 +498,7 @@ const SignUpPage = () => {
             type="submit"
             disabled={isSubmitting}
             style={{
-              ...styles.signupButton,
+              ...responsiveStyles.signupButton,
               ...(isSubmitting ? styles.loadingButton : {})
             }}
             onMouseEnter={(e) => {

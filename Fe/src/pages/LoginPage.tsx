@@ -2,17 +2,19 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { User, Lock, AlertCircle } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
+import type { CSSProperties } from 'react';
 
 const LoginPage = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { login, isAuthenticated, isLoading, error, clearError } = useAuth();
+  const { login, isAuthenticated, error, clearError } = useAuth();
   
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [rememberPassword, setRememberPassword] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [validationErrors, setValidationErrors] = useState<{email?: string, password?: string}>({});
+  const [windowWidth, setWindowWidth] = useState(window.innerWidth);
 
   // Redirect if already authenticated
   useEffect(() => {
@@ -27,6 +29,13 @@ const LoginPage = () => {
     clearError();
     setValidationErrors({});
   }, [email, password, clearError]);
+
+  // Handle window resize for responsiveness
+  useEffect(() => {
+    const handleResize = () => setWindowWidth(window.innerWidth);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   const validateForm = () => {
     const errors: {email?: string, password?: string} = {};
@@ -71,24 +80,26 @@ const LoginPage = () => {
     navigate('/signup');
   };
 
-  const styles = {
+  const styles: Record<string, CSSProperties> = {
     container: {
-      width: '100vw',
-      height: '100vh',
+      minHeight: '100vh',
+      width: '100%',
       backgroundColor: '#f8fafc',
       display: 'flex',
       flexDirection: 'column',
       alignItems: 'center',
       justifyContent: 'center',
-      fontFamily: 'system-ui, -apple-system, sans-serif',
+
       margin: 0,
-      padding: 20,
-      boxSizing: 'border-box'
+      padding: '16px',
+      boxSizing: 'border-box',
+      overflowX: 'hidden',
+      overflowY: 'auto'
     },
     logo: {
-      width: '80px',
-      height: '80px',
-      marginBottom: '40px',
+      width: '60px',
+      height: '60px',
+      marginBottom: '24px',
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center'
@@ -123,8 +134,11 @@ const LoginPage = () => {
       padding: '40px',
       width: '100%',
       maxWidth: '400px',
+      minWidth: '280px',
       boxShadow: '0 10px 25px rgba(0, 0, 0, 0.1)',
-      position: 'relative'
+      position: 'relative',
+      margin: '0 auto',
+      boxSizing: 'border-box'
     },
     loginTitle: {
       fontSize: '24px',
@@ -132,7 +146,9 @@ const LoginPage = () => {
       color: '#000000ff',
       textAlign: 'center',
       marginBottom: '32px',
-      margin: 0
+      marginTop: 0,
+      marginLeft: 0,
+      marginRight: 0
     },
     form: {
       display: 'flex',
@@ -169,12 +185,12 @@ const LoginPage = () => {
       marginTop: '8px'
     },
     checkbox: {
-      width: '16px',
-      height: '16px',
+      width: '12px',
+      height: '12px',
       accentColor: '#fbbf24'
     },
     checkboxLabel: {
-      fontSize: '14px',
+      fontSize: '12px',
       color: 'white',
       cursor: 'pointer'
     },
@@ -229,20 +245,77 @@ const LoginPage = () => {
     }
   };
 
+  // Dynamic styles based on screen size
+  const getResponsiveStyles = () => {
+    const isMobile = windowWidth <= 480;
+    const isTablet = windowWidth <= 768;
+    const isSmallMobile = windowWidth <= 360;
+    
+    return {
+      ...styles,
+      container: {
+        ...styles.container,
+        padding: isSmallMobile ? '8px' : isMobile ? '12px' : isTablet ? '16px' : '20px',
+        minHeight: '100vh'
+      },
+      loginCard: {
+        ...styles.loginCard,
+        padding: isSmallMobile ? '16px' : isMobile ? '20px' : isTablet ? '28px' : '40px',
+        maxWidth: isSmallMobile ? '95%' : isMobile ? '90%' : isTablet ? '350px' : '400px',
+        minWidth: isSmallMobile ? '280px' : '300px'
+      },
+      logo: {
+        ...styles.logo,
+        width: isSmallMobile ? '40px' : isMobile ? '50px' : '60px',
+        height: isSmallMobile ? '40px' : isMobile ? '50px' : '60px',
+        marginBottom: isSmallMobile ? '12px' : isMobile ? '16px' : '24px'
+      },
+      loginTitle: {
+        ...styles.loginTitle,
+        fontSize: isSmallMobile ? '20px' : isMobile ? '22px' : '24px'
+      },
+      input: {
+        ...styles.input,
+        fontSize: isSmallMobile ? '16px' : isMobile ? '16px' : '14px',
+        padding: isSmallMobile ? '10px 14px 10px 44px' : '12px 16px 12px 48px'
+      },
+      loginButton: {
+        ...styles.loginButton,
+        fontSize: isSmallMobile ? '14px' : '16px',
+        padding: isSmallMobile ? '10px 20px' : '12px 24px'
+      },
+      checkbox: {
+        ...styles.checkbox,
+        width: isSmallMobile ? '14px' : isMobile ? '16px' : '18px',
+        height: isSmallMobile ? '14px' : isMobile ? '16px' : '18px',
+        transform: isSmallMobile ? 'scale(1)' : isMobile ? 'scale(1.1)' : 'scale(1.3)'
+      },
+      checkboxLabel: {
+        ...styles.checkboxLabel,
+        fontSize: isSmallMobile ? '11px' : isMobile ? '12px' : '14px'
+      }
+    };
+  };
+
+  const responsiveStyles = getResponsiveStyles();
+
   return (
-      <div style={styles.container}>
+      <div style={responsiveStyles.container}>
       {/* Logo */}
-      <div style={styles.logo}>
+      <div style={responsiveStyles.logo}>
         <img 
           src="/logo.png" 
           alt="Arma Garage Logo" 
-          style={{width: '80px', height: '80px'}}
+          style={{
+            width: windowWidth <= 480 ? '50px' : '60px', 
+            height: windowWidth <= 480 ? '50px' : '60px'
+          }}
         />
       </div>
 
       {/* Login Card */}
-      <div style={styles.loginCard}>
-        <h2 style={styles.loginTitle}>Login</h2>
+      <div style={responsiveStyles.loginCard}>
+        <h2 style={responsiveStyles.loginTitle} className="poppins-bold">Login</h2>
         
         {/* Error Display */}
         {error && (
@@ -261,7 +334,7 @@ const LoginPage = () => {
               placeholder="enter your email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              style={styles.input}
+              style={responsiveStyles.input}
               onFocus={(e) => (e.target as HTMLInputElement).style.boxShadow = '0 0 0 2px rgba(251, 191, 36, 0.5)'}
               onBlur={(e) => (e.target as HTMLInputElement).style.boxShadow = 'none'}
               disabled={isSubmitting}
@@ -279,7 +352,7 @@ const LoginPage = () => {
               placeholder="enter password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              style={styles.input}
+              style={responsiveStyles.input}
               onFocus={(e) => (e.target as HTMLInputElement).style.boxShadow = '0 0 0 2px rgba(251, 191, 36, 0.5)'}
               onBlur={(e) => (e.target as HTMLInputElement).style.boxShadow = 'none'}
               disabled={isSubmitting}
@@ -296,9 +369,9 @@ const LoginPage = () => {
               id="rememberPassword"
               checked={rememberPassword}
               onChange={(e) => setRememberPassword(e.target.checked)}
-              style={styles.checkbox}
+              style={responsiveStyles.checkbox}
             />
-            <label htmlFor="rememberPassword" style={styles.checkboxLabel}>
+            <label htmlFor="rememberPassword" style={responsiveStyles.checkboxLabel}>
               Save Password
             </label>
           </div>
@@ -308,17 +381,19 @@ const LoginPage = () => {
             type="submit"
             disabled={isSubmitting}
             style={{
-              ...styles.loginButton,
+              ...responsiveStyles.loginButton,
               ...(isSubmitting ? styles.loadingButton : {})
             }}
             onMouseEnter={(e) => {
               if (!isSubmitting) {
-                (e.target as HTMLButtonElement).style.backgroundColor = '#f59e0b';
+                (e.target as HTMLButtonElement).style.transform = 'translateY(-2px)';
+                (e.target as HTMLButtonElement).style.boxShadow = '0 8px 25px rgba(102, 126, 234, 0.6)';
               }
             }}
             onMouseLeave={(e) => {
               if (!isSubmitting) {
-                (e.target as HTMLButtonElement).style.backgroundColor = '#fbbf24';
+                (e.target as HTMLButtonElement).style.transform = 'translateY(0px)';
+                (e.target as HTMLButtonElement).style.boxShadow = '0 4px 15px rgba(102, 126, 234, 0.4)';
               }
             }}
           >

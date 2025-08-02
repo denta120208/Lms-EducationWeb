@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Home, Grid3X3, BookOpen, User, Bell, LogOut, AlertCircle } from 'lucide-react';
+import { Home, Grid3X3, BookOpen, User, Bell, LogOut, AlertCircle, Settings, Menu, X } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { authAPI } from '../services/api';
 
@@ -11,6 +11,8 @@ const DashboardPage = () => {
   const [dashboardData, setDashboardData] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [windowWidth, setWindowWidth] = useState(window.innerWidth);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   // Load dashboard data
   useEffect(() => {
@@ -27,6 +29,19 @@ const DashboardPage = () => {
     };
 
     loadDashboard();
+  }, []);
+
+  // Handle window resize for responsiveness
+  useEffect(() => {
+    const handleResize = () => {
+      setWindowWidth(window.innerWidth);
+      // Auto close sidebar on desktop
+      if (window.innerWidth > 768) {
+        setIsSidebarOpen(false);
+      }
+    };
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
   }, []);
 
   const handleLogout = () => {
@@ -66,67 +81,89 @@ const DashboardPage = () => {
     course.title.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
+  // Responsive breakpoints
+  const isMobile = windowWidth <= 768;
+  const isTablet = windowWidth <= 1024;
+  const isSmallMobile = windowWidth <= 480;
+
   const styles = {
     container: {
-      width: '100vw',
+      width: '100%',
       height: '100vh',
       minHeight: '100vh',
       backgroundColor: '#f8fafc',
       display: 'flex',
-      fontFamily: 'system-ui, -apple-system, sans-serif',
+
       margin: 0,
       padding: 0,
       boxSizing: 'border-box',
-      overflow: 'hidden'
+      overflow: 'hidden',
+      position: 'relative'
     },
     sidebar: {
-      width: '64px',
+      width: isMobile ? '100%' : '64px',
+      height: isMobile ? 'auto' : '100vh',
       backgroundColor: '#3b82f6',
       display: 'flex',
-      flexDirection: 'column',
+      flexDirection: isMobile ? 'row' : 'column',
       alignItems: 'center',
-      paddingTop: '24px',
-      paddingBottom: '24px',
-      gap: '32px'
+      justifyContent: isMobile ? 'space-around' : 'flex-start',
+      paddingTop: isMobile ? '12px' : '24px',
+      paddingBottom: isMobile ? '12px' : '24px',
+      gap: isMobile ? '16px' : '32px',
+      position: isMobile ? 'fixed' : 'static',
+      bottom: isMobile ? 0 : 'auto',
+      left: isMobile ? 0 : 'auto',
+      zIndex: isMobile ? 1000 : 'auto',
+      boxShadow: isMobile ? '0 -2px 10px rgba(0,0,0,0.1)' : 'none'
     },
     sidebarIcon: {
-      padding: '8px',
+      padding: isSmallMobile ? '6px' : '8px',
       backgroundColor: '#2563eb',
       borderRadius: '8px',
       cursor: 'pointer',
       display: 'flex',
       alignItems: 'center',
-      justifyContent: 'center'
+      justifyContent: 'center',
+      minWidth: isSmallMobile ? '36px' : '40px',
+      minHeight: isSmallMobile ? '36px' : '40px'
     },
     sidebarIconHover: {
-      padding: '8px',
+      padding: isSmallMobile ? '6px' : '8px',
       borderRadius: '8px',
       cursor: 'pointer',
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
-      transition: 'background-color 0.2s'
+      transition: 'background-color 0.2s',
+      minWidth: isSmallMobile ? '36px' : '40px',
+      minHeight: isSmallMobile ? '36px' : '40px'
     },
     mainContent: {
       flex: 1,
       display: 'flex',
       flexDirection: 'column',
-      width: 'calc(100vw - 64px)',
-      height: '100vh',
-      overflow: 'auto'
+      width: isMobile ? '100%' : 'calc(100% - 64px)',
+      height: isMobile ? 'calc(100vh - 60px)' : '100vh',
+      overflow: 'auto',
+      paddingBottom: isMobile ? '60px' : '0'
     },
     header: {
       backgroundColor: '#fbbf24',
-      padding: '16px 32px',
+      padding: isSmallMobile ? '12px 16px' : isMobile ? '14px 20px' : '16px 32px',
       display: 'flex',
       justifyContent: 'space-between',
-      alignItems: 'center'
+      alignItems: 'center',
+      flexWrap: 'wrap',
+      gap: '8px'
     },
     headerTitle: {
-      fontSize: '20px',
+      fontSize: isSmallMobile ? '16px' : isMobile ? '18px' : '20px',
       fontWeight: '500',
       color: '#374151',
-      margin: 0
+      margin: 0,
+      flex: 1,
+      minWidth: '200px'
     },
     headerName: {
       fontWeight: '600'
@@ -134,46 +171,56 @@ const DashboardPage = () => {
     headerRight: {
       display: 'flex',
       alignItems: 'center',
-      gap: '16px'
+      gap: isSmallMobile ? '8px' : '16px',
+      flexShrink: 0
     },
     userAvatar: {
-      width: '32px',
-      height: '32px',
+      width: isSmallMobile ? '28px' : '32px',
+      height: isSmallMobile ? '28px' : '32px',
       backgroundColor: '#4b5563',
       borderRadius: '50%',
       display: 'flex',
       alignItems: 'center',
-      justifyContent: 'center'
+      justifyContent: 'center',
+      flexShrink: 0
     },
     content: {
-      padding: '32px',
+      padding: isSmallMobile ? '16px' : isMobile ? '20px' : '32px',
       flex: 1,
       overflowY: 'auto'
     },
     coursesTitle: {
-      fontSize: '20px',
+      fontSize: isSmallMobile ? '18px' : '20px',
       fontWeight: '600',
       color: '#374151',
-      marginBottom: '24px',
-      margin: 0
+      marginBottom: isSmallMobile ? '16px' : '24px',
+      marginTop: 0,
+      marginLeft: 0,
+      marginRight: 0
     },
     courseOverview: {
       backgroundColor: 'white',
       borderRadius: '8px',
       boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
-      padding: '24px'
+      padding: isSmallMobile ? '16px' : isMobile ? '20px' : '24px'
     },
     overviewTitle: {
-      fontSize: '18px',
+      fontSize: isSmallMobile ? '16px' : '18px',
       fontWeight: '500',
       color: '#374151',
-      marginBottom: '16px',
-      margin: 0
+      marginBottom: isSmallMobile ? '12px' : '16px',
+      marginTop: 0,
+      marginLeft: 0,
+      marginRight: 0
     },
     filterSection: {
       display: 'flex',
-      gap: '16px',
-      marginBottom: '24px'
+      flexDirection: isSmallMobile ? 'column' : 'row',
+      gap: isSmallMobile ? '12px' : '16px',
+      marginBottom: isSmallMobile ? '16px' : '24px',
+      marginTop: 0,
+      marginLeft: 0,
+      marginRight: 0
     },
     allButton: {
       padding: '8px 16px',
@@ -191,12 +238,18 @@ const DashboardPage = () => {
       borderRadius: '4px',
       fontSize: '14px',
       outline: 'none',
-      transition: 'border-color 0.2s'
+      transition: 'border-color 0.2s',
+      flex: isSmallMobile ? 1 : 'none',
+      minWidth: isSmallMobile ? '100%' : '200px'
     },
     courseGrid: {
       display: 'grid',
-      gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
-      gap: '24px'
+      gridTemplateColumns: isSmallMobile 
+        ? '1fr' 
+        : isMobile 
+          ? 'repeat(auto-fit, minmax(250px, 1fr))' 
+          : 'repeat(auto-fit, minmax(280px, 1fr))',
+      gap: isSmallMobile ? '16px' : isMobile ? '20px' : '24px'
     },
     courseCard: {
       backgroundColor: 'white',
@@ -207,7 +260,7 @@ const DashboardPage = () => {
       cursor: 'pointer'
     },
     courseImage: {
-      height: '160px',
+      height: isSmallMobile ? '120px' : isMobile ? '140px' : '160px',
       background: 'linear-gradient(135deg, #1f2937 0%, #111827 100%)',
       position: 'relative',
       overflow: 'hidden'
@@ -257,48 +310,52 @@ const DashboardPage = () => {
       transform: 'rotate(45deg)'
     },
     courseInfo: {
-      padding: '16px'
+      padding: isSmallMobile ? '12px' : '16px'
     },
     courseTitle: {
-      fontSize: '16px',
+      fontSize: isSmallMobile ? '14px' : '16px',
       fontWeight: '500',
       color: '#2563eb',
       marginBottom: '4px',
-      margin: 0
+      marginTop: 0,
+      marginLeft: 0,
+      marginRight: 0
     },
     courseInstructor: {
-      fontSize: '14px',
+      fontSize: isSmallMobile ? '12px' : '14px',
       color: '#6b7280',
       marginBottom: '8px',
-      margin: 0
+      marginTop: 0,
+      marginLeft: 0,
+      marginRight: 0
     },
     courseProgress: {
-      fontSize: '14px',
+      fontSize: isSmallMobile ? '12px' : '14px',
       color: '#9ca3af',
       margin: 0
     }
   };
 
   return (
-    <div style={{...styles.container, width: '100%', height: '100%', position: 'fixed', top: 0, left: 0}}>
+    <div style={styles.container}>
       {/* Sidebar */}
       <div style={styles.sidebar}>
         <div style={styles.sidebarIcon}>
-          <Home size={24} color="white" />
+          <Home size={isSmallMobile ? 20 : 24} color="white" />
         </div>
         <div 
           style={styles.sidebarIconHover}
-          onMouseEnter={(e) => e.target.style.backgroundColor = '#2563eb'}
-          onMouseLeave={(e) => e.target.style.backgroundColor = 'transparent'}
+          onMouseEnter={(e) => (e.target as HTMLElement).style.backgroundColor = '#2563eb'}
+          onMouseLeave={(e) => (e.target as HTMLElement).style.backgroundColor = 'transparent'}
         >
-          <Grid3X3 size={24} color="white" />
+          <Grid3X3 size={isSmallMobile ? 20 : 24} color="white" />
         </div>
         <div 
           style={styles.sidebarIconHover}
-          onMouseEnter={(e) => e.target.style.backgroundColor = '#2563eb'}
-          onMouseLeave={(e) => e.target.style.backgroundColor = 'transparent'}
+          onMouseEnter={(e) => (e.target as HTMLElement).style.backgroundColor = '#2563eb'}
+          onMouseLeave={(e) => (e.target as HTMLElement).style.backgroundColor = 'transparent'}
         >
-          <BookOpen size={24} color="white" />
+          <Settings size={isSmallMobile ? 20 : 24} color="white" />
         </div>
       </div>
 
@@ -307,19 +364,19 @@ const DashboardPage = () => {
         {/* Header */}
         <div style={styles.header}>
           <h1 style={styles.headerTitle}>
-            Welcome, <span style={styles.headerName}>{user?.name || 'Student'}</span>
+            Welcome, <span style={styles.headerName} className="poppins-semibold">{user?.name || 'Student'}</span>
           </h1>
           <div style={styles.headerRight}>
-            <Bell size={24} color="#374151" />
+            <Bell size={isSmallMobile ? 20 : 24} color="#374151" />
             <div style={styles.userAvatar}>
-              <User size={20} color="white" />
+              <User size={isSmallMobile ? 16 : 20} color="white" />
             </div>
             <div 
               style={{...styles.userAvatar, cursor: 'pointer', backgroundColor: '#ef4444'}}
               onClick={handleLogout}
               title="Logout"
             >
-              <LogOut size={20} color="white" />
+              <LogOut size={isSmallMobile ? 16 : 20} color="white" />
             </div>
           </div>
         </div>
