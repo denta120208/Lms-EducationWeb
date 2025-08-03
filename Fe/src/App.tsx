@@ -5,6 +5,7 @@ import ProtectedRoute from './components/ProtectedRoute';
 import LoginPage from './pages/LoginPage';
 import SignUpPage from './pages/SignUp';
 import DashboardPage from './pages/DashboardPage';
+import HomePage from './pages/Home';
 import './App.css';
 
 function App() {
@@ -17,6 +18,16 @@ function App() {
             <Route path="/login" element={<LoginPage />} />
             <Route path="/signup" element={<SignUpPage />} />
             
+            {/* Protected Home route */}
+            <Route 
+              path="/home" 
+              element={
+                <ProtectedRoute>
+                  <HomePage />
+                </ProtectedRoute>
+              } 
+            />
+            
             {/* Protected Dashboard route */}
             <Route 
               path="/dashboard" 
@@ -27,8 +38,8 @@ function App() {
               } 
             />
             
-            {/* Default route redirects to login */}
-            <Route path="/" element={<Navigate to="/login" replace />} />
+            {/* Default route redirects to home for authenticated users */}
+            <Route path="/" element={<Navigate to="/home" replace />} />
             
             {/* Catch all route - redirect to login */}
             <Route path="*" element={<Navigate to="/login" replace />} />

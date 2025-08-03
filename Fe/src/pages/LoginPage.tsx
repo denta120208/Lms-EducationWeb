@@ -19,7 +19,7 @@ const LoginPage = () => {
   // Redirect if already authenticated
   useEffect(() => {
     if (isAuthenticated) {
-      const from = location.state?.from?.pathname || '/dashboard';
+      const from = location.state?.from?.pathname || '/home';
       navigate(from, { replace: true });
     }
   }, [isAuthenticated, navigate, location]);

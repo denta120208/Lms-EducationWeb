@@ -340,22 +340,20 @@ const DashboardPage = () => {
     <div style={styles.container}>
       {/* Sidebar */}
       <div style={styles.sidebar}>
-        <div style={styles.sidebarIcon}>
+        <div 
+          style={styles.sidebarIconHover}
+          onMouseEnter={(e) => (e.currentTarget as HTMLElement).style.backgroundColor = '#2563eb'}
+          onMouseLeave={(e) => (e.currentTarget as HTMLElement).style.backgroundColor = 'transparent'}
+          onClick={() => navigate('/home')}
+          title="Home"
+        >
           <Home size={isSmallMobile ? 20 : 24} color="white" />
         </div>
-        <div 
-          style={styles.sidebarIconHover}
-          onMouseEnter={(e) => (e.target as HTMLElement).style.backgroundColor = '#2563eb'}
-          onMouseLeave={(e) => (e.target as HTMLElement).style.backgroundColor = 'transparent'}
-        >
+        <div style={styles.sidebarIcon}>
           <Grid3X3 size={isSmallMobile ? 20 : 24} color="white" />
         </div>
-        <div 
-          style={styles.sidebarIconHover}
-          onMouseEnter={(e) => (e.target as HTMLElement).style.backgroundColor = '#2563eb'}
-          onMouseLeave={(e) => (e.target as HTMLElement).style.backgroundColor = 'transparent'}
-        >
-          <Settings size={isSmallMobile ? 20 : 24} color="white" />
+        <div style={styles.sidebarIcon}>
+          <BookOpen size={isSmallMobile ? 20 : 24} color="white" />
         </div>
       </div>
 
