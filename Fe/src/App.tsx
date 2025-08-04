@@ -6,6 +6,7 @@ import LoginPage from './pages/LoginPage';
 import SignUpPage from './pages/SignUp';
 import DashboardPage from './pages/DashboardPage';
 import HomePage from './pages/Home';
+import GridView from './pages/GridView';
 import './App.css';
 
 function App() {
@@ -34,6 +35,16 @@ function App() {
               element={
                 <ProtectedRoute>
                   <DashboardPage />
+                </ProtectedRoute>
+              } 
+            />
+            
+            {/* Protected Grid View route */}
+            <Route 
+              path="/grid" 
+              element={
+                <ProtectedRoute>
+                  <GridView />
                 </ProtectedRoute>
               } 
             />

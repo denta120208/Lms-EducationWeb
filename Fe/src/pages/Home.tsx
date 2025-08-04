@@ -274,6 +274,7 @@ const HomePage = () => {
           style={styles.sidebarIconHover}
           onMouseEnter={(e) => (e.currentTarget as HTMLElement).style.backgroundColor = '#2563eb'}
           onMouseLeave={(e) => (e.currentTarget as HTMLElement).style.backgroundColor = 'transparent'}
+          onClick={() => handleNavigation('/grid')}
           title="Grid View"
         >
           <Grid3X3 size={isSmallMobile ? 20 : 24} color="white" />
@@ -297,9 +298,6 @@ const HomePage = () => {
             <h1 style={styles.headerTitle}>
               Welcome, <span style={{color: '#000000ff'}} className="poppins-semibold">{user?.name || 'Student'}</span>
             </h1>
-            <p style={styles.headerSubtitle}>
-              It does not matter how slowly you go as long as you do not stop
-            </p>
           </div>
           <div style={styles.headerRight}>
             <Bell size={isSmallMobile ? 20 : 24} color="#374151" />

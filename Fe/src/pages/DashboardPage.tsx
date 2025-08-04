@@ -349,7 +349,13 @@ const DashboardPage = () => {
         >
           <Home size={isSmallMobile ? 20 : 24} color="white" />
         </div>
-        <div style={styles.sidebarIcon}>
+        <div 
+          style={styles.sidebarIconHover}
+          onMouseEnter={(e) => (e.currentTarget as HTMLElement).style.backgroundColor = '#2563eb'}
+          onMouseLeave={(e) => (e.currentTarget as HTMLElement).style.backgroundColor = 'transparent'}
+          onClick={() => navigate('/grid')}
+          title="Grid View"
+        >
           <Grid3X3 size={isSmallMobile ? 20 : 24} color="white" />
         </div>
         <div style={styles.sidebarIcon}>
