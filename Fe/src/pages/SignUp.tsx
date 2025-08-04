@@ -124,61 +124,11 @@ const SignUpPage = () => {
       flexDirection: 'column',
       alignItems: 'center',
       justifyContent: 'center',
-
       margin: 0,
       padding: '16px',
       boxSizing: 'border-box',
       overflowX: 'hidden',
       overflowY: 'auto'
-    },
-    logo: {
-      width: '60px',
-      height: '60px',
-      marginBottom: '24px',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center'
-    },
-    logoShield: {
-      width: '80px',
-      height: '80px',
-      position: 'relative',
-      background: 'linear-gradient(135deg, #ef4444 0%, #ef4444 50%, #3b82f6 50%, #3b82f6 100%)',
-      clipPath: 'polygon(50% 0%, 0% 100%, 100% 100%)',
-      borderRadius: '8px'
-    },
-    logoInner: {
-      position: 'absolute',
-      top: '50%',
-      left: '50%',
-      transform: 'translate(-50%, -50%)',
-      width: '40px',
-      height: '40px',
-      backgroundColor: 'white',
-      borderRadius: '50%',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      fontSize: '12px',
-      fontWeight: 'bold',
-      color: '#3b82f6'
-    },
-    loginCard: {
-      backgroundColor: '#799EFF',
-      borderRadius: '16px',
-      padding: '40px',
-      width: '100%',
-      maxWidth: '400px',
-      boxShadow: '0 10px 25px rgba(0, 0, 0, 0.1)',
-      position: 'relative'
-    },
-    loginTitle: {
-      fontSize: '24px',
-      fontWeight: '600',
-      color: '#000000ff',
-      textAlign: 'center',
-      marginBottom: '32px',
-      margin: 0
     },
     form: {
       display: 'flex',
@@ -333,12 +283,6 @@ const SignUpPage = () => {
         maxWidth: isSmallMobile ? '95%' : isMobile ? '90%' : isTablet ? '350px' : '400px',
         minWidth: isSmallMobile ? '280px' : '300px'
       },
-      logo: {
-        ...styles.logo,
-        width: isSmallMobile ? '40px' : isMobile ? '50px' : '60px',
-        height: isSmallMobile ? '40px' : isMobile ? '50px' : '60px',
-        marginBottom: isSmallMobile ? '12px' : isMobile ? '16px' : '24px'
-      },
       signupTitle: {
         ...styles.signupTitle,
         fontSize: isSmallMobile ? '18px' : isMobile ? '19px' : '20px'
@@ -374,14 +318,25 @@ const SignUpPage = () => {
 
   return (
     <div style={responsiveStyles.container}>
-      {/* Logo */}
-      <div style={responsiveStyles.logo}>
+      {/* Lomba Image */}
+      <div style={{
+        marginBottom: windowWidth <= 480 ? '32px' : '56px',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        padding: '0 16px'
+      }}>
         <img 
-          src="/logo.png" 
-          alt="Arma Garage Logo" 
+          src="/lomba.png" 
+          alt="Lomba" 
           style={{
-            width: windowWidth <= 480 ? '50px' : '60px', 
-            height: windowWidth <= 480 ? '50px' : '60px'
+            width: windowWidth <= 360 ? '280px' : 
+                   windowWidth <= 480 ? '350px' : 
+                   windowWidth <= 768 ? '500px' : 
+                   windowWidth <= 1024 ? '600px' : '700px',
+            height: 'auto',
+            maxWidth: '95%',
+            objectFit: 'contain'
           }}
         />
       </div>

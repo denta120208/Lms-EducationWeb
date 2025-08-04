@@ -89,44 +89,11 @@ const LoginPage = () => {
       flexDirection: 'column',
       alignItems: 'center',
       justifyContent: 'center',
-
       margin: 0,
       padding: '16px',
       boxSizing: 'border-box',
       overflowX: 'hidden',
       overflowY: 'auto'
-    },
-    logo: {
-      width: '60px',
-      height: '60px',
-      marginBottom: '24px',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center'
-    },
-    logoShield: {
-      width: '80px',
-      height: '80px',
-      position: 'relative',
-      background: 'linear-gradient(135deg, #ef4444 0%, #ef4444 50%, #3b82f6 50%, #3b82f6 100%)',
-      clipPath: 'polygon(50% 0%, 0% 100%, 100% 100%)',
-      borderRadius: '8px'
-    },
-    logoInner: {
-      position: 'absolute',
-      top: '50%',
-      left: '50%',
-      transform: 'translate(-50%, -50%)',
-      width: '40px',
-      height: '40px',
-      backgroundColor: 'white',
-      borderRadius: '50%',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      fontSize: '12px',
-      fontWeight: 'bold',
-      color: '#3b82f6'
     },
     loginCard: {
       backgroundColor: '#799EFF',
@@ -264,12 +231,6 @@ const LoginPage = () => {
         maxWidth: isSmallMobile ? '95%' : isMobile ? '90%' : isTablet ? '350px' : '400px',
         minWidth: isSmallMobile ? '280px' : '300px'
       },
-      logo: {
-        ...styles.logo,
-        width: isSmallMobile ? '40px' : isMobile ? '50px' : '60px',
-        height: isSmallMobile ? '40px' : isMobile ? '50px' : '60px',
-        marginBottom: isSmallMobile ? '12px' : isMobile ? '16px' : '24px'
-      },
       loginTitle: {
         ...styles.loginTitle,
         fontSize: isSmallMobile ? '20px' : isMobile ? '22px' : '24px'
@@ -300,15 +261,26 @@ const LoginPage = () => {
   const responsiveStyles = getResponsiveStyles();
 
   return (
-      <div style={responsiveStyles.container}>
-      {/* Logo */}
-      <div style={responsiveStyles.logo}>
+    <div style={responsiveStyles.container}>
+      {/* Lomba Image */}
+      <div style={{
+        marginBottom: windowWidth <= 480 ? '32px' : '56px',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        padding: '0 16px'
+      }}>
         <img 
-          src="/logo.png" 
-          alt="Arma Garage Logo" 
+          src="/lomba.png" 
+          alt="Lomba" 
           style={{
-            width: windowWidth <= 480 ? '50px' : '60px', 
-            height: windowWidth <= 480 ? '50px' : '60px'
+            width: windowWidth <= 360 ? '280px' : 
+                   windowWidth <= 480 ? '350px' : 
+                   windowWidth <= 768 ? '500px' : 
+                   windowWidth <= 1024 ? '600px' : '700px',
+            height: 'auto',
+            maxWidth: '95%',
+            objectFit: 'contain'
           }}
         />
       </div>
