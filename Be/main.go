@@ -20,6 +20,11 @@ func main() {
 	}
 	fmt.Println("✅ Berhasil terhubung ke database!")
 
+	// Seed test data
+	if err := SeedTestData(); err != nil {
+		fmt.Printf("⚠️  Warning: Gagal seed data: %v\n", err)
+	}
+
 	// Inisialisasi router
 	r := mux.NewRouter()
 
@@ -35,11 +40,23 @@ func main() {
 	r.HandleFunc("/api/auth/register", registerHandler).Methods("POST")
 	r.HandleFunc("/api/auth/register", optionsHandler).Methods("OPTIONS")
 
+	// Teacher authentication endpoints
+	r.HandleFunc("/api/auth/teacher/login", teacherLoginHandler).Methods("POST")
+	r.HandleFunc("/api/auth/teacher/login", optionsHandler).Methods("OPTIONS")
+
 	// Protected endpoints
 	r.HandleFunc("/api/profile", authMiddleware(profileHandler)).Methods("GET")
 	r.HandleFunc("/api/profile", optionsHandler).Methods("OPTIONS")
 	r.HandleFunc("/api/dashboard", authMiddleware(dashboardHandler)).Methods("GET")
 	r.HandleFunc("/api/dashboard", optionsHandler).Methods("OPTIONS")
+
+	// Teacher protected endpoints
+	r.HandleFunc("/api/teacher/dashboard", teacherAuthMiddleware(teacherDashboardHandler)).Methods("GET")
+	r.HandleFunc("/api/teacher/dashboard", optionsHandler).Methods("OPTIONS")
+	r.HandleFunc("/api/teacher/courses", teacherAuthMiddleware(teacherCoursesHandler)).Methods("GET")
+	r.HandleFunc("/api/teacher/courses", optionsHandler).Methods("OPTIONS")
+	r.HandleFunc("/api/teacher/profile", teacherAuthMiddleware(teacherProfileHandler)).Methods("GET")
+	r.HandleFunc("/api/teacher/profile", optionsHandler).Methods("OPTIONS")
 
 	// Endpoint dasar (dummy)
 	r.HandleFunc("/api/users", func(w http.ResponseWriter, r *http.Request) {
@@ -107,6 +124,36 @@ func authMiddleware(next http.HandlerFunc) http.HandlerFunc {
 		// Add claims to request context if needed
 		r.Header.Set("X-Student-ID", fmt.Sprintf("%d", claims.StudentID))
 		r.Header.Set("X-Student-Email", claims.Email)
+
+		next.ServeHTTP(w, r)
+	}
+}
+
+// Teacher Auth Middleware
+func teacherAuthMiddleware(next http.HandlerFunc) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		authHeader := r.Header.Get("Authorization")
+		if authHeader == "" {
+			http.Error(w, "Authorization header required", http.StatusUnauthorized)
+			return
+		}
+
+		tokenString := strings.Replace(authHeader, "Bearer ", "", 1)
+		claims, err := ValidateJWT(tokenString)
+		if err != nil {
+			http.Error(w, "Invalid token", http.StatusUnauthorized)
+			return
+		}
+
+		// Pastikan ini adalah token teacher
+		if claims.Role != "teacher" {
+			http.Error(w, "Teacher access required", http.StatusForbidden)
+			return
+		}
+
+		// Add claims to request context if needed
+		r.Header.Set("X-Teacher-ID", fmt.Sprintf("%d", claims.TeacherID))
+		r.Header.Set("X-Teacher-Email", claims.Email)
 
 		next.ServeHTTP(w, r)
 	}
@@ -275,4 +322,150 @@ func healthCheck(w http.ResponseWriter, r *http.Request) {
 
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(response)
+}
+
+// Teacher Login Handler
+func teacherLoginHandler(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+
+	var loginReq LoginRequest
+	if err := json.NewDecoder(r.Body).Decode(&loginReq); err != nil {
+		http.Error(w, "Invalid request body", http.StatusBadRequest)
+		return
+	}
+
+	// Validasi input
+	if loginReq.Email == "" || loginReq.Password == "" {
+		http.Error(w, "Email and password are required", http.StatusBadRequest)
+		return
+	}
+
+	// Cari teacher berdasarkan email
+	teacher, err := GetTeacherByEmail(loginReq.Email)
+	if err != nil {
+		http.Error(w, "Email atau password salah", http.StatusUnauthorized)
+		return
+	}
+
+	// Verifikasi password
+	if !CheckPasswordHash(loginReq.Password, teacher.Password) {
+		http.Error(w, "Email atau password salah", http.StatusUnauthorized)
+		return
+	}
+
+	// Generate JWT token
+	token, err := GenerateTeacherJWT(teacher.ID, teacher.Email)
+	if err != nil {
+		http.Error(w, "Failed to generate token", http.StatusInternalServerError)
+		return
+	}
+
+	// Hapus password dari response
+	teacher.Password = ""
+
+	response := TeacherLoginResponse{
+		Token:   token,
+		Teacher: *teacher,
+		Message: "Login berhasil",
+	}
+
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(response)
+}
+
+// Teacher Dashboard Handler
+func teacherDashboardHandler(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+
+	email := r.Header.Get("X-Teacher-Email")
+	teacher, err := GetTeacherByEmail(email)
+	if err != nil {
+		http.Error(w, "Teacher not found", http.StatusNotFound)
+		return
+	}
+
+	// Get courses for this teacher
+	courses, err := GetCoursesByTeacher(teacher.ID)
+	if err != nil {
+		courses = []Course{} // Empty array if error
+	}
+
+	response := map[string]interface{}{
+		"message": "Welcome to teacher dashboard",
+		"teacher": map[string]interface{}{
+			"id":      teacher.ID,
+			"name":    teacher.Name,
+			"email":   teacher.Email,
+			"subject": teacher.Subject,
+		},
+		"courses": courses,
+		"summary": map[string]interface{}{
+			"total_courses": len(courses),
+			"subjects": []map[string]interface{}{
+				{"name": "Mathematics", "grade": "10th grade", "students": 25},
+				{"name": "Mathematics", "grade": "9th grade", "students": 30},
+				{"name": "Science", "grade": "7th grade", "students": 28},
+			},
+		},
+	}
+
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(response)
+}
+
+// Teacher Courses Handler (My Courses)
+func teacherCoursesHandler(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+
+	email := r.Header.Get("X-Teacher-Email")
+	teacher, err := GetTeacherByEmail(email)
+	if err != nil {
+		http.Error(w, "Teacher not found", http.StatusNotFound)
+		return
+	}
+
+	// Get courses for this teacher
+	courses, err := GetCoursesByTeacher(teacher.ID)
+	if err != nil {
+		courses = []Course{} // Empty array if error
+	}
+
+	// Add some sample courses if empty
+	if len(courses) == 0 {
+		courses = []Course{
+			{ID: 1, Title: "Mathematics", Subject: "Mathematics", Grade: "10th grade", TeacherName: teacher.Name},
+			{ID: 2, Title: "Science", Subject: "Science", Grade: "9th grade", TeacherName: teacher.Name},
+		}
+	}
+
+	response := map[string]interface{}{
+		"courses": courses,
+		"teacher": map[string]interface{}{
+			"id":      teacher.ID,
+			"name":    teacher.Name,
+			"email":   teacher.Email,
+			"subject": teacher.Subject,
+		},
+	}
+
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(response)
+}
+
+// Teacher Profile Handler
+func teacherProfileHandler(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+
+	email := r.Header.Get("X-Teacher-Email")
+	teacher, err := GetTeacherByEmail(email)
+	if err != nil {
+		http.Error(w, "Teacher not found", http.StatusNotFound)
+		return
+	}
+
+	// Hapus password dari response
+	teacher.Password = ""
+
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(teacher)
 }

@@ -7,6 +7,8 @@ import SignUpPage from './pages/SignUp';
 import DashboardPage from './pages/DashboardPage';
 import HomePage from './pages/Home';
 import GridView from './pages/GridView';
+import TeacherDashboard from './pages/TeacherDashboard';
+import TeacherCourses from './pages/TeacherCourses';
 import './App.css';
 
 function App() {
@@ -48,6 +50,10 @@ function App() {
                 </ProtectedRoute>
               } 
             />
+            
+            {/* Teacher routes */}
+            <Route path="/teacher/dashboard" element={<TeacherDashboard />} />
+            <Route path="/teacher/courses" element={<TeacherCourses />} />
             
             {/* Default route redirects to home for authenticated users */}
             <Route path="/" element={<Navigate to="/home" replace />} />

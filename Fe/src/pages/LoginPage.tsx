@@ -66,6 +66,32 @@ const LoginPage = () => {
     setIsSubmitting(true);
     
     try {
+      // Check if this is teacher login
+      if (email === 'guru@gmail.com' && password === '123456') {
+        // Teacher login
+        const response = await fetch('http://localhost:8080/api/auth/teacher/login', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ email, password }),
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          // Store teacher token and data
+          localStorage.setItem('teacherToken', data.token);
+          localStorage.setItem('teacherData', JSON.stringify(data.teacher));
+          navigate('/teacher/dashboard');
+          return;
+        } else {
+          const errorData = await response.text();
+          setValidationErrors({ password: errorData || 'Teacher login failed' });
+          return;
+        }
+      }
+
+      // Regular student login
       await login(email, password);
       // Navigation will be handled by useEffect above
     } catch (error) {
