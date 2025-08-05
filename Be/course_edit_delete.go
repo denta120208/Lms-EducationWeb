@@ -76,6 +76,13 @@ func updateCourseHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Get current image path before update
+	var currentImagePath string
+	err = DB.QueryRow("SELECT image_path FROM courses WHERE id = ?", courseID).Scan(&currentImagePath)
+	if err != nil {
+		log.Printf("Error getting current image path: %v", err)
+	}
+
 	// Update the course in the database
 	query := `
 		UPDATE courses
@@ -88,6 +95,18 @@ func updateCourseHandler(w http.ResponseWriter, r *http.Request) {
 		courseID, req.Title, req.Description, req.ImagePath, req.Subject)
 
 	_, err = DB.Exec(query, req.Title, req.Description, req.ImagePath, req.Subject, courseID)
+	if err != nil {
+		log.Printf("Error updating course: %v", err)
+		http.Error(w, "Failed to update course", http.StatusInternalServerError)
+		return
+	}
+
+	// Delete old image if it's being replaced
+	if currentImagePath != "" && req.ImagePath != "" && currentImagePath != req.ImagePath {
+		if err := deleteFile(currentImagePath); err != nil {
+			log.Printf("Warning: Failed to delete old image %s: %v", currentImagePath, err)
+		}
+	}
 	if err != nil {
 		log.Printf("Error updating course: %v", err)
 		http.Error(w, "Failed to update course", http.StatusInternalServerError)
@@ -179,12 +198,26 @@ func deleteCourseHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Get image path before deleting course
+	var imagePath string
+	err = DB.QueryRow("SELECT image_path FROM courses WHERE id = ?", courseID).Scan(&imagePath)
+	if err != nil {
+		log.Printf("Error getting image path: %v", err)
+	}
+
 	// Delete the course
 	_, err = DB.Exec("DELETE FROM courses WHERE id = ?", courseID)
 	if err != nil {
 		log.Printf("Error deleting course: %v", err)
 		http.Error(w, "Failed to delete course", http.StatusInternalServerError)
 		return
+	}
+
+	// Delete the image file if it exists
+	if imagePath != "" {
+		if err := deleteFile(imagePath); err != nil {
+			log.Printf("Warning: Failed to delete image %s: %v", imagePath, err)
+		}
 	}
 
 	// Return success response
