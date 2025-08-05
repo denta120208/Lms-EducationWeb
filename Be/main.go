@@ -65,6 +65,16 @@ func main() {
 	r.HandleFunc("/api/teacher/courses/{id:[0-9]+}", teacherAuthMiddleware(updateCourseHandler)).Methods("PUT")
 	r.HandleFunc("/api/teacher/courses/{id:[0-9]+}", teacherAuthMiddleware(deleteCourseHandler)).Methods("DELETE")
 	r.HandleFunc("/api/teacher/courses/{id:[0-9]+}", optionsHandler).Methods("OPTIONS")
+
+	// Course enrollment endpoints
+	r.HandleFunc("/api/teacher/courses/{id:[0-9]+}/students", teacherAuthMiddleware(getAvailableStudentsHandler)).Methods("GET")
+	r.HandleFunc("/api/teacher/courses/{id:[0-9]+}/enrollments", teacherAuthMiddleware(updateEnrollmentsHandler)).Methods("PUT")
+	r.HandleFunc("/api/teacher/courses/{id:[0-9]+}/students", optionsHandler).Methods("OPTIONS")
+	r.HandleFunc("/api/teacher/courses/{id:[0-9]+}/enrollments", optionsHandler).Methods("OPTIONS")
+
+	// Student course endpoints
+	r.HandleFunc("/api/dashboard/courses", authMiddleware(getEnrolledCoursesHandler)).Methods("GET")
+	r.HandleFunc("/api/dashboard/courses", optionsHandler).Methods("OPTIONS")
 	r.HandleFunc("/api/teacher/profile", teacherAuthMiddleware(teacherProfileHandler)).Methods("GET")
 	r.HandleFunc("/api/teacher/profile", optionsHandler).Methods("OPTIONS")
 	
@@ -140,11 +150,17 @@ func authMiddleware(next http.HandlerFunc) http.HandlerFunc {
 			return
 		}
 
-		// Add claims to request context if needed
+		// Add claims to request context
+		ctx := context.WithValue(r.Context(), "user_id", claims.StudentID)
+		ctx = context.WithValue(ctx, "user_email", claims.Email)
+		ctx = context.WithValue(ctx, "user_role", claims.Role)
+		
+		// Also set in headers for backward compatibility
 		r.Header.Set("X-Student-ID", fmt.Sprintf("%d", claims.StudentID))
 		r.Header.Set("X-Student-Email", claims.Email)
 
-		next.ServeHTTP(w, r)
+		// Call the next handler with the updated context
+		next.ServeHTTP(w, r.WithContext(ctx))
 	}
 }
 

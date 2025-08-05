@@ -20,7 +20,7 @@ const DashboardPage = () => {
     const loadDashboard = async () => {
       try {
         setIsLoading(true);
-        const response = await api.get('/dashboard/courses');
+        const response = await api.get('/api/dashboard/courses');
         if (response.data && response.data.courses) {
           setCourses(response.data.courses);
         }
