@@ -355,9 +355,12 @@ const CourseForm: React.FC<CourseFormProps> = ({ onClose, onSuccess }) => {
               id="image"
               type="file"
               onChange={handleFileChange}
-              accept="image/*"
+              accept="image/jpeg,image/png,image/gif,image/webp"
               style={{ display: 'none' }}
             />
+            <p style={{ margin: '8px 0 0 0', color: '#6b7280', fontSize: '12px' }}>
+              Supported formats: JPG, PNG, GIF, WEBP. Max size: 15MB
+            </p>
           </div>
           
           <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '12px' }}>

@@ -389,11 +389,14 @@ const CourseEditForm: React.FC<CourseEditFormProps> = ({ course, onClose, onSucc
               <input
                 id="image"
                 type="file"
-                accept="image/*"
+                accept="image/jpeg,image/png,image/gif,image/webp"
                 onChange={handleFileChange}
                 style={{ display: 'none' }}
               />
             </label>
+            <p style={{ margin: '8px 0 0 0', color: '#6b7280', fontSize: '12px' }}>
+              Supported formats: JPG, PNG, GIF, WEBP. Max size: 15MB
+            </p>
           </div>
           
           <div style={{ 

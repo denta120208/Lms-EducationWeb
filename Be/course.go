@@ -155,7 +155,7 @@ func uploadFileHandler(w http.ResponseWriter, r *http.Request) {
 	log.Printf("Upload file request from teacher ID: %d", teacherID)
 
 	// Parse the multipart form
-	err := r.ParseMultipartForm(10 << 20) // 10 MB max
+	err := r.ParseMultipartForm(15 << 20) // 15 MB max
 	if err != nil {
 		log.Printf("Error parsing multipart form: %v", err)
 		http.Error(w, "Error parsing form", http.StatusBadRequest)
@@ -170,6 +170,34 @@ func uploadFileHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	defer file.Close()
+	
+	// Validate file size
+	if handler.Size > 15<<20 { // 15 MB in bytes
+		log.Printf("File too large: %d bytes", handler.Size)
+		http.Error(w, "File too large. Maximum size is 15MB", http.StatusBadRequest)
+		return
+	}
+	
+	// Validate file type
+	fileName := handler.Filename
+	fileExt := strings.ToLower(filepath.Ext(fileName))
+	
+	// Check if the file extension is allowed
+	allowedExts := map[string]bool{
+		".jpg":  true,
+		".jpeg": true,
+		".png":  true,
+		".gif":  true,
+		".webp": true,
+	}
+	
+	if !allowedExts[fileExt] {
+		log.Printf("Invalid file type: %s", fileExt)
+		http.Error(w, "Invalid file type. Allowed types: JPG, PNG, GIF, WEBP", http.StatusBadRequest)
+		return
+	}
+	
+	log.Printf("File upload: name=%s, size=%d bytes, type=%s", fileName, handler.Size, fileExt)
 
 	// Create uploads directory if it doesn't exist
 	uploadsDir := "./uploads"
