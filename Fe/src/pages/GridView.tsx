@@ -7,7 +7,7 @@ import type { CSSProperties } from 'react';
 const GridView = () => {
   const [windowWidth, setWindowWidth] = useState(window.innerWidth);
   const [searchQuery, setSearchQuery] = useState('');
-  const [selectedFilter, setSelectedFilter] = useState('Next 7 days');
+  const [selectedFilter, _setSelectedFilter] = useState('Next 7 days'); // Using underscore prefix for unused setter
   const navigate = useNavigate();
   const { user, logout } = useAuth();
 
@@ -40,6 +40,7 @@ const GridView = () => {
     const firstDay = new Date(year, month, 1);
     const lastDay = new Date(year, month + 1, 0);
     const startDate = new Date(firstDay);
+    // Adjust start date to begin with Sunday
     startDate.setDate(startDate.getDate() - firstDay.getDay());
     
     const days = [];
@@ -67,7 +68,7 @@ const GridView = () => {
 
   // Responsive breakpoints
   const isMobile = windowWidth <= 768;
-  const isTablet = windowWidth <= 1024;
+  // const isTablet = windowWidth <= 1024; // Uncomment if needed later
   const isSmallMobile = windowWidth <= 480;
 
   const styles: Record<string, CSSProperties> = {
@@ -307,11 +308,15 @@ const GridView = () => {
       display: 'grid',
       gridTemplateColumns: 'repeat(7, 1fr)',
       gap: '1px',
-      backgroundColor: '#e5e7eb',
+      backgroundColor: 'rgb(255 255 255)',
       borderRadius: '8px',
-      overflow: 'hidden'
+      overflow: 'hidden',
+      width: '100%',
+      minWidth: '300px'
     },
     dayHeader: {
+      width: '40px',
+      maxWidth: '40px',
       backgroundColor: '#f9fafb',
       padding: '8px 4px',
       fontSize: '12px',
@@ -323,6 +328,8 @@ const GridView = () => {
       backgroundColor: 'white',
       padding: '8px',
       minHeight: '36px',
+      width: '40px',
+      maxWidth: '40px',
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
@@ -343,7 +350,7 @@ const GridView = () => {
     }
   };
 
-  const dayHeaders = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+  const dayHeaders = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
   return (
     <div style={styles.container}>

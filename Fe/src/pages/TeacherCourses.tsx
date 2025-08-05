@@ -637,73 +637,11 @@ const TeacherCourses = () => {
               {filteredCourses.map((course: any) => (
                 <div 
                   key={course.id} 
-                  style={{
-                    ...styles.courseCard,
-                    position: 'relative'
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.boxShadow = '0 4px 6px rgba(0, 0, 0, 0.1)';
-                    const overlay = e.currentTarget.querySelector('.dark-overlay') as HTMLElement;
-                    const editIcon = e.currentTarget.querySelector('.edit-icon') as HTMLElement;
-                    if (overlay) {
-                      overlay.style.opacity = '1';
-                    }
-                    if (editIcon) {
-                      editIcon.style.transform = 'scale(1.1)';
-                      editIcon.style.backgroundColor = 'rgba(255, 255, 255, 0.3)';
-                    }
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.boxShadow = 'none';
-                    const overlay = e.currentTarget.querySelector('.dark-overlay') as HTMLElement;
-                    const editIcon = e.currentTarget.querySelector('.edit-icon') as HTMLElement;
-                    if (overlay) {
-                      overlay.style.opacity = '0';
-                    }
-                    if (editIcon) {
-                      editIcon.style.transform = 'scale(1)';
-                      editIcon.style.backgroundColor = 'rgba(255, 255, 255, 0.2)';
-                    }
-                  }}
+                  style={styles.courseCard}
+                  onMouseEnter={(e) => e.currentTarget.style.boxShadow = '0 4px 6px rgba(0, 0, 0, 0.1)'}
+                  onMouseLeave={(e) => e.currentTarget.style.boxShadow = 'none'}
                   onClick={() => handleEditCourse(course)}
                 >
-                  {/* Dark Overlay */}
-                  <div 
-                    className="dark-overlay"
-                    style={{
-                      position: 'absolute',
-                      top: 0,
-                      left: 0,
-                      right: 0,
-                      bottom: 0,
-                      backgroundColor: 'rgba(0, 0, 0, 0.7)',
-                      opacity: 0,
-                      transition: 'opacity 0.2s ease-in-out',
-                      zIndex: 2,
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      cursor: 'pointer'
-                    }}
-                  >
-                    {/* Edit Icon */}
-                    <div 
-                      className="edit-icon"
-                      style={{
-                        backgroundColor: 'rgba(255, 255, 255, 0.2)',
-                        borderRadius: '50%',
-                        width: '48px',
-                        height: '48px',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        transition: 'transform 0.2s ease-in-out, background-color 0.2s ease-in-out'
-                      }}
-                    >
-                      <Edit size={24} color="white" />
-                    </div>
-                  </div>
-
                   {/* Course Image */}
                   <div style={{
                     ...styles.courseImage,
