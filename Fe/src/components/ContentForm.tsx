@@ -46,18 +46,38 @@ const ContentForm: React.FC<ContentFormProps> = ({ courseId, content, onClose, o
   }]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const isEditMode = !!content;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Validate required fields
+    if (!title.trim()) {
+      setError('Title is required');
+      return;
+    }
+    if (!section.trim()) {
+      setError('Section is required');
+      return;
+    }
+    if (contentType === 'task' && !deadline) {
+      setError('Deadline is required for tasks');
+      return;
+    }
+    if ((contentType === 'quiz' || contentType === 'exam') && (!questions.length || !questions[0].question.trim())) {
+      setError('At least one question is required');
+      return;
+    }
+
     setError(null);
     setIsLoading(true);
 
     try {
       const data = {
         type: contentType,
-        title,
-        description,
-        section,
+        title: title.trim(),
+        description: description.trim(),
+        section: section.trim(),
         ...(contentType === 'task' && { deadline }),
         ...(contentType === 'quiz' && { questions }),
         ...(contentType === 'exam' && { questions })
@@ -74,11 +94,17 @@ const ContentForm: React.FC<ContentFormProps> = ({ courseId, content, onClose, o
         onSuccess();
         onClose();
       } else {
-        setError(response.data.message || 'Failed to create content');
+        setError(response.data.message || `Failed to ${isEditMode ? 'update' : 'create'} content`);
       }
     } catch (err: any) {
-      console.error('Error creating content:', err);
-      setError(err.response?.data?.message || 'Failed to create content');
+      console.error(`Error ${isEditMode ? 'updating' : 'creating'} content:`, err);
+      if (err.response?.status === 401) {
+        setError('Your session has expired. Please login again.');
+      } else if (err.response?.status === 403) {
+        setError('You do not have permission to perform this action.');
+      } else {
+        setError(err.response?.data?.message || `Failed to ${isEditMode ? 'update' : 'create'} content`);
+      }
     } finally {
       setIsLoading(false);
     }
@@ -160,7 +186,7 @@ const ContentForm: React.FC<ContentFormProps> = ({ courseId, content, onClose, o
           color: '#374151',
           marginBottom: '24px',
         }}>
-          Add Content
+          {isEditMode ? 'Edit Content' : 'Add Content'}
         </h2>
 
         {error && (
@@ -459,7 +485,7 @@ const ContentForm: React.FC<ContentFormProps> = ({ courseId, content, onClose, o
                 opacity: isLoading ? 0.7 : 1,
               }}
             >
-              {isLoading ? 'Creating...' : 'Create Content'}
+              {isLoading ? (isEditMode ? 'Saving...' : 'Creating...') : (isEditMode ? 'Save Changes' : 'Create Content')}
             </button>
           </div>
         </form>

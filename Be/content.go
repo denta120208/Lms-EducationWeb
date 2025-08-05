@@ -203,6 +203,24 @@ func createContentHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Validate required fields
+	if req.Title == "" {
+		http.Error(w, "Title is required", http.StatusBadRequest)
+		return
+	}
+	if req.Section == "" {
+		http.Error(w, "Section is required", http.StatusBadRequest)
+		return
+	}
+	if req.Type == Task && req.Deadline == nil {
+		http.Error(w, "Deadline is required for tasks", http.StatusBadRequest)
+		return
+	}
+	if (req.Type == Quiz || req.Type == Exam) && (len(req.Questions) == 0 || req.Questions[0].Text == "") {
+		http.Error(w, "At least one question is required", http.StatusBadRequest)
+		return
+	}
+
 	// Start transaction
 	tx, err := DB.Begin()
 	if err != nil {
