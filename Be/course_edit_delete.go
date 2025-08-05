@@ -26,6 +26,12 @@ func updateCourseHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization, X-Requested-With")
 	w.Header().Set("Content-Type", "application/json")
 
+	// Handle OPTIONS request
+	if r.Method == "OPTIONS" {
+		w.WriteHeader(http.StatusOK)
+		return
+	}
+
 	// Get teacher ID from context
 	teacherID, ok := r.Context().Value("user_id").(int)
 	if !ok {
@@ -91,9 +97,15 @@ func updateCourseHandler(w http.ResponseWriter, r *http.Request) {
 	// Get updated course
 	var course CourseWithImage
 	query = `
-		SELECT c.id, c.title, c.description, IFNULL(c.image_path, '') as image_path, 
-		       c.teacher_id, IFNULL(t.name, 'Unknown Teacher') as teacher_name, 
-		       c.subject, c.created_at
+		SELECT 
+			c.id, 
+			c.title, 
+			c.description, 
+			IFNULL(c.image_path, '') as image_path,
+			c.teacher_id, 
+			IFNULL(t.name, 'Unknown Teacher') as teacher_name,
+			c.subject,
+			c.created_at
 		FROM courses c
 		LEFT JOIN teachers t ON c.teacher_id = t.id
 		WHERE c.id = ?
@@ -131,6 +143,12 @@ func deleteCourseHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
 	w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization, X-Requested-With")
 	w.Header().Set("Content-Type", "application/json")
+
+	// Handle OPTIONS request
+	if r.Method == "OPTIONS" {
+		w.WriteHeader(http.StatusOK)
+		return
+	}
 
 	// Get teacher ID from context
 	teacherID, ok := r.Context().Value("user_id").(int)
