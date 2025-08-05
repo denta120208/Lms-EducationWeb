@@ -85,6 +85,11 @@ func createCourseHandler(w http.ResponseWriter, r *http.Request) {
 	// Log the values being inserted
 	log.Printf("Inserting course into database: Title=%s, Description=%s, ImagePath=%s, TeacherID=%d, Subject=%s, Grade=%s",
 		req.Title, req.Description, req.ImagePath, teacherID, req.Subject, req.Grade)
+		
+	// Verify image path is not empty
+	if req.ImagePath == "" {
+		log.Printf("WARNING: ImagePath is empty!")
+	}
 
 	result, err := DB.Exec(query, req.Title, req.Description, req.ImagePath, teacherID, req.Subject, req.Grade)
 	if err != nil {
