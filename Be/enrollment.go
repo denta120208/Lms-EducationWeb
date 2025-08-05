@@ -50,8 +50,7 @@ func getAvailableStudentsHandler(w http.ResponseWriter, r *http.Request) {
 	// Get all students
 	query := `
 		SELECT id, name, email 
-		FROM users 
-		WHERE role = 'student'
+		FROM students 
 		ORDER BY name
 	`
 	rows, err := DB.Query(query)
