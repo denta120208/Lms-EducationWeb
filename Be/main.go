@@ -21,6 +21,11 @@ func main() {
 	}
 	fmt.Println("✅ Berhasil terhubung ke database!")
 
+	// Clean up uploads directory
+	if err := cleanupUploads(); err != nil {
+		fmt.Printf("⚠️  Warning: Failed to clean uploads directory: %v\n", err)
+	}
+
 	// Seed test data
 	if err := SeedTestData(); err != nil {
 		fmt.Printf("⚠️  Warning: Gagal seed data: %v\n", err)
@@ -60,11 +65,6 @@ func main() {
 	r.HandleFunc("/api/teacher/courses/{id:[0-9]+}", teacherAuthMiddleware(updateCourseHandler)).Methods("PUT")
 	r.HandleFunc("/api/teacher/courses/{id:[0-9]+}", teacherAuthMiddleware(deleteCourseHandler)).Methods("DELETE")
 	r.HandleFunc("/api/teacher/courses/{id:[0-9]+}", optionsHandler).Methods("OPTIONS")
-	
-	// Create uploads directory if it doesn't exist
-	if err := os.MkdirAll("./uploads", 0755); err != nil {
-		log.Printf("Warning: Failed to create uploads directory: %v", err)
-	}
 	r.HandleFunc("/api/teacher/profile", teacherAuthMiddleware(teacherProfileHandler)).Methods("GET")
 	r.HandleFunc("/api/teacher/profile", optionsHandler).Methods("OPTIONS")
 	
