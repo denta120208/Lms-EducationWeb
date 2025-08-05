@@ -50,15 +50,30 @@ const CourseForm: React.FC<CourseFormProps> = ({ onClose, onSuccess }) => {
         const formData = new FormData();
         formData.append('file', file);
         
+        // Get the teacher token
+        const token = localStorage.getItem('teacher_token');
+        if (!token) {
+          setError('Not authenticated as a teacher');
+          return;
+        }
+        
         const uploadResponse = await api.post('/upload', formData, {
           headers: {
             'Content-Type': 'multipart/form-data',
+            'Authorization': `Bearer ${token}`
           },
         });
         
         if (uploadResponse.data.success) {
           imagePath = uploadResponse.data.filePath;
         }
+      }
+      
+      // Get the teacher token
+      const token = localStorage.getItem('teacher_token');
+      if (!token) {
+        setError('Not authenticated as a teacher');
+        return;
       }
       
       // Create course
@@ -68,6 +83,10 @@ const CourseForm: React.FC<CourseFormProps> = ({ onClose, onSuccess }) => {
         image_path: imagePath,
         subject,
         grade,
+      }, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
       });
       
       if (response.data.success) {

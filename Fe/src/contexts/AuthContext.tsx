@@ -5,13 +5,16 @@ interface User {
   id: number;
   name: string;
   email: string;
+  subject?: string; // Optional for teacher
 }
 
 interface AuthContextType {
   user: User | null;
   isAuthenticated: boolean;
   isLoading: boolean;
+  isTeacher: boolean;
   login: (email: string, password: string) => Promise<void>;
+  teacherLogin: (email: string, password: string) => Promise<void>;
   logout: () => void;
   error: string | null;
   clearError: () => void;
@@ -27,6 +30,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [isTeacher, setIsTeacher] = useState(false);
 
   // Check authentication status on mount
   useEffect(() => {
@@ -36,6 +40,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           const userData = userManager.getUser();
           if (userData) {
             setUser(userData);
+            setIsTeacher(tokenManager.isTeacher());
           }
         }
       } catch (error) {
@@ -57,6 +62,23 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       
       const response = await authAPI.login({ email, password });
       setUser(response.student);
+      setIsTeacher(false);
+    } catch (error: any) {
+      setError(error.message || 'Login failed');
+      throw error;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const teacherLogin = async (email: string, password: string): Promise<void> => {
+    try {
+      setIsLoading(true);
+      setError(null);
+      
+      const response = await authAPI.teacherLogin({ email, password });
+      setUser(response.teacher);
+      setIsTeacher(true);
     } catch (error: any) {
       setError(error.message || 'Login failed');
       throw error;
@@ -68,6 +90,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const logout = () => {
     authAPI.logout();
     setUser(null);
+    setIsTeacher(false);
     setError(null);
   };
 
@@ -78,8 +101,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const value: AuthContextType = {
     user,
     isAuthenticated: !!user && tokenManager.isAuthenticated(),
+    isTeacher,
     isLoading,
     login,
+    teacherLogin,
     logout,
     error,
     clearError,

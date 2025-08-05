@@ -191,7 +191,20 @@ const TeacherCourses = () => {
   const loadCourses = async () => {
     try {
       setIsLoading(true);
-      const response = await api.get('/teacher/courses');
+      
+      // Get the teacher token
+      const token = localStorage.getItem('teacher_token');
+      if (!token) {
+        setError('Not authenticated as a teacher');
+        return;
+      }
+      
+      const response = await api.get('/teacher/courses', {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
+      
       if (response.data && response.data.courses) {
         setCourses(response.data.courses);
       }

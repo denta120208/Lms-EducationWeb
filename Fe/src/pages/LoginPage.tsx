@@ -7,22 +7,27 @@ import type { CSSProperties } from 'react';
 const LoginPage = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { login, isAuthenticated, error, clearError } = useAuth();
+  const { login, teacherLogin, isAuthenticated, isTeacher, error, clearError } = useAuth();
   
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [rememberPassword, setRememberPassword] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isTeacherLogin, setIsTeacherLogin] = useState(false);
   const [validationErrors, setValidationErrors] = useState<{email?: string, password?: string}>({});
   const [windowWidth, setWindowWidth] = useState(window.innerWidth);
 
   // Redirect if already authenticated
   useEffect(() => {
     if (isAuthenticated) {
-      const from = location.state?.from?.pathname || '/home';
-      navigate(from, { replace: true });
+      if (isTeacher) {
+        navigate('/teacher/dashboard', { replace: true });
+      } else {
+        const from = location.state?.from?.pathname || '/home';
+        navigate(from, { replace: true });
+      }
     }
-  }, [isAuthenticated, navigate, location]);
+  }, [isAuthenticated, isTeacher, navigate, location]);
 
   // Clear errors when component mounts or inputs change
   useEffect(() => {
@@ -66,34 +71,15 @@ const LoginPage = () => {
     setIsSubmitting(true);
     
     try {
-      // Check if this is teacher login
-      if (email === 'guru@gmail.com' && password === '123456') {
-        // Teacher login
-        const response = await fetch('http://localhost:8080/api/auth/teacher/login', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ email, password }),
-        });
-
-        if (response.ok) {
-          const data = await response.json();
-          // Store teacher token and data
-          localStorage.setItem('teacherToken', data.token);
-          localStorage.setItem('teacherData', JSON.stringify(data.teacher));
-          navigate('/teacher/dashboard');
-          return;
-        } else {
-          const errorData = await response.text();
-          setValidationErrors({ password: errorData || 'Teacher login failed' });
-          return;
-        }
+      if (isTeacherLogin) {
+        // Teacher login using AuthContext
+        await teacherLogin(email, password);
+        // Navigation will be handled by useEffect above
+      } else {
+        // Regular student login
+        await login(email, password);
+        // Navigation will be handled by useEffect above
       }
-
-      // Regular student login
-      await login(email, password);
-      // Navigation will be handled by useEffect above
     } catch (error) {
       // Error is handled by AuthContext
       console.error('Login failed:', error);
@@ -360,18 +346,35 @@ const LoginPage = () => {
             )}
           </div>
 
-          {/* Remember Password Checkbox */}
-          <div style={styles.checkboxContainer}>
-            <input
-              type="checkbox"
-              id="rememberPassword"
-              checked={rememberPassword}
-              onChange={(e) => setRememberPassword(e.target.checked)}
-              style={responsiveStyles.checkbox}
-            />
-            <label htmlFor="rememberPassword" style={responsiveStyles.checkboxLabel}>
-              Save Password
-            </label>
+          {/* Login Options */}
+          <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+            {/* Remember Password Checkbox */}
+            <div style={styles.checkboxContainer}>
+              <input
+                type="checkbox"
+                id="rememberPassword"
+                checked={rememberPassword}
+                onChange={(e) => setRememberPassword(e.target.checked)}
+                style={responsiveStyles.checkbox}
+              />
+              <label htmlFor="rememberPassword" style={responsiveStyles.checkboxLabel}>
+                Save Password
+              </label>
+            </div>
+            
+            {/* Teacher Login Checkbox */}
+            <div style={styles.checkboxContainer}>
+              <input
+                type="checkbox"
+                id="teacherLogin"
+                checked={isTeacherLogin}
+                onChange={(e) => setIsTeacherLogin(e.target.checked)}
+                style={responsiveStyles.checkbox}
+              />
+              <label htmlFor="teacherLogin" style={responsiveStyles.checkboxLabel}>
+                Teacher Login
+              </label>
+            </div>
           </div>
 
           {/* Login Button */}

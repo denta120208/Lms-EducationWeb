@@ -36,6 +36,17 @@ export interface LoginResponse {
   message: string;
 }
 
+export interface TeacherLoginResponse {
+  token: string;
+  teacher: {
+    id: number;
+    name: string;
+    email: string;
+    subject: string;
+  };
+  message: string;
+}
+
 export interface RegisterRequest {
   name: string;
   email: string;
@@ -50,16 +61,22 @@ export interface ApiError {
 // Token management
 export const tokenManager = {
   getToken: (): string | null => {
-    return localStorage.getItem('auth_token');
+    return localStorage.getItem('auth_token') || localStorage.getItem('teacher_token');
   },
   
-  setToken: (token: string): void => {
-    localStorage.setItem('auth_token', token);
+  setToken: (token: string, isTeacher = false): void => {
+    if (isTeacher) {
+      localStorage.setItem('teacher_token', token);
+    } else {
+      localStorage.setItem('auth_token', token);
+    }
   },
   
   removeToken: (): void => {
     localStorage.removeItem('auth_token');
+    localStorage.removeItem('teacher_token');
     localStorage.removeItem('user_data');
+    localStorage.removeItem('teacher_data');
   },
   
   isAuthenticated: (): boolean => {
@@ -74,6 +91,10 @@ export const tokenManager = {
     } catch {
       return false;
     }
+  },
+
+  isTeacher: (): boolean => {
+    return localStorage.getItem('teacher_token') !== null;
   }
 };
 
@@ -81,15 +102,25 @@ export const tokenManager = {
 export const userManager = {
   getUser: () => {
     const userData = localStorage.getItem('user_data');
-    return userData ? JSON.parse(userData) : null;
+    if (userData) return JSON.parse(userData);
+    
+    const teacherData = localStorage.getItem('teacher_data');
+    if (teacherData) return JSON.parse(teacherData);
+    
+    return null;
   },
   
-  setUser: (user: any) => {
-    localStorage.setItem('user_data', JSON.stringify(user));
+  setUser: (user: any, isTeacher = false) => {
+    if (isTeacher) {
+      localStorage.setItem('teacher_data', JSON.stringify(user));
+    } else {
+      localStorage.setItem('user_data', JSON.stringify(user));
+    }
   },
   
   removeUser: () => {
     localStorage.removeItem('user_data');
+    localStorage.removeItem('teacher_data');
   }
 };
 
@@ -154,6 +185,19 @@ export const authAPI = {
     // Store token and user data
     tokenManager.setToken(response.token);
     userManager.setUser(response.student);
+    
+    return response;
+  },
+  
+  teacherLogin: async (credentials: LoginRequest): Promise<TeacherLoginResponse> => {
+    const response = await apiCall('/auth/teacher/login', {
+      method: 'POST',
+      body: JSON.stringify(credentials),
+    });
+    
+    // Store token and user data
+    tokenManager.setToken(response.token, true);
+    userManager.setUser(response.teacher, true);
     
     return response;
   },

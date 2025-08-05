@@ -73,7 +73,7 @@ func createCourseHandler(w http.ResponseWriter, r *http.Request) {
 		VALUES (?, ?, ?, ?, ?, ?)
 	`
 
-	result, err := db.Exec(query, req.Title, req.Description, req.ImagePath, teacherID, req.Subject, req.Grade)
+	result, err := DB.Exec(query, req.Title, req.Description, req.ImagePath, teacherID, req.Subject, req.Grade)
 	if err != nil {
 		log.Printf("Error creating course: %v", err)
 		http.Error(w, "Failed to create course", http.StatusInternalServerError)
@@ -90,7 +90,7 @@ func createCourseHandler(w http.ResponseWriter, r *http.Request) {
 
 	// Get teacher name
 	var teacherName string
-	err = db.QueryRow("SELECT name FROM users WHERE id = ?", teacherID).Scan(&teacherName)
+	err = DB.QueryRow("SELECT name FROM teachers WHERE id = ?", teacherID).Scan(&teacherName)
 	if err != nil {
 		log.Printf("Error getting teacher name: %v", err)
 		teacherName = "Unknown Teacher"
@@ -194,14 +194,14 @@ func uploadFileHandler(w http.ResponseWriter, r *http.Request) {
 func GetCoursesByTeacher(teacherID int) ([]Course, error) {
 	query := `
 		SELECT c.id, c.title, c.description, c.image_path, c.teacher_id, 
-		       u.name as teacher_name, c.subject, c.grade, c.created_at
+		       t.name as teacher_name, c.subject, c.grade, c.created_at
 		FROM courses c
-		JOIN users u ON c.teacher_id = u.id
+		JOIN teachers t ON c.teacher_id = t.id
 		WHERE c.teacher_id = ?
 		ORDER BY c.created_at DESC
 	`
 
-	rows, err := db.Query(query, teacherID)
+	rows, err := DB.Query(query, teacherID)
 	if err != nil {
 		return nil, err
 	}
