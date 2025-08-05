@@ -101,16 +101,12 @@ func updateCourseHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Delete old image if it's being replaced
-	if currentImagePath != "" && req.ImagePath != "" && currentImagePath != req.ImagePath {
+	// Delete old image if there's a new image or if image is being removed
+	if currentImagePath != "" && currentImagePath != req.ImagePath {
+		log.Printf("Deleting old image: %s", currentImagePath)
 		if err := deleteFile(currentImagePath); err != nil {
 			log.Printf("Warning: Failed to delete old image %s: %v", currentImagePath, err)
 		}
-	}
-	if err != nil {
-		log.Printf("Error updating course: %v", err)
-		http.Error(w, "Failed to update course", http.StatusInternalServerError)
-		return
 	}
 
 	// Get updated course
