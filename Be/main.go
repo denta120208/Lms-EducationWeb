@@ -178,6 +178,13 @@ func teacherAuthMiddleware(next http.HandlerFunc) http.HandlerFunc {
 
 // Options Handler for CORS preflight
 func optionsHandler(w http.ResponseWriter, r *http.Request) {
+	// Set CORS headers explicitly for OPTIONS requests
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
+	w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization, X-Requested-With")
+	w.Header().Set("Access-Control-Allow-Credentials", "true")
+	w.Header().Set("Access-Control-Max-Age", "86400")
+	
 	w.WriteHeader(http.StatusOK)
 }
 

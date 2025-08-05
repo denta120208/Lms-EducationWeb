@@ -43,33 +43,38 @@ const CourseForm: React.FC<CourseFormProps> = ({ onClose, onSuccess }) => {
     setIsLoading(true);
 
     try {
-      let imagePath = '';
-      
+      let courseData = {
+        title,
+        description,
+        subject,
+        grade,
+        image_path: ''
+      };
+
       // Upload image if provided
       if (file) {
-        const formData = new FormData();
-        formData.append('file', file);
-        
-        const uploadResponse = await api.post('/upload', formData, {
-          headers: {
-            'Content-Type': 'multipart/form-data',
-          },
-        });
-        
-        if (uploadResponse.data.success) {
-          imagePath = uploadResponse.data.filePath;
+        try {
+          const formData = new FormData();
+          formData.append('file', file);
+          
+          const uploadResponse = await api.post('/upload', formData, {
+            headers: {
+              'Content-Type': 'multipart/form-data',
+            },
+          });
+          
+          if (uploadResponse.data && uploadResponse.data.success) {
+            courseData.image_path = uploadResponse.data.filePath;
+          }
+        } catch (uploadErr) {
+          console.error('Image upload failed, continuing without image:', uploadErr);
+          // Continue without image if upload fails
         }
       }
       
-      // Create course
-      const response = await api.post('/teacher/courses', {
-        title,
-        description,
-        image_path: imagePath,
-        subject,
-        grade,
-      });
-      
+      // Create course (with or without image)
+      const response = await api.post('/teacher/courses', courseData);
+    
       if (response.data.success) {
         onSuccess();
         onClose();

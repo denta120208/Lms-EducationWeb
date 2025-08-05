@@ -44,6 +44,10 @@ type UploadResponse struct {
 
 // createCourseHandler handles the creation of a new course
 func createCourseHandler(w http.ResponseWriter, r *http.Request) {
+	// Set CORS headers explicitly
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
+	w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization, X-Requested-With")
 	w.Header().Set("Content-Type", "application/json")
 
 	// Get teacher ID from context
@@ -120,6 +124,10 @@ func createCourseHandler(w http.ResponseWriter, r *http.Request) {
 
 // uploadFileHandler handles file uploads
 func uploadFileHandler(w http.ResponseWriter, r *http.Request) {
+	// Set CORS headers explicitly
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
+	w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization, X-Requested-With")
 	w.Header().Set("Content-Type", "application/json")
 
 	// Check if user is authenticated and get teacher ID
