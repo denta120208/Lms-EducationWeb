@@ -22,7 +22,7 @@ type CourseWithImage struct {
 	TeacherID   int       `json:"teacher_id"`
 	TeacherName string    `json:"teacher_name"`
 	Subject     string    `json:"subject"`
-	Grade       string    `json:"grade"`
+
 	CreatedAt   time.Time `json:"created_at"`
 }
 
@@ -32,7 +32,7 @@ type CreateCourseRequest struct {
 	Description string `json:"description"`
 	ImagePath   string `json:"image_path"`
 	Subject     string `json:"subject"`
-	Grade       string `json:"grade"`
+
 }
 
 // UploadResponse represents the response for file uploads
@@ -78,20 +78,20 @@ func createCourseHandler(w http.ResponseWriter, r *http.Request) {
 
 	// Insert the course into the database
 	query := `
-		INSERT INTO courses (title, description, image_path, teacher_id, subject, grade)
-		VALUES (?, ?, ?, ?, ?, ?)
+		INSERT INTO courses (title, description, image_path, teacher_id, subject)
+		VALUES (?, ?, ?, ?, ?)
 	`
 
 	// Log the values being inserted
-	log.Printf("Inserting course into database: Title=%s, Description=%s, ImagePath=%s, TeacherID=%d, Subject=%s, Grade=%s",
-		req.Title, req.Description, req.ImagePath, teacherID, req.Subject, req.Grade)
+	log.Printf("Inserting course into database: Title=%s, Description=%s, ImagePath=%s, TeacherID=%d, Subject=%s",
+		req.Title, req.Description, req.ImagePath, teacherID, req.Subject)
 		
 	// Verify image path is not empty
 	if req.ImagePath == "" {
 		log.Printf("WARNING: ImagePath is empty!")
 	}
 
-	result, err := DB.Exec(query, req.Title, req.Description, req.ImagePath, teacherID, req.Subject, req.Grade)
+	result, err := DB.Exec(query, req.Title, req.Description, req.ImagePath, teacherID, req.Subject)
 	if err != nil {
 		log.Printf("Error creating course: %v", err)
 		http.Error(w, "Failed to create course", http.StatusInternalServerError)
@@ -123,7 +123,7 @@ func createCourseHandler(w http.ResponseWriter, r *http.Request) {
 		TeacherID:   teacherID,
 		TeacherName: teacherName,
 		Subject:     req.Subject,
-		Grade:       req.Grade,
+
 		CreatedAt:   time.Now(),
 	}
 
@@ -260,7 +260,7 @@ func GetCoursesWithImagesByTeacher(teacherID int) ([]CourseWithImage, error) {
 	// Try to get courses with LEFT JOIN to handle missing teachers table
 	query := `
 		SELECT c.id, c.title, c.description, IFNULL(c.image_path, '') as image_path, c.teacher_id, 
-		       IFNULL(t.name, 'Unknown Teacher') as teacher_name, c.subject, IFNULL(c.grade, '') as grade, 
+		       IFNULL(t.name, 'Unknown Teacher') as teacher_name, c.subject, 
 		       IFNULL(c.created_at, NOW()) as created_at
 		FROM courses c
 		LEFT JOIN teachers t ON c.teacher_id = t.id
@@ -287,7 +287,7 @@ func GetCoursesWithImagesByTeacher(teacherID int) ([]CourseWithImage, error) {
 			&course.TeacherID,
 			&course.TeacherName,
 			&course.Subject,
-			&course.Grade,
+
 			&course.CreatedAt,
 		)
 		if err != nil {
