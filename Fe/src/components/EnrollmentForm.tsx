@@ -29,7 +29,7 @@ const EnrollmentForm: React.FC<EnrollmentFormProps> = ({ courseId, onClose, onSu
   const loadStudents = async () => {
     try {
       setIsLoading(true);
-      const response = await api.get(`/teacher/courses/${courseId}/students`);
+      const response = await api.get(`/api/teacher/courses/${courseId}/students`);
       if (response.data && response.data.students) {
         setStudents(response.data.students);
         // Set initially selected students
@@ -51,7 +51,7 @@ const EnrollmentForm: React.FC<EnrollmentFormProps> = ({ courseId, onClose, onSu
     setIsLoading(true);
 
     try {
-      await api.put(`/teacher/courses/${courseId}/enrollments`, {
+      await api.put(`/api/teacher/courses/${courseId}/enrollments`, {
         student_ids: selectedStudents
       });
       onSuccess();
