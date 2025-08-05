@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Grid3X3, BookOpen, User, Bell, LogOut, AlertCircle, Plus, Edit, Trash2 } from 'lucide-react';
+import { Grid3X3, BookOpen, User, Bell, LogOut, AlertCircle, Plus, Edit, Trash2, Users } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import CourseForm from '../components/CourseForm';
 import CourseEditForm from '../components/CourseEditForm';
+import EnrollmentForm from '../components/EnrollmentForm';
 import { api } from '../services/api';
 
 interface Course {
@@ -186,6 +187,7 @@ const TeacherCourses = () => {
   const [courses, setCourses] = useState<Course[]>([]);
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [showEditForm, setShowEditForm] = useState(false);
+  const [showEnrollmentForm, setShowEnrollmentForm] = useState(false);
   const [selectedCourse, setSelectedCourse] = useState<Course | null>(null);
   // Using underscore prefix to indicate intentionally unused variable
   const [_isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -202,7 +204,7 @@ const TeacherCourses = () => {
         return;
       }
       
-      const response = await api.get('/teacher/courses', {
+      const response = await api.get('/api/teacher/courses', {
         headers: {
           Authorization: `Bearer ${token}`
         }
@@ -649,7 +651,7 @@ const TeacherCourses = () => {
                   <div style={{
                     ...styles.courseImage,
                     background: course.image_path 
-                      ? `url(http://localhost:8080${course.image_path})`
+                      ? `url(${course.image_path})`
                       : getBackgroundBySubject(course.subject),
                     backgroundSize: course.image_path ? 'cover' : 'auto',
                     backgroundPosition: 'center',
@@ -664,9 +666,38 @@ const TeacherCourses = () => {
                   <div style={styles.courseInfo}>
                     <h4 style={styles.courseTitle}>{course.title}</h4>
                     <p style={styles.courseInstructor}>{course.teacher_name || user?.name}</p>
-                    <p style={styles.courseProgress}>
-                      {course.grade || course.subject}
-                    </p>
+                    <div style={{
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                      alignItems: 'center',
+                      marginTop: '8px'
+                    }}>
+                      <p style={styles.courseProgress}>
+                        {course.subject}
+                      </p>
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation(); // Prevent opening edit form
+                          setSelectedCourse(course);
+                          setShowEnrollmentForm(true);
+                        }}
+                        style={{
+                          backgroundColor: '#3b82f6',
+                          color: 'white',
+                          border: 'none',
+                          borderRadius: '4px',
+                          padding: '4px 8px',
+                          fontSize: '12px',
+                          cursor: 'pointer',
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '4px'
+                        }}
+                      >
+                        <Users size={14} />
+                        Manage Students
+                      </button>
+                    </div>
                   </div>
                 </div>
               ))}
@@ -709,6 +740,20 @@ const TeacherCourses = () => {
             loadCourses();
           }}
           onDelete={() => {
+            loadCourses();
+          }}
+        />
+      )}
+
+      {/* Enrollment Form */}
+      {showEnrollmentForm && selectedCourse && (
+        <EnrollmentForm
+          courseId={selectedCourse.id}
+          onClose={() => {
+            setShowEnrollmentForm(false);
+            setSelectedCourse(null);
+          }}
+          onSuccess={() => {
             loadCourses();
           }}
         />
