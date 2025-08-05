@@ -184,7 +184,7 @@ const apiCall = async (endpoint: string, options: RequestInit = {}): Promise<any
 // Auth API
 export const authAPI = {
   login: async (credentials: LoginRequest): Promise<LoginResponse> => {
-    const response = await api.post('/login', credentials);
+    const response = await api.post('/auth/login', credentials);
     
     // Store token and user data
     tokenManager.setToken(response.data.token);
@@ -197,16 +197,16 @@ export const authAPI = {
   },
   
   teacherLogin: async (credentials: LoginRequest): Promise<TeacherLoginResponse> => {
-    const response = await apiCall('/auth/teacher/login', {
-      method: 'POST',
-      body: JSON.stringify(credentials),
-    });
+    const response = await api.post('/auth/teacher/login', credentials);
     
     // Store token and user data
-    tokenManager.setToken(response.token, true);
-    userManager.setUser(response.teacher, true);
+    tokenManager.setToken(response.data.token, true);
+    userManager.setUser(response.data.teacher, true);
     
-    return response;
+    // Set token in axios defaults
+    api.defaults.headers.common['Authorization'] = `Bearer ${response.data.token}`;
+    
+    return response.data;
   },
   
   register: async (userData: RegisterRequest): Promise<{ message: string }> => {
