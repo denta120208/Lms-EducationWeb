@@ -226,7 +226,8 @@ func getEnrolledCoursesHandler(w http.ResponseWriter, r *http.Request) {
 		FROM courses c
 		INNER JOIN course_enrollments e ON c.id = e.course_id
 		LEFT JOIN teachers t ON c.teacher_id = t.id
-		WHERE e.student_id = ?
+		LEFT JOIN students s ON e.student_id = s.id
+		WHERE s.id = ?
 		ORDER BY c.created_at DESC
 	`
 
