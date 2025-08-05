@@ -70,19 +70,16 @@ const LoginPage = () => {
     setIsSubmitting(true);
     
     try {
-      // Check if this is a teacher email (guru@gmail.com)
-      if (email === 'guru@gmail.com' || email === 'ms.aurel@gmail.com') {
-        // Teacher login using AuthContext
-        await teacherLogin(email, password);
-        // Navigation will be handled by useEffect above
-      } else {
-        // Regular student login
+      // Try teacher login first
+      await teacherLogin(email, password);
+    } catch (error) {
+      try {
+        // If teacher login fails, try student login
         await login(email, password);
-        // Navigation will be handled by useEffect above
+      } catch (loginError: any) {
+        console.error('Login error:', loginError);
+        setValidationErrors({ password: loginError.toString() });
       }
-    } catch (error: any) {
-      console.error('Login error:', error);
-      setValidationErrors({ password: error.toString() });
     } finally {
       setIsSubmitting(false);
     }
