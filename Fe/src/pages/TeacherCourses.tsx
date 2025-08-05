@@ -197,18 +197,13 @@ const TeacherCourses = () => {
     try {
       setIsLoading(true);
       
-      // Get the teacher token
-      const token = localStorage.getItem('teacher_token');
+      const token = localStorage.getItem('token');
       if (!token) {
-        setError('Not authenticated as a teacher');
+        setError('Not authenticated');
         return;
       }
       
-      const response = await api.get('/api/teacher/courses', {
-        headers: {
-          Authorization: `Bearer ${token}`
-        }
-      });
+      const response = await api.get('/api/teacher/courses');
       
       if (response.data && response.data.courses) {
         setCourses(response.data.courses);
@@ -642,11 +637,49 @@ const TeacherCourses = () => {
               {filteredCourses.map((course: any) => (
                 <div 
                   key={course.id} 
-                  style={styles.courseCard}
-                  onMouseEnter={(e) => e.currentTarget.style.boxShadow = '0 4px 6px rgba(0, 0, 0, 0.1)'}
-                  onMouseLeave={(e) => e.currentTarget.style.boxShadow = 'none'}
+                  style={{
+                    ...styles.courseCard,
+                    position: 'relative'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.boxShadow = '0 4px 6px rgba(0, 0, 0, 0.1)';
+                    const editIcon = e.currentTarget.querySelector('.edit-icon') as HTMLElement;
+                    if (editIcon) {
+                      editIcon.style.opacity = '1';
+                    }
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.boxShadow = 'none';
+                    const editIcon = e.currentTarget.querySelector('.edit-icon') as HTMLElement;
+                    if (editIcon) {
+                      editIcon.style.opacity = '0';
+                    }
+                  }}
                   onClick={() => handleEditCourse(course)}
                 >
+                  {/* Edit Icon */}
+                  <div 
+                    className="edit-icon"
+                    style={{
+                      position: 'absolute',
+                      top: '8px',
+                      right: '8px',
+                      backgroundColor: 'rgba(0, 0, 0, 0.5)',
+                      borderRadius: '50%',
+                      width: '32px',
+                      height: '32px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      opacity: 0,
+                      transition: 'opacity 0.2s ease-in-out',
+                      zIndex: 2,
+                      cursor: 'pointer'
+                    }}
+                  >
+                    <Edit size={16} color="white" />
+                  </div>
+
                   {/* Course Image */}
                   <div style={{
                     ...styles.courseImage,
