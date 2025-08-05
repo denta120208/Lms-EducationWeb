@@ -1,7 +1,10 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Grid3X3, BookOpen, User, Bell, LogOut, AlertCircle, Plus } from 'lucide-react';
+import { Grid3X3, BookOpen, User, Bell, LogOut, AlertCircle, Plus, Edit, Trash2 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
+import type { Course } from '../services/api';
+import CourseModal from '../components/CourseModal';
+import type { CourseData } from '../components/CourseModal';
 
 const TeacherCourses = () => {
   const navigate = useNavigate();
@@ -12,15 +15,23 @@ const TeacherCourses = () => {
   const [windowWidth, setWindowWidth] = useState(window.innerWidth);
   // Using underscore prefix to indicate intentionally unused variable
   const [_isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [courses, setCourses] = useState<Course[]>([]);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [currentCourse, setCurrentCourse] = useState<Course | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Load dashboard data
+  // Load courses data
   useEffect(() => {
-    const loadDashboard = async () => {
+    const loadCourses = async () => {
       try {
         setIsLoading(true);
-        // Simulate loading time to show loading state
+        // In a real app, we would fetch from the API
+        // const response = await courseAPI.getCourses();
+        // setCourses(response);
+        
+        // For now, use default courses
         await new Promise(resolve => setTimeout(resolve, 500));
-        // We're using default courses directly, so no need to fetch from API
+        setCourses(defaultCourses);
       } catch (error: any) {
         setError(error.message || 'Failed to load courses');
       } finally {
@@ -28,7 +39,7 @@ const TeacherCourses = () => {
       }
     };
 
-    loadDashboard();
+    loadCourses();
   }, []);
 
   // Handle window resize for responsiveness
@@ -50,40 +61,115 @@ const TeacherCourses = () => {
   };
   
   // Default courses
-  const defaultCourses = [
+  const defaultCourses: Course[] = [
     {
       id: 1,
       title: 'Mathematics',
-      instructor: 'Mr. Agus',
-      progress: 'Teaching',
+      subject: 'Mathematics',
+      description: 'A comprehensive mathematics course covering algebra, geometry, and calculus.',
+      grade: '10th grade',
+      teacher_name: 'Mr. Agus',
+      image_url: ''
     },
     {
       id: 2,
       title: 'Science',
-      instructor: 'Mr. Agus',
-      progress: 'Teaching',
+      subject: 'Science',
+      description: 'An introduction to physics, chemistry, and biology concepts.',
+      grade: '9th grade',
+      teacher_name: 'Mr. Agus',
+      image_url: ''
     },
     {
       id: 3,
       title: 'Social Science',
-      instructor: 'Mr. Agus',
-      progress: 'Teaching',
+      subject: 'Social Science',
+      description: 'Exploring history, geography, and social studies.',
+      grade: '8th grade',
+      teacher_name: 'Mr. Agus',
+      image_url: ''
     },
     {
       id: 4,
       title: 'English',
-      instructor: 'Mr. Agus',
-      progress: 'Teaching',
+      subject: 'English',
+      description: 'Literature, grammar, and writing skills development.',
+      grade: '11th grade',
+      teacher_name: 'Mr. Agus',
+      image_url: ''
     }
   ];
   
-  // Always use default courses for now to ensure all 4 are shown
-  const courses = defaultCourses;
-  console.log('Courses to display:', courses.length, courses);
-
-  const filteredCourses = courses.filter((course: any) =>
+  const filteredCourses = courses.filter((course) =>
     course.title.toLowerCase().includes(searchTerm.toLowerCase())
   );
+  
+  // Handle course CRUD operations
+  const handleOpenModal = (course: Course | null = null) => {
+    setCurrentCourse(course);
+    setIsModalOpen(true);
+  };
+  
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+    setCurrentCourse(null);
+  };
+  
+  const handleSubmitCourse = async (courseData: CourseData) => {
+    try {
+      setIsSubmitting(true);
+      
+      // In a real app, we would call the API
+      if (courseData.id) {
+        // Update existing course
+        // await courseAPI.updateCourse(courseData.id, courseData);
+        
+        // For now, update in local state
+        setCourses(prevCourses => 
+          prevCourses.map(course => 
+            course.id === courseData.id ? {...course, ...courseData} : course
+          )
+        );
+      } else {
+        // Create new course
+        // const newCourse = await courseAPI.createCourse(courseData);
+        
+        // For now, add to local state with a generated ID
+        const newCourse = {
+          ...courseData,
+          id: Math.max(0, ...courses.map(c => c.id || 0)) + 1,
+          teacher_name: user?.name || 'Teacher'
+        };
+        setCourses(prevCourses => [...prevCourses, newCourse]);
+      }
+      
+      handleCloseModal();
+    } catch (error: any) {
+      setError(error.message || 'Failed to save course');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+  
+  const handleDeleteCourse = async (id: number) => {
+    if (!window.confirm('Are you sure you want to delete this course?')) {
+      return;
+    }
+    
+    try {
+      setIsLoading(true);
+      
+      // In a real app, we would call the API
+      // await courseAPI.deleteCourse(id);
+      
+      // For now, remove from local state
+      setCourses(prevCourses => prevCourses.filter(course => course.id !== id));
+    } catch (error: any) {
+      setError(error.message || 'Failed to delete course');
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   // Responsive breakpoints
   const isMobile = windowWidth <= 768;
@@ -258,6 +344,33 @@ const TeacherCourses = () => {
       cursor: 'pointer',
       transition: 'background-color 0.2s',
       padding: 0
+    },
+    actionButtons: {
+      display: 'flex',
+      gap: '8px',
+      marginTop: '8px'
+    },
+    editButton: {
+      padding: '4px',
+      backgroundColor: '#3b82f6',
+      border: 'none',
+      borderRadius: '4px',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      cursor: 'pointer',
+      transition: 'background-color 0.2s'
+    },
+    deleteButton: {
+      padding: '4px',
+      backgroundColor: '#ef4444',
+      border: 'none',
+      borderRadius: '4px',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      cursor: 'pointer',
+      transition: 'background-color 0.2s'
     },
     courseGrid: {
       display: 'grid',
@@ -460,6 +573,7 @@ const TeacherCourses = () => {
                 />
                 <button 
                   style={styles.addButton}
+                  onClick={() => handleOpenModal()}
                   onMouseEnter={(e) => (e.currentTarget as HTMLElement).style.backgroundColor = '#2563eb'}
                   onMouseLeave={(e) => (e.currentTarget as HTMLElement).style.backgroundColor = '#3b82f6'}
                 >
@@ -572,10 +686,36 @@ const TeacherCourses = () => {
                   {/* Course Info */}
                   <div style={styles.courseInfo}>
                     <h4 style={styles.courseTitle}>{course.title}</h4>
-                    <p style={styles.courseInstructor}>{course.instructor || 'Mr. Agus'}</p>
+                    <p style={styles.courseInstructor}>{course.teacher_name || 'Mr. Agus'}</p>
                     <p style={styles.courseProgress}>
-                      {typeof course.progress === 'string' ? course.progress : `${course.progress}% Complete`}
+                      {course.grade}
                     </p>
+                    
+                    {/* Action Buttons */}
+                    <div style={styles.actionButtons}>
+                      <button 
+                        style={styles.editButton}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleOpenModal(course);
+                        }}
+                        onMouseEnter={(e) => (e.currentTarget as HTMLElement).style.backgroundColor = '#2563eb'}
+                        onMouseLeave={(e) => (e.currentTarget as HTMLElement).style.backgroundColor = '#3b82f6'}
+                      >
+                        <Edit size={16} color="white" />
+                      </button>
+                      <button 
+                        style={styles.deleteButton}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          if (course.id) handleDeleteCourse(course.id);
+                        }}
+                        onMouseEnter={(e) => (e.currentTarget as HTMLElement).style.backgroundColor = '#dc2626'}
+                        onMouseLeave={(e) => (e.currentTarget as HTMLElement).style.backgroundColor = '#ef4444'}
+                      >
+                        <Trash2 size={16} color="white" />
+                      </button>
+                    </div>
                   </div>
                 </div>
               ))}
@@ -585,6 +725,15 @@ const TeacherCourses = () => {
           )}
         </div>
       </div>
+      
+      {/* Course Modal */}
+      <CourseModal
+        isOpen={isModalOpen}
+        onClose={handleCloseModal}
+        onSubmit={handleSubmitCourse}
+        course={currentCourse}
+        isLoading={isSubmitting}
+      />
       
       {/* CSS Animation */}
       <style>
