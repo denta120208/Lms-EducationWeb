@@ -46,6 +46,7 @@ const ContentForm: React.FC<ContentFormProps> = ({ courseId, content, onClose, o
   }]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [status, setStatus] = useState<'draft' | 'published'>(content?.status || 'draft');
   const isEditMode = !!content;
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -78,6 +79,7 @@ const ContentForm: React.FC<ContentFormProps> = ({ courseId, content, onClose, o
         title: title.trim(),
         description: description.trim(),
         section: section.trim(),
+        status,
         ...(contentType === 'task' && { deadline }),
         ...(contentType === 'quiz' && { questions }),
         ...(contentType === 'exam' && { questions })
@@ -465,28 +467,80 @@ const ContentForm: React.FC<ContentFormProps> = ({ courseId, content, onClose, o
             </div>
           )}
 
-          <div style={{
-            display: 'flex',
-            justifyContent: 'flex-end',
-            marginTop: '24px',
+          <div style={{ 
+            display: 'flex', 
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            marginTop: '24px' 
           }}>
-            <button
-              type="submit"
-              disabled={isLoading}
-              style={{
-                padding: '8px 16px',
-                backgroundColor: '#3b82f6',
-                color: 'white',
-                border: 'none',
-                borderRadius: '6px',
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px'
+            }}>
+              <label style={{
                 fontSize: '14px',
-                fontWeight: '500',
-                cursor: isLoading ? 'not-allowed' : 'pointer',
-                opacity: isLoading ? 0.7 : 1,
-              }}
-            >
-              {isLoading ? (isEditMode ? 'Saving...' : 'Creating...') : (isEditMode ? 'Save Changes' : 'Create Content')}
-            </button>
+                color: '#374151',
+              }}>
+                Status:
+              </label>
+              <select
+                value={status}
+                onChange={(e) => setStatus(e.target.value as 'draft' | 'published')}
+                style={{
+                  padding: '4px 8px',
+                  borderRadius: '4px',
+                  border: '1px solid #d1d5db',
+                  fontSize: '14px',
+                  color: status === 'published' ? '#059669' : '#6b7280',
+                  backgroundColor: 'white'
+                }}
+              >
+                <option value="draft">Draft</option>
+                <option value="published">Published</option>
+              </select>
+            </div>
+
+            <div style={{
+              display: 'flex',
+              gap: '8px'
+            }}>
+              <button
+                type="button"
+                onClick={onClose}
+                disabled={isLoading}
+                style={{
+                  padding: '8px 16px',
+                  backgroundColor: '#e5e7eb',
+                  color: '#374151',
+                  border: 'none',
+                  borderRadius: '6px',
+                  fontSize: '14px',
+                  fontWeight: '500',
+                  cursor: isLoading ? 'not-allowed' : 'pointer',
+                  opacity: isLoading ? 0.7 : 1,
+                }}
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                disabled={isLoading}
+                style={{
+                  padding: '8px 16px',
+                  backgroundColor: '#3b82f6',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '6px',
+                  fontSize: '14px',
+                  fontWeight: '500',
+                  cursor: isLoading ? 'not-allowed' : 'pointer',
+                  opacity: isLoading ? 0.7 : 1,
+                }}
+              >
+                {isLoading ? (isEditMode ? 'Saving...' : 'Creating...') : (isEditMode ? 'Save Changes' : 'Create Content')}
+              </button>
+            </div>
           </div>
         </form>
       </div>

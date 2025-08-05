@@ -56,6 +56,7 @@ type CreateContentRequest struct {
 	Title       string      `json:"title"`
 	Description string      `json:"description"`
 	Section     string      `json:"section"`
+	Status      string      `json:"status"`
 	Deadline    *time.Time  `json:"deadline,omitempty"`
 	Questions   []Question  `json:"questions,omitempty"`
 }
@@ -241,7 +242,7 @@ func createContentHandler(w http.ResponseWriter, r *http.Request) {
 		req.Title,
 		req.Description,
 		req.Section,
-		"draft", // Default status
+		req.Status,
 		req.Deadline,
 	)
 	if err != nil {
