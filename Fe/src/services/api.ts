@@ -11,23 +11,10 @@ export const api = axios.create({
 // Add request interceptor to include auth token
 api.interceptors.request.use(
   (config) => {
-    // Check for teacher token first, then fall back to student token
-    const teacherToken = localStorage.getItem('teacher_token');
-    const studentToken = localStorage.getItem('auth_token');
-    
-    // If this is a teacher-specific endpoint, use teacher token
-    if (config.url?.includes('/teacher/') && teacherToken) {
-      config.headers.Authorization = `Bearer ${teacherToken}`;
-    } 
-    // For upload endpoint, also use teacher token if available
-    else if (config.url?.includes('/upload') && teacherToken) {
-      config.headers.Authorization = `Bearer ${teacherToken}`;
+    const token = localStorage.getItem('token');
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
     }
-    // Otherwise use any available token
-    else if (teacherToken || studentToken) {
-      config.headers.Authorization = `Bearer ${teacherToken || studentToken}`;
-    }
-    
     return config;
   },
   (error) => Promise.reject(error)
@@ -74,22 +61,21 @@ export interface ApiError {
 // Token management
 export const tokenManager = {
   getToken: (): string | null => {
-    return localStorage.getItem('auth_token') || localStorage.getItem('teacher_token');
+    return localStorage.getItem('token');
   },
   
   setToken: (token: string, isTeacher = false): void => {
-    if (isTeacher) {
-      localStorage.setItem('teacher_token', token);
-    } else {
-      localStorage.setItem('auth_token', token);
-    }
+    localStorage.setItem('token', token);
+    // Set token in axios defaults
+    api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
   },
   
   removeToken: (): void => {
-    localStorage.removeItem('auth_token');
-    localStorage.removeItem('teacher_token');
+    localStorage.removeItem('token');
     localStorage.removeItem('user_data');
     localStorage.removeItem('teacher_data');
+    // Remove token from axios defaults
+    delete api.defaults.headers.common['Authorization'];
   },
   
   isAuthenticated: (): boolean => {
@@ -107,7 +93,15 @@ export const tokenManager = {
   },
 
   isTeacher: (): boolean => {
-    return localStorage.getItem('teacher_token') !== null;
+    const token = tokenManager.getToken();
+    if (!token) return false;
+    
+    try {
+      const payload = JSON.parse(atob(token.split('.')[1]));
+      return payload.role === 'teacher';
+    } catch {
+      return false;
+    }
   }
 };
 
@@ -190,16 +184,16 @@ const apiCall = async (endpoint: string, options: RequestInit = {}): Promise<any
 // Auth API
 export const authAPI = {
   login: async (credentials: LoginRequest): Promise<LoginResponse> => {
-    const response = await apiCall('/auth/login', {
-      method: 'POST',
-      body: JSON.stringify(credentials),
-    });
+    const response = await api.post('/login', credentials);
     
     // Store token and user data
-    tokenManager.setToken(response.token);
-    userManager.setUser(response.student);
+    tokenManager.setToken(response.data.token);
+    userManager.setUser(response.data.student);
     
-    return response;
+    // Set token in axios defaults
+    api.defaults.headers.common['Authorization'] = `Bearer ${response.data.token}`;
+    
+    return response.data;
   },
   
   teacherLogin: async (credentials: LoginRequest): Promise<TeacherLoginResponse> => {
