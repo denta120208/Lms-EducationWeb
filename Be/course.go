@@ -199,13 +199,13 @@ func uploadFileHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Return the file path
-	filePath := "/uploads/" + filename
-	log.Printf("File uploaded successfully. Path: %s", filePath)
+	// Create the URL path for the file (different from the filesystem path)
+	urlPath := "/uploads/" + filename
+	log.Printf("File uploaded successfully. Path: %s", urlPath)
 	
 	response := UploadResponse{
 		Success:  true,
-		FilePath: filePath,
+		FilePath: urlPath,
 		Message:  "File uploaded successfully",
 	}
 
