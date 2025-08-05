@@ -75,6 +75,7 @@ func main() {
 	// Course content endpoints
 	r.HandleFunc("/api/teacher/courses/{id:[0-9]+}/contents", teacherAuthMiddleware(getContentsHandler)).Methods("GET")
 	r.HandleFunc("/api/teacher/courses/{id:[0-9]+}/contents", teacherAuthMiddleware(createContentHandler)).Methods("POST")
+	r.HandleFunc("/api/teacher/contents/{id:[0-9]+}", teacherAuthMiddleware(updateContentHandler)).Methods("PUT")
 	r.HandleFunc("/api/teacher/contents/{id:[0-9]+}", teacherAuthMiddleware(deleteContentHandler)).Methods("DELETE")
 	r.HandleFunc("/api/teacher/courses/{id:[0-9]+}/contents", optionsHandler).Methods("OPTIONS")
 	r.HandleFunc("/api/teacher/contents/{id:[0-9]+}", optionsHandler).Methods("OPTIONS")

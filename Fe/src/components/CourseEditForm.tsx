@@ -511,6 +511,7 @@ const CourseEditForm: React.FC<CourseEditFormProps> = ({ course, onClose, onSucc
       {showContentForm && (
         <ContentForm
           courseId={course.id}
+          content={selectedContent}
           onClose={() => {
             setShowContentForm(false);
             setSelectedContent(null);

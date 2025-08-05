@@ -352,6 +352,153 @@ func getQuestionsForContent(contentID int) ([]Question, error) {
 	return result, nil
 }
 
+// updateContentHandler updates an existing content item
+func updateContentHandler(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+
+	// Get content ID from URL
+	vars := mux.Vars(r)
+	contentID, err := strconv.Atoi(vars["id"])
+	if err != nil {
+		http.Error(w, "Invalid content ID", http.StatusBadRequest)
+		return
+	}
+
+	// Get teacher ID from context
+	teacherID, ok := r.Context().Value("user_id").(int)
+	if !ok {
+		http.Error(w, "Unauthorized", http.StatusUnauthorized)
+		return
+	}
+
+	// Verify content belongs to this teacher's course
+	var ownerID int
+	err = DB.QueryRow(`
+		SELECT c.teacher_id 
+		FROM contents ct
+		JOIN courses c ON c.id = ct.course_id
+		WHERE ct.id = ?
+	`, contentID).Scan(&ownerID)
+	if err != nil {
+		log.Printf("Error verifying content ownership: %v", err)
+		http.Error(w, "Content not found", http.StatusNotFound)
+		return
+	}
+
+	if ownerID != teacherID {
+		http.Error(w, "You don't have permission to modify this content", http.StatusForbidden)
+		return
+	}
+
+	// Parse request body
+	var req CreateContentRequest
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		http.Error(w, "Invalid request body", http.StatusBadRequest)
+		return
+	}
+
+	// Start transaction
+	tx, err := DB.Begin()
+	if err != nil {
+		log.Printf("Error starting transaction: %v", err)
+		http.Error(w, "Database error", http.StatusInternalServerError)
+		return
+	}
+	defer tx.Rollback()
+
+	// Update content
+	_, err = tx.Exec(`
+		UPDATE contents 
+		SET title = ?, description = ?, section = ?, deadline = ?, updated_at = NOW()
+		WHERE id = ?
+	`,
+		req.Title,
+		req.Description,
+		req.Section,
+		req.Deadline,
+		contentID,
+	)
+	if err != nil {
+		log.Printf("Error updating content: %v", err)
+		http.Error(w, "Failed to update content", http.StatusInternalServerError)
+		return
+	}
+
+	// If content is quiz or exam, update questions
+	if (req.Type == Quiz || req.Type == Exam) && len(req.Questions) > 0 {
+		// Delete existing questions and options
+		_, err = tx.Exec(`
+			DELETE o FROM options o
+			JOIN questions q ON q.id = o.question_id
+			WHERE q.content_id = ?
+		`, contentID)
+		if err != nil {
+			log.Printf("Error deleting options: %v", err)
+			http.Error(w, "Failed to update content", http.StatusInternalServerError)
+			return
+		}
+
+		_, err = tx.Exec("DELETE FROM questions WHERE content_id = ?", contentID)
+		if err != nil {
+			log.Printf("Error deleting questions: %v", err)
+			http.Error(w, "Failed to update content", http.StatusInternalServerError)
+			return
+		}
+
+		// Insert new questions and options
+		for _, question := range req.Questions {
+			result, err := tx.Exec(`
+				INSERT INTO questions (content_id, question_text)
+				VALUES (?, ?)
+			`,
+				contentID,
+				question.Text,
+			)
+			if err != nil {
+				log.Printf("Error inserting question: %v", err)
+				http.Error(w, "Failed to update content", http.StatusInternalServerError)
+				return
+			}
+
+			questionID, err := result.LastInsertId()
+			if err != nil {
+				log.Printf("Error getting question ID: %v", err)
+				http.Error(w, "Database error", http.StatusInternalServerError)
+				return
+			}
+
+			for _, option := range question.Options {
+				_, err = tx.Exec(`
+					INSERT INTO options (question_id, option_text, is_correct)
+					VALUES (?, ?, ?)
+				`,
+					questionID,
+					option.Text,
+					option.IsCorrect,
+				)
+				if err != nil {
+					log.Printf("Error inserting option: %v", err)
+					http.Error(w, "Failed to update content", http.StatusInternalServerError)
+					return
+				}
+			}
+		}
+	}
+
+	// Commit transaction
+	if err := tx.Commit(); err != nil {
+		log.Printf("Error committing transaction: %v", err)
+		http.Error(w, "Database error", http.StatusInternalServerError)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(map[string]interface{}{
+		"success": true,
+		"message": "Content updated successfully",
+	})
+}
+
 // deleteContentHandler deletes a content item and all related data
 func deleteContentHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
