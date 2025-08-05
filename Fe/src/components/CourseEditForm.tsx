@@ -9,7 +9,7 @@ interface CourseEditFormProps {
     description: string;
     image_path: string;
     subject: string;
-    grade: string;
+
   };
   onClose: () => void;
   onSuccess: () => void;
@@ -20,7 +20,7 @@ const CourseEditForm: React.FC<CourseEditFormProps> = ({ course, onClose, onSucc
   const [title, setTitle] = useState(course.title);
   const [description, setDescription] = useState(course.description || '');
   const [subject, setSubject] = useState(course.subject);
-  const [grade, setGrade] = useState(course.grade || '');
+
   const [file, setFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(
     course.image_path ? `http://localhost:8080${course.image_path}` : null
@@ -70,7 +70,7 @@ const CourseEditForm: React.FC<CourseEditFormProps> = ({ course, onClose, onSucc
         title,
         description,
         subject,
-        grade,
+
         image_path: course.image_path // Keep existing image path by default
       };
 
@@ -311,33 +311,7 @@ const CourseEditForm: React.FC<CourseEditFormProps> = ({ course, onClose, onSucc
             />
           </div>
           
-          <div style={{ marginBottom: '16px' }}>
-            <label 
-              htmlFor="grade"
-              style={{
-                display: 'block',
-                marginBottom: '6px',
-                fontSize: '14px',
-                fontWeight: '500',
-                color: '#374151',
-              }}
-            >
-              Grade
-            </label>
-            <input
-              id="grade"
-              type="text"
-              value={grade}
-              onChange={(e) => setGrade(e.target.value)}
-              style={{
-                width: '100%',
-                padding: '8px 12px',
-                borderRadius: '6px',
-                border: '1px solid #d1d5db',
-                fontSize: '14px',
-              }}
-            />
-          </div>
+
           
           <div style={{ marginBottom: '20px' }}>
             <label 

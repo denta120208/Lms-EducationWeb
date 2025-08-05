@@ -11,7 +11,7 @@ const CourseForm: React.FC<CourseFormProps> = ({ onClose, onSuccess }) => {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [subject, setSubject] = useState('');
-  const [grade, setGrade] = useState('');
+
   const [file, setFile] = useState<File | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -47,7 +47,7 @@ const CourseForm: React.FC<CourseFormProps> = ({ onClose, onSuccess }) => {
         title,
         description,
         subject,
-        grade,
+  
         image_path: ''
       };
 
@@ -229,35 +229,7 @@ const CourseForm: React.FC<CourseFormProps> = ({ onClose, onSuccess }) => {
             />
           </div>
           
-          <div style={{ marginBottom: '16px' }}>
-            <label 
-              htmlFor="grade"
-              style={{
-                display: 'block',
-                marginBottom: '6px',
-                fontSize: '14px',
-                fontWeight: '500',
-                color: '#374151',
-              }}
-            >
-              Grade Level
-            </label>
-            <input
-              id="grade"
-              type="text"
-              value={grade}
-              onChange={(e) => setGrade(e.target.value)}
-              placeholder="e.g. 10th grade"
-              style={{
-                width: '100%',
-                padding: '10px 12px',
-                border: '1px solid #d1d5db',
-                borderRadius: '6px',
-                fontSize: '14px',
-                outline: 'none',
-              }}
-            />
-          </div>
+
           
           <div style={{ marginBottom: '16px' }}>
             <label 
