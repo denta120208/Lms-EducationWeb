@@ -421,16 +421,15 @@ func teacherDashboardHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Get basic course data for dashboard
-	var courses interface{} = []interface{}{}
-	
 	// Get courses from auth.go's implementation
 	basicCourses, err := GetCoursesByTeacher(teacherID)
 	if err != nil {
 		log.Printf("Error getting courses: %v", err)
-	} else {
-		courses = basicCourses
+		basicCourses = []Course{} // Empty array if error
 	}
+	
+	// Calculate total courses
+	totalCourses := len(basicCourses)
 
 	response := map[string]interface{}{
 		"message": "Welcome to teacher dashboard",
@@ -440,9 +439,9 @@ func teacherDashboardHandler(w http.ResponseWriter, r *http.Request) {
 			"email":   teacher.Email,
 			"subject": teacher.Subject,
 		},
-		"courses": courses,
+		"courses": basicCourses,
 		"summary": map[string]interface{}{
-			"total_courses": len(courses),
+			"total_courses": totalCourses,
 			"subjects": []map[string]interface{}{
 				{"name": "Mathematics", "grade": "10th grade", "students": 25},
 				{"name": "Mathematics", "grade": "9th grade", "students": 30},
