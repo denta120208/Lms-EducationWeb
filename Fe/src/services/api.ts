@@ -184,32 +184,44 @@ const apiCall = async (endpoint: string, options: RequestInit = {}): Promise<any
 // Auth API
 export const authAPI = {
   login: async (credentials: LoginRequest): Promise<LoginResponse> => {
-    const response = await api.post('/auth/login', credentials);
-    
-    // Store token and user data
-    tokenManager.setToken(response.data.token);
-    userManager.setUser(response.data.student);
-    
-    // Set token in axios defaults
-    api.defaults.headers.common['Authorization'] = `Bearer ${response.data.token}`;
-    
-    return response.data;
+    try {
+      const response = await apiCall('/auth/login', {
+        method: 'POST',
+        body: JSON.stringify(credentials),
+      });
+      
+      // Store token and user data
+      tokenManager.setToken(response.token);
+      userManager.setUser(response.student);
+      
+      // Set token in axios defaults
+      api.defaults.headers.common['Authorization'] = `Bearer ${response.token}`;
+      
+      return response;
+    } catch (error: any) {
+      console.error('Student login error:', error);
+      throw error.message || 'Failed to login';
+    }
   },
   
   teacherLogin: async (credentials: LoginRequest): Promise<TeacherLoginResponse> => {
     try {
-      const response = await api.post('/api/auth/teacher/login', credentials);
+      const response = await apiCall('/auth/teacher/login', {
+        method: 'POST',
+        body: JSON.stringify(credentials),
+      });
       
       // Store token and user data
-      tokenManager.setToken(response.data.token, true);
-      userManager.setUser(response.data.teacher, true);
+      tokenManager.setToken(response.token, true);
+      userManager.setUser(response.teacher, true);
       
       // Set token in axios defaults
-      api.defaults.headers.common['Authorization'] = `Bearer ${response.data.token}`;
+      api.defaults.headers.common['Authorization'] = `Bearer ${response.token}`;
       
-      return response.data;
+      return response;
     } catch (error: any) {
-      throw error.response?.data?.message || 'Failed to login';
+      console.error('Teacher login error:', error);
+      throw error.message || 'Failed to login';
     }
   },
   
