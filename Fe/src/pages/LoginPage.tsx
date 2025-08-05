@@ -80,9 +80,9 @@ const LoginPage = () => {
         await login(email, password);
         // Navigation will be handled by useEffect above
       }
-    } catch (error) {
-      // Error is handled by AuthContext
-      console.error('Login failed:', error);
+    } catch (error: any) {
+      console.error('Login error:', error);
+      setValidationErrors({ password: error.toString() });
     } finally {
       setIsSubmitting(false);
     }

@@ -197,16 +197,20 @@ export const authAPI = {
   },
   
   teacherLogin: async (credentials: LoginRequest): Promise<TeacherLoginResponse> => {
-    const response = await api.post('/auth/teacher/login', credentials);
-    
-    // Store token and user data
-    tokenManager.setToken(response.data.token, true);
-    userManager.setUser(response.data.teacher, true);
-    
-    // Set token in axios defaults
-    api.defaults.headers.common['Authorization'] = `Bearer ${response.data.token}`;
-    
-    return response.data;
+    try {
+      const response = await api.post('/api/auth/teacher/login', credentials);
+      
+      // Store token and user data
+      tokenManager.setToken(response.data.token, true);
+      userManager.setUser(response.data.teacher, true);
+      
+      // Set token in axios defaults
+      api.defaults.headers.common['Authorization'] = `Bearer ${response.data.token}`;
+      
+      return response.data;
+    } catch (error: any) {
+      throw error.response?.data?.message || 'Failed to login';
+    }
   },
   
   register: async (userData: RegisterRequest): Promise<{ message: string }> => {
