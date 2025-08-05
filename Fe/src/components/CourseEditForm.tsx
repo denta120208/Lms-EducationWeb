@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { X, Upload } from 'lucide-react';
+import { X, Upload, Plus } from 'lucide-react';
+import ContentForm from './ContentForm';
+import ContentSection from './ContentSection';
 import { api } from '../services/api';
 
 interface CourseEditFormProps {
@@ -28,6 +30,33 @@ const CourseEditForm: React.FC<CourseEditFormProps> = ({ course, onClose, onSucc
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [showContentForm, setShowContentForm] = useState(false);
+  const [contents, setContents] = useState<any[]>([]);
+  const [selectedContent, setSelectedContent] = useState<any>(null);
+
+  useEffect(() => {
+    loadContents();
+  }, [course.id]);
+
+  const loadContents = async () => {
+    try {
+      const response = await api.get(`/api/teacher/courses/${course.id}/contents`);
+      if (response.data && response.data.contents) {
+        // Group contents by section
+        const grouped = response.data.contents.reduce((acc: any, content: any) => {
+          const section = content.section || 'Other';
+          if (!acc[section]) {
+            acc[section] = [];
+          }
+          acc[section].push(content);
+          return acc;
+        }, {});
+        setContents(grouped);
+      }
+    } catch (error) {
+      console.error('Error loading contents:', error);
+    }
+  };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFile = e.target.files?.[0];
@@ -372,6 +401,66 @@ const CourseEditForm: React.FC<CourseEditFormProps> = ({ course, onClose, onSucc
               Supported formats: JPG, PNG, GIF, WEBP. Max size: 15MB
             </p>
           </div>
+
+          {/* Content Management */}
+          <div style={{ marginTop: '24px' }}>
+            <div style={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              marginBottom: '16px',
+            }}>
+              <h3 style={{
+                fontSize: '16px',
+                fontWeight: '500',
+                color: '#374151',
+                margin: 0,
+              }}>
+                Course Content
+              </h3>
+              <button
+                type="button"
+                onClick={() => setShowContentForm(true)}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '4px',
+                  padding: '6px 12px',
+                  backgroundColor: '#3b82f6',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '6px',
+                  fontSize: '14px',
+                  cursor: 'pointer',
+                }}
+              >
+                <Plus size={16} />
+                Add Content
+              </button>
+            </div>
+
+            {/* Content Sections */}
+            {Object.entries(contents).map(([section, sectionContents]: [string, any[]]) => (
+              <ContentSection
+                key={section}
+                title={section}
+                contents={sectionContents}
+                onEdit={(content) => {
+                  setSelectedContent(content);
+                  setShowContentForm(true);
+                }}
+                onDelete={async (contentId) => {
+                  try {
+                    await api.delete(`/api/teacher/contents/${contentId}`);
+                    loadContents();
+                  } catch (error) {
+                    console.error('Error deleting content:', error);
+                  }
+                }}
+                onRefresh={loadContents}
+              />
+            ))}
+          </div>
           
           <div style={{ 
             display: 'flex', 
@@ -418,7 +507,23 @@ const CourseEditForm: React.FC<CourseEditFormProps> = ({ course, onClose, onSucc
         </form>
       </div>
     </div>
-  );
+    {/* Content Form */}
+    {showContentForm && (
+      <ContentForm
+        courseId={course.id}
+        onClose={() => {
+          setShowContentForm(false);
+          setSelectedContent(null);
+        }}
+        onSuccess={() => {
+          loadContents();
+          setShowContentForm(false);
+          setSelectedContent(null);
+        }}
+      />
+    )}
+  </div>
+);
 };
 
 export default CourseEditForm;
