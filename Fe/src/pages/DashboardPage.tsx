@@ -539,9 +539,23 @@ const DashboardPage = () => {
                   {/* Course Info */}
                   <div style={styles.courseInfo}>
                     <h4 style={styles.courseTitle}>{course.title}</h4>
-                    <p style={styles.courseInstructor}>{course.instructor || 'Mr. Agus'}</p>
+                    <p style={styles.courseInstructor}>{course.teacher_name}</p>
+                    {course.description && (
+                      <p style={{
+                        fontSize: isSmallMobile ? '12px' : '14px',
+                        color: '#6b7280',
+                        margin: '0 0 8px 0',
+                        display: '-webkit-box',
+                        WebkitLineClamp: 2,
+                        WebkitBoxOrient: 'vertical',
+                        overflow: 'hidden',
+                        textOverflow: 'ellipsis'
+                      }}>
+                        {course.description}
+                      </p>
+                    )}
                     <p style={styles.courseProgress}>
-                      {typeof course.progress === 'number' ? `${course.progress}% Complete` : course.progress}
+                      {course.subject}
                     </p>
                   </div>
                 </div>
