@@ -193,337 +193,337 @@ const CourseEditForm: React.FC<CourseEditFormProps> = ({ course, onClose, onSucc
   };
 
   return (
-    <div style={{
-      position: 'fixed',
-      top: 0,
-      left: 0,
-      right: 0,
-      bottom: 0,
-      backgroundColor: 'rgba(0, 0, 0, 0.5)',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      zIndex: 1000,
-    }}>
+    <>
       <div style={{
-        backgroundColor: 'white',
-        borderRadius: '12px',
-        padding: '24px',
-        width: '90%',
-        maxWidth: '500px',
-        maxHeight: '90vh',
-        overflow: 'auto',
-        position: 'relative',
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        backgroundColor: 'rgba(0, 0, 0, 0.5)',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        zIndex: 1000,
       }}>
-        <button 
-          onClick={onClose}
-          style={{
-            position: 'absolute',
-            top: '16px',
-            right: '16px',
-            background: 'none',
-            border: 'none',
-            cursor: 'pointer',
-            padding: '4px',
-          }}
-        >
-          <X size={24} color="#374151" />
-        </button>
-        
-        <h2 style={{
-          fontSize: '20px',
-          fontWeight: '600',
-          color: '#374151',
-          marginBottom: '24px',
+        <div style={{
+          backgroundColor: 'white',
+          borderRadius: '12px',
+          padding: '24px',
+          width: '90%',
+          maxWidth: '500px',
+          maxHeight: '90vh',
+          overflow: 'auto',
+          position: 'relative',
         }}>
-          Edit Course
-        </h2>
-        
-        {error && (
-          <div style={{
-            backgroundColor: '#fef2f2',
-            color: '#dc2626',
-            padding: '12px',
-            borderRadius: '6px',
-            marginBottom: '16px',
-            fontSize: '14px',
+          <button 
+            onClick={onClose}
+            style={{
+              position: 'absolute',
+              top: '16px',
+              right: '16px',
+              background: 'none',
+              border: 'none',
+              cursor: 'pointer',
+              padding: '4px',
+            }}
+          >
+            <X size={24} color="#374151" />
+          </button>
+          
+          <h2 style={{
+            fontSize: '20px',
+            fontWeight: '600',
+            color: '#374151',
+            marginBottom: '24px',
           }}>
-            {error}
-          </div>
-        )}
-        
-        <form onSubmit={handleSubmit}>
-          <div style={{ marginBottom: '16px' }}>
-            <label 
-              htmlFor="title"
-              style={{
-                display: 'block',
-                marginBottom: '6px',
-                fontSize: '14px',
-                fontWeight: '500',
-                color: '#374151',
-              }}
-            >
-              Title *
-            </label>
-            <input
-              id="title"
-              type="text"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              style={{
-                width: '100%',
-                padding: '8px 12px',
-                borderRadius: '6px',
-                border: '1px solid #d1d5db',
-                fontSize: '14px',
-              }}
-              required
-            />
-          </div>
+            Edit Course
+          </h2>
           
-          <div style={{ marginBottom: '16px' }}>
-            <label 
-              htmlFor="description"
-              style={{
-                display: 'block',
-                marginBottom: '6px',
-                fontSize: '14px',
-                fontWeight: '500',
-                color: '#374151',
-              }}
-            >
-              Description
-            </label>
-            <textarea
-              id="description"
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              style={{
-                width: '100%',
-                padding: '8px 12px',
-                borderRadius: '6px',
-                border: '1px solid #d1d5db',
-                fontSize: '14px',
-                minHeight: '100px',
-                resize: 'vertical',
-              }}
-            />
-          </div>
-          
-          <div style={{ marginBottom: '16px' }}>
-            <label 
-              htmlFor="subject"
-              style={{
-                display: 'block',
-                marginBottom: '6px',
-                fontSize: '14px',
-                fontWeight: '500',
-                color: '#374151',
-              }}
-            >
-              Subject *
-            </label>
-            <input
-              id="subject"
-              type="text"
-              value={subject}
-              onChange={(e) => setSubject(e.target.value)}
-              style={{
-                width: '100%',
-                padding: '8px 12px',
-                borderRadius: '6px',
-                border: '1px solid #d1d5db',
-                fontSize: '14px',
-              }}
-              required
-            />
-          </div>
-          
-
-          
-          <div style={{ marginBottom: '20px' }}>
-            <label 
-              htmlFor="image"
-              style={{
-                display: 'block',
-                marginBottom: '6px',
-                fontSize: '14px',
-                fontWeight: '500',
-                color: '#374151',
-              }}
-            >
-              Course Image
-            </label>
-            
-            {previewUrl && (
-              <div style={{ marginBottom: '12px' }}>
-                <img 
-                  src={previewUrl} 
-                  alt="Course preview" 
-                  style={{
-                    width: '100%',
-                    maxHeight: '200px',
-                    objectFit: 'cover',
-                    borderRadius: '6px',
-                  }}
-                />
-              </div>
-            )}
-            
-            <label
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: '8px',
-                padding: '8px 16px',
-                backgroundColor: '#f3f4f6',
-                color: '#374151',
-                border: '1px solid #d1d5db',
-                borderRadius: '6px',
-                cursor: 'pointer',
-                fontSize: '14px',
-                width: 'fit-content',
-              }}
-            >
-              <Upload size={16} />
-              {previewUrl ? 'Change Image' : 'Upload Image'}
-              <input
-                id="image"
-                type="file"
-                accept="image/jpeg,image/png,image/gif,image/webp"
-                onChange={handleFileChange}
-                style={{ display: 'none' }}
-              />
-            </label>
-            <p style={{ margin: '8px 0 0 0', color: '#6b7280', fontSize: '12px' }}>
-              Supported formats: JPG, PNG, GIF, WEBP. Max size: 15MB
-            </p>
-          </div>
-
-          {/* Content Management */}
-          <div style={{ marginTop: '24px' }}>
+          {error && (
             <div style={{
-              display: 'flex',
-              justifyContent: 'space-between',
-              alignItems: 'center',
+              backgroundColor: '#fef2f2',
+              color: '#dc2626',
+              padding: '12px',
+              borderRadius: '6px',
               marginBottom: '16px',
+              fontSize: '14px',
             }}>
-              <h3 style={{
-                fontSize: '16px',
-                fontWeight: '500',
-                color: '#374151',
-                margin: 0,
-              }}>
-                Course Content
-              </h3>
-              <button
-                type="button"
-                onClick={() => setShowContentForm(true)}
+              {error}
+            </div>
+          )}
+          
+          <form onSubmit={handleSubmit}>
+            <div style={{ marginBottom: '16px' }}>
+              <label 
+                htmlFor="title"
+                style={{
+                  display: 'block',
+                  marginBottom: '6px',
+                  fontSize: '14px',
+                  fontWeight: '500',
+                  color: '#374151',
+                }}
+              >
+                Title *
+              </label>
+              <input
+                id="title"
+                type="text"
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+                style={{
+                  width: '100%',
+                  padding: '8px 12px',
+                  borderRadius: '6px',
+                  border: '1px solid #d1d5db',
+                  fontSize: '14px',
+                }}
+                required
+              />
+            </div>
+            
+            <div style={{ marginBottom: '16px' }}>
+              <label 
+                htmlFor="description"
+                style={{
+                  display: 'block',
+                  marginBottom: '6px',
+                  fontSize: '14px',
+                  fontWeight: '500',
+                  color: '#374151',
+                }}
+              >
+                Description
+              </label>
+              <textarea
+                id="description"
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                style={{
+                  width: '100%',
+                  padding: '8px 12px',
+                  borderRadius: '6px',
+                  border: '1px solid #d1d5db',
+                  fontSize: '14px',
+                  minHeight: '100px',
+                  resize: 'vertical',
+                }}
+              />
+            </div>
+            
+            <div style={{ marginBottom: '16px' }}>
+              <label 
+                htmlFor="subject"
+                style={{
+                  display: 'block',
+                  marginBottom: '6px',
+                  fontSize: '14px',
+                  fontWeight: '500',
+                  color: '#374151',
+                }}
+              >
+                Subject *
+              </label>
+              <input
+                id="subject"
+                type="text"
+                value={subject}
+                onChange={(e) => setSubject(e.target.value)}
+                style={{
+                  width: '100%',
+                  padding: '8px 12px',
+                  borderRadius: '6px',
+                  border: '1px solid #d1d5db',
+                  fontSize: '14px',
+                }}
+                required
+              />
+            </div>
+            
+            <div style={{ marginBottom: '20px' }}>
+              <label 
+                htmlFor="image"
+                style={{
+                  display: 'block',
+                  marginBottom: '6px',
+                  fontSize: '14px',
+                  fontWeight: '500',
+                  color: '#374151',
+                }}
+              >
+                Course Image
+              </label>
+              
+              {previewUrl && (
+                <div style={{ marginBottom: '12px' }}>
+                  <img 
+                    src={previewUrl} 
+                    alt="Course preview" 
+                    style={{
+                      width: '100%',
+                      maxHeight: '200px',
+                      objectFit: 'cover',
+                      borderRadius: '6px',
+                    }}
+                  />
+                </div>
+              )}
+              
+              <label
                 style={{
                   display: 'flex',
                   alignItems: 'center',
-                  gap: '4px',
-                  padding: '6px 12px',
+                  justifyContent: 'center',
+                  gap: '8px',
+                  padding: '8px 16px',
+                  backgroundColor: '#f3f4f6',
+                  color: '#374151',
+                  border: '1px solid #d1d5db',
+                  borderRadius: '6px',
+                  cursor: 'pointer',
+                  fontSize: '14px',
+                  width: 'fit-content',
+                }}
+              >
+                <Upload size={16} />
+                {previewUrl ? 'Change Image' : 'Upload Image'}
+                <input
+                  id="image"
+                  type="file"
+                  accept="image/jpeg,image/png,image/gif,image/webp"
+                  onChange={handleFileChange}
+                  style={{ display: 'none' }}
+                />
+              </label>
+              <p style={{ margin: '8px 0 0 0', color: '#6b7280', fontSize: '12px' }}>
+                Supported formats: JPG, PNG, GIF, WEBP. Max size: 15MB
+              </p>
+            </div>
+
+            {/* Content Management */}
+            <div style={{ marginTop: '24px' }}>
+              <div style={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                marginBottom: '16px',
+              }}>
+                <h3 style={{
+                  fontSize: '16px',
+                  fontWeight: '500',
+                  color: '#374151',
+                  margin: 0,
+                }}>
+                  Course Content
+                </h3>
+                <button
+                  type="button"
+                  onClick={() => setShowContentForm(true)}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '4px',
+                    padding: '6px 12px',
+                    backgroundColor: '#3b82f6',
+                    color: 'white',
+                    border: 'none',
+                    borderRadius: '6px',
+                    fontSize: '14px',
+                    cursor: 'pointer',
+                  }}
+                >
+                  <Plus size={16} />
+                  Add Content
+                </button>
+              </div>
+
+              {/* Content Sections */}
+              {Object.entries(contents).map(([section, sectionContents]: [string, any[]]) => (
+                <ContentSection
+                  key={section}
+                  title={section}
+                  contents={sectionContents}
+                  onEdit={(content) => {
+                    setSelectedContent(content);
+                    setShowContentForm(true);
+                  }}
+                  onDelete={async (contentId) => {
+                    try {
+                      await api.delete(`/api/teacher/contents/${contentId}`);
+                      loadContents();
+                    } catch (error) {
+                      console.error('Error deleting content:', error);
+                    }
+                  }}
+                  onRefresh={loadContents}
+                />
+              ))}
+            </div>
+            
+            <div style={{ 
+              display: 'flex', 
+              justifyContent: 'space-between',
+              marginTop: '24px' 
+            }}>
+              <button
+                type="button"
+                onClick={handleDelete}
+                disabled={isLoading || isDeleting}
+                style={{
+                  padding: '8px 16px',
+                  backgroundColor: '#ef4444',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '6px',
+                  fontSize: '14px',
+                  fontWeight: '500',
+                  cursor: isDeleting ? 'not-allowed' : 'pointer',
+                  opacity: isDeleting ? 0.7 : 1,
+                }}
+              >
+                {isDeleting ? 'Deleting...' : 'Delete Course'}
+              </button>
+              
+              <button
+                type="submit"
+                disabled={isLoading}
+                style={{
+                  padding: '8px 16px',
                   backgroundColor: '#3b82f6',
                   color: 'white',
                   border: 'none',
                   borderRadius: '6px',
                   fontSize: '14px',
-                  cursor: 'pointer',
+                  fontWeight: '500',
+                  cursor: isLoading ? 'not-allowed' : 'pointer',
+                  opacity: isLoading ? 0.7 : 1,
                 }}
               >
-                <Plus size={16} />
-                Add Content
+                {isLoading ? 'Saving...' : 'Save Changes'}
               </button>
             </div>
-
-            {/* Content Sections */}
-            {Object.entries(contents).map(([section, sectionContents]: [string, any[]]) => (
-              <ContentSection
-                key={section}
-                title={section}
-                contents={sectionContents}
-                onEdit={(content) => {
-                  setSelectedContent(content);
-                  setShowContentForm(true);
-                }}
-                onDelete={async (contentId) => {
-                  try {
-                    await api.delete(`/api/teacher/contents/${contentId}`);
-                    loadContents();
-                  } catch (error) {
-                    console.error('Error deleting content:', error);
-                  }
-                }}
-                onRefresh={loadContents}
-              />
-            ))}
-          </div>
-          
-          <div style={{ 
-            display: 'flex', 
-            justifyContent: 'space-between',
-            marginTop: '24px' 
-          }}>
-            <button
-              type="button"
-              onClick={handleDelete}
-              disabled={isLoading || isDeleting}
-              style={{
-                padding: '8px 16px',
-                backgroundColor: '#ef4444',
-                color: 'white',
-                border: 'none',
-                borderRadius: '6px',
-                fontSize: '14px',
-                fontWeight: '500',
-                cursor: isDeleting ? 'not-allowed' : 'pointer',
-                opacity: isDeleting ? 0.7 : 1,
-              }}
-            >
-              {isDeleting ? 'Deleting...' : 'Delete Course'}
-            </button>
-            
-            <button
-              type="submit"
-              disabled={isLoading}
-              style={{
-                padding: '8px 16px',
-                backgroundColor: '#3b82f6',
-                color: 'white',
-                border: 'none',
-                borderRadius: '6px',
-                fontSize: '14px',
-                fontWeight: '500',
-                cursor: isLoading ? 'not-allowed' : 'pointer',
-                opacity: isLoading ? 0.7 : 1,
-              }}
-            >
-              {isLoading ? 'Saving...' : 'Save Changes'}
-            </button>
-          </div>
-        </form>
+          </form>
+        </div>
       </div>
-    </div>
-    {/* Content Form */}
-    {showContentForm && (
-      <ContentForm
-        courseId={course.id}
-        onClose={() => {
-          setShowContentForm(false);
-          setSelectedContent(null);
-        }}
-        onSuccess={() => {
-          loadContents();
-          setShowContentForm(false);
-          setSelectedContent(null);
-        }}
-      />
-    )}
-  </div>
-);
+
+      {/* Content Form */}
+      {showContentForm && (
+        <ContentForm
+          courseId={course.id}
+          onClose={() => {
+            setShowContentForm(false);
+            setSelectedContent(null);
+          }}
+          onSuccess={() => {
+            loadContents();
+            setShowContentForm(false);
+            setSelectedContent(null);
+          }}
+        />
+      )}
+    </>
+  );
 };
 
 export default CourseEditForm;
