@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Grid3X3, BookOpen, User, Bell, LogOut, AlertCircle, Plus } from 'lucide-react';
+import { Grid3X3, BookOpen, User, Bell, LogOut, AlertCircle, Plus, Edit, Trash2 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import CourseForm from '../components/CourseForm';
+import CourseEditForm from '../components/CourseEditForm';
 import { api } from '../services/api';
 
 interface Course {
@@ -184,6 +185,8 @@ const TeacherCourses = () => {
   const [windowWidth, setWindowWidth] = useState(window.innerWidth);
   const [courses, setCourses] = useState<Course[]>([]);
   const [showCreateForm, setShowCreateForm] = useState(false);
+  const [showEditForm, setShowEditForm] = useState(false);
+  const [selectedCourse, setSelectedCourse] = useState<Course | null>(null);
   // Using underscore prefix to indicate intentionally unused variable
   const [_isSidebarOpen, setIsSidebarOpen] = useState(false);
 
@@ -236,6 +239,11 @@ const TeacherCourses = () => {
   const handleLogout = () => {
     logout();
     navigate('/login');
+  };
+  
+  const handleEditCourse = (course: Course) => {
+    setSelectedCourse(course);
+    setShowEditForm(true);
   };
 
   const filteredCourses = courses.filter((course) =>
@@ -635,6 +643,7 @@ const TeacherCourses = () => {
                   style={styles.courseCard}
                   onMouseEnter={(e) => e.currentTarget.style.boxShadow = '0 4px 6px rgba(0, 0, 0, 0.1)'}
                   onMouseLeave={(e) => e.currentTarget.style.boxShadow = 'none'}
+                  onClick={() => handleEditCourse(course)}
                 >
                   {/* Course Image */}
                   <div style={{
@@ -683,6 +692,23 @@ const TeacherCourses = () => {
         <CourseForm 
           onClose={() => setShowCreateForm(false)}
           onSuccess={() => {
+            loadCourses();
+          }}
+        />
+      )}
+
+      {/* Course Edit Form */}
+      {showEditForm && selectedCourse && (
+        <CourseEditForm 
+          course={selectedCourse}
+          onClose={() => {
+            setShowEditForm(false);
+            setSelectedCourse(null);
+          }}
+          onSuccess={() => {
+            loadCourses();
+          }}
+          onDelete={() => {
             loadCourses();
           }}
         />
