@@ -65,6 +65,9 @@ const CourseForm: React.FC<CourseFormProps> = ({ onClose, onSuccess }) => {
           
           if (uploadResponse.data && uploadResponse.data.success) {
             courseData.image_path = uploadResponse.data.filePath;
+            console.log("Image uploaded successfully, path:", uploadResponse.data.filePath);
+          } else {
+            console.warn("Image upload response did not contain success flag or filePath", uploadResponse.data);
           }
         } catch (uploadErr) {
           console.error('Image upload failed, continuing without image:', uploadErr);

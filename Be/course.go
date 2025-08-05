@@ -61,9 +61,14 @@ func createCourseHandler(w http.ResponseWriter, r *http.Request) {
 	var req CreateCourseRequest
 	err := json.NewDecoder(r.Body).Decode(&req)
 	if err != nil {
+		log.Printf("Error decoding request body: %v", err)
 		http.Error(w, "Invalid request body", http.StatusBadRequest)
 		return
 	}
+
+	// Log the received data
+	log.Printf("Received course creation request: Title=%s, Subject=%s, ImagePath=%s", 
+		req.Title, req.Subject, req.ImagePath)
 
 	// Validate required fields
 	if req.Title == "" || req.Subject == "" {
@@ -76,6 +81,10 @@ func createCourseHandler(w http.ResponseWriter, r *http.Request) {
 		INSERT INTO courses (title, description, image_path, teacher_id, subject, grade)
 		VALUES (?, ?, ?, ?, ?, ?)
 	`
+
+	// Log the values being inserted
+	log.Printf("Inserting course into database: Title=%s, Description=%s, ImagePath=%s, TeacherID=%d, Subject=%s, Grade=%s",
+		req.Title, req.Description, req.ImagePath, teacherID, req.Subject, req.Grade)
 
 	result, err := DB.Exec(query, req.Title, req.Description, req.ImagePath, teacherID, req.Subject, req.Grade)
 	if err != nil {
