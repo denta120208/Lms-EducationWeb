@@ -1,28 +1,31 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Home, Grid3X3, BookOpen, User, Bell, LogOut, AlertCircle, Settings, Menu, X } from 'lucide-react';
+import { Home, Grid3X3, BookOpen, User, Bell, LogOut, AlertCircle } from 'lucide-react';
+import { api } from '../services/api';
 import { useAuth } from '../contexts/AuthContext';
-import { authAPI } from '../services/api';
 
 const DashboardPage = () => {
   const navigate = useNavigate();
   const { user, logout } = useAuth();
   const [searchTerm, setSearchTerm] = useState('');
-  const [dashboardData, setDashboardData] = useState<any>(null);
+  // Removed unused dashboardData state since we're using default courses directly
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [windowWidth, setWindowWidth] = useState(window.innerWidth);
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  // Using underscore prefix to indicate intentionally unused variable
+  const [_isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   // Load dashboard data
   useEffect(() => {
     const loadDashboard = async () => {
       try {
         setIsLoading(true);
-        const data = await authAPI.getDashboard();
-        setDashboardData(data);
+        const response = await api.get('/dashboard/courses');
+        if (response.data && response.data.courses) {
+          setCourses(response.data.courses);
+        }
       } catch (error: any) {
-        setError(error.message || 'Failed to load dashboard');
+        setError(error.response?.data?.message || 'Failed to load courses');
       } finally {
         setIsLoading(false);
       }
@@ -49,33 +52,8 @@ const DashboardPage = () => {
     navigate('/login');
   };
   
-  // Use courses from API or fallback to default
-  const courses = dashboardData?.courses || [
-    {
-      id: 1,
-      title: 'Mathematics',
-      instructor: 'Mr. Agus',
-      progress: 0,
-    },
-    {
-      id: 2,
-      title: 'Science',
-      instructor: 'Mr. Agus',
-      progress: 0,
-    },
-    {
-      id: 3,
-      title: 'Social Science',
-      instructor: 'Mr. Agus',
-      progress: 0,
-    },
-    {
-      id: 4,
-      title: 'English',
-      instructor: 'Mr. Agus',
-      progress: 0,
-    }
-  ];
+  const [courses, setCourses] = useState<any[]>([]);
+  console.log('Courses to display:', courses.length, courses);
 
   const filteredCourses = courses.filter((course: any) =>
     course.title.toLowerCase().includes(searchTerm.toLowerCase())
@@ -83,7 +61,7 @@ const DashboardPage = () => {
 
   // Responsive breakpoints
   const isMobile = windowWidth <= 768;
-  const isTablet = windowWidth <= 1024;
+  // const isTablet = windowWidth <= 1024;
   const isSmallMobile = windowWidth <= 480;
 
   const styles = {
@@ -93,25 +71,24 @@ const DashboardPage = () => {
       minHeight: '100vh',
       backgroundColor: '#f8fafc',
       display: 'flex',
-
       margin: 0,
       padding: 0,
-      boxSizing: 'border-box',
+      boxSizing: 'border-box' as 'border-box',
       overflow: 'hidden',
-      position: 'relative'
+      position: 'relative' as 'relative'
     },
     sidebar: {
       width: isMobile ? '100%' : '64px',
       height: isMobile ? 'auto' : '100vh',
       backgroundColor: '#3b82f6',
       display: 'flex',
-      flexDirection: isMobile ? 'row' : 'column',
+      flexDirection: isMobile ? 'row' as 'row' : 'column' as 'column',
       alignItems: 'center',
       justifyContent: isMobile ? 'space-around' : 'flex-start',
       paddingTop: isMobile ? '12px' : '24px',
       paddingBottom: isMobile ? '12px' : '24px',
       gap: isMobile ? '16px' : '32px',
-      position: isMobile ? 'fixed' : 'static',
+      position: isMobile ? 'fixed' as 'fixed' : 'static' as 'static',
       bottom: isMobile ? 0 : 'auto',
       left: isMobile ? 0 : 'auto',
       zIndex: isMobile ? 1000 : 'auto',
@@ -142,7 +119,7 @@ const DashboardPage = () => {
     mainContent: {
       flex: 1,
       display: 'flex',
-      flexDirection: 'column',
+      flexDirection: 'column' as 'column',
       width: isMobile ? '100%' : 'calc(100% - 64px)',
       height: isMobile ? 'calc(100vh - 60px)' : '100vh',
       overflow: 'auto',
@@ -154,7 +131,7 @@ const DashboardPage = () => {
       display: 'flex',
       justifyContent: 'space-between',
       alignItems: 'center',
-      flexWrap: 'wrap',
+      flexWrap: 'wrap' as 'wrap',
       gap: '8px'
     },
     headerTitle: {
@@ -187,7 +164,7 @@ const DashboardPage = () => {
     content: {
       padding: isSmallMobile ? '16px' : isMobile ? '20px' : '32px',
       flex: 1,
-      overflowY: 'auto'
+      overflowY: 'auto' as 'auto'
     },
     coursesTitle: {
       fontSize: isSmallMobile ? '18px' : '20px',
@@ -202,7 +179,8 @@ const DashboardPage = () => {
       backgroundColor: 'white',
       borderRadius: '8px',
       boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
-      padding: isSmallMobile ? '16px' : isMobile ? '20px' : '24px'
+      padding: isSmallMobile ? '16px' : isMobile ? '20px' : '24px',
+      width: '100%'
     },
     overviewTitle: {
       fontSize: isSmallMobile ? '16px' : '18px',
@@ -215,7 +193,7 @@ const DashboardPage = () => {
     },
     filterSection: {
       display: 'flex',
-      flexDirection: isSmallMobile ? 'column' : 'row',
+      flexDirection: isSmallMobile ? 'column' as 'column' : 'row' as 'row',
       gap: isSmallMobile ? '12px' : '16px',
       marginBottom: isSmallMobile ? '16px' : '24px',
       marginTop: 0,
@@ -247,8 +225,8 @@ const DashboardPage = () => {
       gridTemplateColumns: isSmallMobile 
         ? '1fr' 
         : isMobile 
-          ? 'repeat(auto-fit, minmax(250px, 1fr))' 
-          : 'repeat(auto-fit, minmax(280px, 1fr))',
+          ? 'repeat(2, 1fr)' 
+          : 'repeat(4, 1fr)',
       gap: isSmallMobile ? '16px' : isMobile ? '20px' : '24px'
     },
     courseCard: {
@@ -261,12 +239,11 @@ const DashboardPage = () => {
     },
     courseImage: {
       height: isSmallMobile ? '120px' : isMobile ? '140px' : '160px',
-      background: 'linear-gradient(135deg, #1f2937 0%, #111827 100%)',
-      position: 'relative',
+      position: 'relative' as 'relative',
       overflow: 'hidden'
     },
     geometricPattern: {
-      position: 'absolute',
+      position: 'absolute' as 'absolute',
       top: 0,
       left: 0,
       width: '100%',
@@ -274,7 +251,7 @@ const DashboardPage = () => {
       opacity: 0.3
     },
     shape1: {
-      position: 'absolute',
+      position: 'absolute' as 'absolute',
       top: '16px',
       left: '16px',
       width: '32px',
@@ -283,7 +260,7 @@ const DashboardPage = () => {
       transform: 'rotate(45deg)'
     },
     shape2: {
-      position: 'absolute',
+      position: 'absolute' as 'absolute',
       top: '32px',
       right: '24px',
       width: '24px',
@@ -292,7 +269,7 @@ const DashboardPage = () => {
       transform: 'rotate(12deg)'
     },
     shape3: {
-      position: 'absolute',
+      position: 'absolute' as 'absolute',
       bottom: '24px',
       left: '32px',
       width: '40px',
@@ -301,7 +278,7 @@ const DashboardPage = () => {
       transform: 'rotate(-12deg)'
     },
     shape4: {
-      position: 'absolute',
+      position: 'absolute' as 'absolute',
       bottom: '16px',
       right: '16px',
       width: '48px',
@@ -413,7 +390,7 @@ const DashboardPage = () => {
               justifyContent: 'center',
               alignItems: 'center',
               height: '200px',
-              flexDirection: 'column',
+              flexDirection: 'column' as 'column',
               gap: '16px'
             }}>
               <div style={{
@@ -436,8 +413,8 @@ const DashboardPage = () => {
             <div style={styles.filterSection}>
               <button 
                 style={styles.allButton}
-                onMouseEnter={(e) => e.target.style.backgroundColor = '#e5e7eb'}
-                onMouseLeave={(e) => e.target.style.backgroundColor = '#f3f4f6'}
+                onMouseEnter={(e) => (e.target as HTMLElement).style.backgroundColor = '#e5e7eb'}
+                onMouseLeave={(e) => (e.target as HTMLElement).style.backgroundColor = '#f3f4f6'}
               >
                 All
               </button>
@@ -454,7 +431,7 @@ const DashboardPage = () => {
 
             {/* Course Grid */}
             <div style={styles.courseGrid}>
-              {filteredCourses.map((course) => (
+              {filteredCourses.map((course: any) => (
                 <div 
                   key={course.id} 
                   style={styles.courseCard}
@@ -462,13 +439,95 @@ const DashboardPage = () => {
                   onMouseLeave={(e) => e.currentTarget.style.boxShadow = 'none'}
                 >
                   {/* Course Image with Geometric Pattern */}
-                  <div style={styles.courseImage}>
-                    <div style={styles.geometricPattern}>
-                      <div style={styles.shape1}></div>
-                      <div style={styles.shape2}></div>
-                      <div style={styles.shape3}></div>
-                      <div style={styles.shape4}></div>
-                    </div>
+                  <div style={{
+                    ...styles.courseImage,
+                    background: 
+                      course.title === 'Mathematics' ? 'linear-gradient(135deg, #1f2937 0%, #111827 100%)' :
+                      course.title === 'Science' ? 'linear-gradient(135deg, #6b7280 0%, #4b5563 100%)' :
+                      course.title === 'Social Science' ? 'linear-gradient(135deg, #7e22ce 0%, #4c1d95 100%)' :
+                      'linear-gradient(135deg, #0369a1 0%, #0c4a6e 100%)'
+                  }}>
+                    {course.title === 'Mathematics' && (
+                      <div style={styles.geometricPattern}>
+                        <div style={styles.shape1}></div>
+                        <div style={styles.shape2}></div>
+                        <div style={styles.shape3}></div>
+                        <div style={styles.shape4}></div>
+                      </div>
+                    )}
+                    
+                    {course.title === 'Science' && (
+                      <div style={{
+                        position: 'absolute' as 'absolute',
+                        top: '50%',
+                        left: '50%',
+                        transform: 'translate(-50%, -50%)',
+                        width: '80px',
+                        height: '80px',
+                        backgroundColor: 'rgba(255,255,255,0.1)',
+                        borderRadius: '50%',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center'
+                      }}>
+                        <div style={{
+                          width: '40px',
+                          height: '40px',
+                          backgroundColor: 'rgba(255,255,255,0.2)',
+                          borderRadius: '50%'
+                        }} />
+                      </div>
+                    )}
+
+                    {course.title === 'Social Science' && (
+                      <>
+                        <div style={{
+                          position: 'absolute' as 'absolute',
+                          top: '20px',
+                          left: '20px',
+                          width: '60px',
+                          height: '60px',
+                          border: '3px solid rgba(255,255,255,0.2)',
+                          borderRadius: '50%'
+                        }} />
+                        <div style={{
+                          position: 'absolute' as 'absolute',
+                          bottom: '20px',
+                          right: '20px',
+                          width: '40px',
+                          height: '40px',
+                          border: '3px solid rgba(255,255,255,0.2)',
+                          borderRadius: '50%'
+                        }} />
+                      </>
+                    )}
+
+                    {course.title === 'English' && (
+                      <>
+                        <div style={{
+                          position: 'absolute' as 'absolute',
+                          top: '50%',
+                          left: '30px',
+                          transform: 'translateY(-50%)',
+                          fontSize: '48px',
+                          color: 'rgba(255,255,255,0.2)',
+                          fontWeight: 'bold'
+                        }}>
+                          A
+                        </div>
+                        <div style={{
+                          position: 'absolute' as 'absolute',
+                          top: '50%',
+                          right: '30px',
+                          transform: 'translateY(-50%)',
+                          fontSize: '48px',
+                          color: 'rgba(255,255,255,0.2)',
+                          fontWeight: 'bold'
+                        }}>
+                          Z
+                        </div>
+                      </>
+                    )}
                   </div>
                   
                   {/* Course Info */}
