@@ -203,18 +203,31 @@ func uploadFileHandler(w http.ResponseWriter, r *http.Request) {
 
 // GetCoursesWithImagesByTeacher retrieves all courses with images for a specific teacher
 func GetCoursesWithImagesByTeacher(teacherID int) ([]CourseWithImage, error) {
+	// First check if the courses table exists
+	var tableExists bool
+	err := DB.QueryRow("SELECT 1 FROM information_schema.tables WHERE table_name = 'courses' LIMIT 1").Scan(&tableExists)
+	if err != nil || !tableExists {
+		log.Printf("Courses table does not exist or error checking: %v", err)
+		// Return empty array instead of error
+		return []CourseWithImage{}, nil
+	}
+
+	// Try to get courses with LEFT JOIN to handle missing teachers table
 	query := `
-		SELECT c.id, c.title, c.description, c.image_path, c.teacher_id, 
-		       t.name as teacher_name, c.subject, c.grade, c.created_at
+		SELECT c.id, c.title, c.description, IFNULL(c.image_path, '') as image_path, c.teacher_id, 
+		       IFNULL(t.name, 'Unknown Teacher') as teacher_name, c.subject, IFNULL(c.grade, '') as grade, 
+		       IFNULL(c.created_at, NOW()) as created_at
 		FROM courses c
-		JOIN teachers t ON c.teacher_id = t.id
+		LEFT JOIN teachers t ON c.teacher_id = t.id
 		WHERE c.teacher_id = ?
 		ORDER BY c.created_at DESC
 	`
 
 	rows, err := DB.Query(query, teacherID)
 	if err != nil {
-		return nil, err
+		log.Printf("Error querying courses: %v", err)
+		// Return empty array instead of error
+		return []CourseWithImage{}, nil
 	}
 	defer rows.Close()
 
@@ -233,16 +246,63 @@ func GetCoursesWithImagesByTeacher(teacherID int) ([]CourseWithImage, error) {
 			&course.CreatedAt,
 		)
 		if err != nil {
-			return nil, err
+			log.Printf("Error scanning course row: %v", err)
+			continue // Skip this row and continue
 		}
 		courses = append(courses, course)
 	}
 
 	if err = rows.Err(); err != nil {
-		return nil, err
+		log.Printf("Error after scanning rows: %v", err)
+		// Return what we have so far
+		return courses, nil
+	}
+
+	// If no courses found, return empty array
+	if len(courses) == 0 {
+		log.Printf("No courses found for teacher ID %d", teacherID)
 	}
 
 	return courses, nil
+}
+
+// GetTeacherById retrieves a teacher by ID
+func GetTeacherById(teacherID int) (*struct {
+	ID      int    `json:"id"`
+	Name    string `json:"name"`
+	Email   string `json:"email"`
+	Subject string `json:"subject"`
+}, error) {
+	teacher := &struct {
+		ID      int    `json:"id"`
+		Name    string `json:"name"`
+		Email   string `json:"email"`
+		Subject string `json:"subject"`
+	}{}
+
+	// First try the teachers table
+	err := DB.QueryRow("SELECT id, name, email, subject FROM teachers WHERE id = ?", teacherID).
+		Scan(&teacher.ID, &teacher.Name, &teacher.Email, &teacher.Subject)
+	
+	if err == nil {
+		return teacher, nil
+	}
+	
+	// If not found in teachers table, try the users table with role='guru'
+	if err == sql.ErrNoRows {
+		log.Printf("Teacher not found in teachers table, trying users table...")
+		err = DB.QueryRow("SELECT id, name, email, '' FROM users WHERE id = ? AND role = 'guru'", teacherID).
+			Scan(&teacher.ID, &teacher.Name, &teacher.Email, &teacher.Subject)
+		
+		if err != nil {
+			log.Printf("Error querying users table: %v", err)
+			return nil, err
+		}
+		return teacher, nil
+	}
+	
+	log.Printf("Database error when querying teachers: %v", err)
+	return nil, err
 }
 
 // teacherCoursesHandler handles the GET request for teacher's courses
@@ -256,24 +316,11 @@ func teacherCoursesHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Get teacher information
-	var teacher struct {
-		ID      int    `json:"id"`
-		Name    string `json:"name"`
-		Email   string `json:"email"`
-		Subject string `json:"subject"`
-	}
-
-	err := DB.QueryRow("SELECT id, name, email, subject FROM teachers WHERE id = ?", teacherID).
-		Scan(&teacher.ID, &teacher.Name, &teacher.Email, &teacher.Subject)
-	
+	// Get teacher information using GetTeacherById function
+	teacher, err := GetTeacherById(teacherID)
 	if err != nil {
-		if err == sql.ErrNoRows {
-			http.Error(w, "Teacher not found", http.StatusNotFound)
-		} else {
-			log.Printf("Database error: %v", err)
-			http.Error(w, "Server error", http.StatusInternalServerError)
-		}
+		log.Printf("Error getting teacher with ID %d: %v", teacherID, err)
+		http.Error(w, "Teacher not found or database error", http.StatusInternalServerError)
 		return
 	}
 
