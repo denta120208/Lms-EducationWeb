@@ -5,7 +5,7 @@ import { useAuth } from '../contexts/AuthContext';
 import CourseForm from '../components/CourseForm';
 import CourseEditForm from '../components/CourseEditForm';
 import EnrollmentForm from '../components/EnrollmentForm';
-import { api } from '../services/api';
+import { api, API_BASE_URL } from '../services/api';
 
 interface Course {
   id: number;
@@ -651,7 +651,7 @@ const TeacherCourses = () => {
                   <div style={{
                     ...styles.courseImage,
                     background: course.image_path 
-                      ? `url(${course.image_path})`
+                      ? `url(${API_BASE_URL}${course.image_path})`
                       : getBackgroundBySubject(course.subject),
                     backgroundSize: course.image_path ? 'cover' : 'auto',
                     backgroundPosition: 'center',

@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Home, Grid3X3, BookOpen, User, Bell, LogOut, AlertCircle } from 'lucide-react';
-import { api } from '../services/api';
+import { api, API_BASE_URL } from '../services/api';
 import { useAuth } from '../contexts/AuthContext';
 
 const DashboardPage = () => {
@@ -441,11 +441,17 @@ const DashboardPage = () => {
                   {/* Course Image with Geometric Pattern */}
                   <div style={{
                     ...styles.courseImage,
-                    background: 
-                      course.title === 'Mathematics' ? 'linear-gradient(135deg, #1f2937 0%, #111827 100%)' :
-                      course.title === 'Science' ? 'linear-gradient(135deg, #6b7280 0%, #4b5563 100%)' :
-                      course.title === 'Social Science' ? 'linear-gradient(135deg, #7e22ce 0%, #4c1d95 100%)' :
-                      'linear-gradient(135deg, #0369a1 0%, #0c4a6e 100%)'
+                    background: course.image_path 
+                      ? `url(${API_BASE_URL}${course.image_path})`
+                      : course.title === 'Mathematics' 
+                        ? 'linear-gradient(135deg, #1f2937 0%, #111827 100%)' 
+                        : course.title === 'Science' 
+                          ? 'linear-gradient(135deg, #6b7280 0%, #4b5563 100%)' 
+                          : course.title === 'Social Science' 
+                            ? 'linear-gradient(135deg, #7e22ce 0%, #4c1d95 100%)' 
+                            : 'linear-gradient(135deg, #0369a1 0%, #0c4a6e 100%)',
+                    backgroundSize: course.image_path ? 'cover' : 'auto',
+                    backgroundPosition: 'center'
                   }}>
                     {course.title === 'Mathematics' && (
                       <div style={styles.geometricPattern}>
