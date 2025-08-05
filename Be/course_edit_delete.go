@@ -15,7 +15,7 @@ type UpdateCourseRequest struct {
 	Description string `json:"description"`
 	ImagePath   string `json:"image_path"`
 	Subject     string `json:"subject"`
-	Grade       string `json:"grade"`
+
 }
 
 // updateCourseHandler handles updating an existing course
@@ -73,15 +73,15 @@ func updateCourseHandler(w http.ResponseWriter, r *http.Request) {
 	// Update the course in the database
 	query := `
 		UPDATE courses
-		SET title = ?, description = ?, image_path = ?, subject = ?, grade = ?
+		SET title = ?, description = ?, image_path = ?, subject = ?
 		WHERE id = ?
 	`
 
 	// Log the values being updated
-	log.Printf("Updating course %d: Title=%s, Description=%s, ImagePath=%s, Subject=%s, Grade=%s",
-		courseID, req.Title, req.Description, req.ImagePath, req.Subject, req.Grade)
+	log.Printf("Updating course %d: Title=%s, Description=%s, ImagePath=%s, Subject=%s",
+		courseID, req.Title, req.Description, req.ImagePath, req.Subject)
 
-	_, err = DB.Exec(query, req.Title, req.Description, req.ImagePath, req.Subject, req.Grade, courseID)
+	_, err = DB.Exec(query, req.Title, req.Description, req.ImagePath, req.Subject, courseID)
 	if err != nil {
 		log.Printf("Error updating course: %v", err)
 		http.Error(w, "Failed to update course", http.StatusInternalServerError)
@@ -93,7 +93,7 @@ func updateCourseHandler(w http.ResponseWriter, r *http.Request) {
 	query = `
 		SELECT c.id, c.title, c.description, IFNULL(c.image_path, '') as image_path, 
 		       c.teacher_id, IFNULL(t.name, 'Unknown Teacher') as teacher_name, 
-		       c.subject, IFNULL(c.grade, '') as grade, c.created_at
+		       c.subject, c.created_at
 		FROM courses c
 		LEFT JOIN teachers t ON c.teacher_id = t.id
 		WHERE c.id = ?
@@ -106,7 +106,7 @@ func updateCourseHandler(w http.ResponseWriter, r *http.Request) {
 		&course.TeacherID,
 		&course.TeacherName,
 		&course.Subject,
-		&course.Grade,
+
 		&course.CreatedAt,
 	)
 	if err != nil {
