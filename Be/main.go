@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"log"
@@ -161,11 +162,17 @@ func teacherAuthMiddleware(next http.HandlerFunc) http.HandlerFunc {
 			return
 		}
 
-		// Add claims to request context if needed
+		// Add claims to request context
+		ctx := context.WithValue(r.Context(), "user_id", claims.TeacherID)
+		ctx = context.WithValue(ctx, "user_email", claims.Email)
+		ctx = context.WithValue(ctx, "user_role", claims.Role)
+		
+		// Also set in headers for backward compatibility
 		r.Header.Set("X-Teacher-ID", fmt.Sprintf("%d", claims.TeacherID))
 		r.Header.Set("X-Teacher-Email", claims.Email)
 
-		next.ServeHTTP(w, r)
+		// Call the next handler with the updated context
+		next.ServeHTTP(w, r.WithContext(ctx))
 	}
 }
 
@@ -387,7 +394,20 @@ func teacherLoginHandler(w http.ResponseWriter, r *http.Request) {
 func teacherDashboardHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
-	email := r.Header.Get("X-Teacher-Email")
+	// Get teacher ID from context
+	teacherID, ok := r.Context().Value("user_id").(int)
+	if !ok {
+		http.Error(w, "Unauthorized or invalid teacher ID", http.StatusUnauthorized)
+		return
+	}
+
+	// Get teacher email from context
+	email, _ := r.Context().Value("user_email").(string)
+	if email == "" {
+		email = r.Header.Get("X-Teacher-Email") // Fallback to header
+	}
+
+	// Get teacher information
 	teacher, err := GetTeacherByEmail(email)
 	if err != nil {
 		http.Error(w, "Teacher not found", http.StatusNotFound)
@@ -395,8 +415,9 @@ func teacherDashboardHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Get courses for this teacher
-	courses, err := GetCoursesByTeacher(teacher.ID)
+	courses, err := GetCoursesByTeacher(teacherID)
 	if err != nil {
+		log.Printf("Error getting courses: %v", err)
 		courses = []Course{} // Empty array if error
 	}
 
@@ -427,7 +448,20 @@ func teacherDashboardHandler(w http.ResponseWriter, r *http.Request) {
 func teacherCoursesHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
-	email := r.Header.Get("X-Teacher-Email")
+	// Get teacher ID from context
+	teacherID, ok := r.Context().Value("user_id").(int)
+	if !ok {
+		http.Error(w, "Unauthorized or invalid teacher ID", http.StatusUnauthorized)
+		return
+	}
+
+	// Get teacher email from context
+	email, _ := r.Context().Value("user_email").(string)
+	if email == "" {
+		email = r.Header.Get("X-Teacher-Email") // Fallback to header
+	}
+
+	// Get teacher information
 	teacher, err := GetTeacherByEmail(email)
 	if err != nil {
 		http.Error(w, "Teacher not found", http.StatusNotFound)
@@ -435,17 +469,10 @@ func teacherCoursesHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Get courses for this teacher
-	courses, err := GetCoursesByTeacher(teacher.ID)
+	courses, err := GetCoursesByTeacher(teacherID)
 	if err != nil {
+		log.Printf("Error getting courses: %v", err)
 		courses = []Course{} // Empty array if error
-	}
-
-	// Add some sample courses if empty
-	if len(courses) == 0 {
-		courses = []Course{
-			{ID: 1, Title: "Mathematics", Subject: "Mathematics", Grade: "10th grade", TeacherName: teacher.Name},
-			{ID: 2, Title: "Science", Subject: "Science", Grade: "9th grade", TeacherName: teacher.Name},
-		}
 	}
 
 	response := map[string]interface{}{
@@ -466,7 +493,17 @@ func teacherCoursesHandler(w http.ResponseWriter, r *http.Request) {
 func teacherProfileHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
-	email := r.Header.Get("X-Teacher-Email")
+	// Get teacher email from context
+	email, _ := r.Context().Value("user_email").(string)
+	if email == "" {
+		email = r.Header.Get("X-Teacher-Email") // Fallback to header
+	}
+	
+	if email == "" {
+		http.Error(w, "Teacher email not found in request", http.StatusBadRequest)
+		return
+	}
+
 	teacher, err := GetTeacherByEmail(email)
 	if err != nil {
 		http.Error(w, "Teacher not found", http.StatusNotFound)

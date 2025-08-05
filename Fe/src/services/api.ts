@@ -11,10 +11,23 @@ export const api = axios.create({
 // Add request interceptor to include auth token
 api.interceptors.request.use(
   (config) => {
-    const token = tokenManager.getToken();
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
+    // Check for teacher token first, then fall back to student token
+    const teacherToken = localStorage.getItem('teacher_token');
+    const studentToken = localStorage.getItem('auth_token');
+    
+    // If this is a teacher-specific endpoint, use teacher token
+    if (config.url?.includes('/teacher/') && teacherToken) {
+      config.headers.Authorization = `Bearer ${teacherToken}`;
+    } 
+    // For upload endpoint, also use teacher token if available
+    else if (config.url?.includes('/upload') && teacherToken) {
+      config.headers.Authorization = `Bearer ${teacherToken}`;
     }
+    // Otherwise use any available token
+    else if (teacherToken || studentToken) {
+      config.headers.Authorization = `Bearer ${teacherToken || studentToken}`;
+    }
+    
     return config;
   },
   (error) => Promise.reject(error)

@@ -122,12 +122,15 @@ func createCourseHandler(w http.ResponseWriter, r *http.Request) {
 func uploadFileHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
-	// Check if user is authenticated
-	_, ok := r.Context().Value("user_id").(int)
+	// Check if user is authenticated and get teacher ID
+	teacherID, ok := r.Context().Value("user_id").(int)
 	if !ok {
 		http.Error(w, "Unauthorized", http.StatusUnauthorized)
 		return
 	}
+	
+	// Log the teacher ID for debugging
+	log.Printf("Upload file request from teacher ID: %d", teacherID)
 
 	// Parse the multipart form
 	err := r.ParseMultipartForm(10 << 20) // 10 MB max
