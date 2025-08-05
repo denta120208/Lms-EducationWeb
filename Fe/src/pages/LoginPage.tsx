@@ -13,7 +13,6 @@ const LoginPage = () => {
   const [password, setPassword] = useState('');
   const [rememberPassword, setRememberPassword] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isTeacherLogin, setIsTeacherLogin] = useState(false);
   const [validationErrors, setValidationErrors] = useState<{email?: string, password?: string}>({});
   const [windowWidth, setWindowWidth] = useState(window.innerWidth);
 
@@ -71,7 +70,8 @@ const LoginPage = () => {
     setIsSubmitting(true);
     
     try {
-      if (isTeacherLogin) {
+      // Check if this is a teacher email (guru@gmail.com)
+      if (email === 'guru@gmail.com' || email === 'ms.aurel@gmail.com') {
         // Teacher login using AuthContext
         await teacherLogin(email, password);
         // Navigation will be handled by useEffect above
@@ -346,35 +346,18 @@ const LoginPage = () => {
             )}
           </div>
 
-          {/* Login Options */}
-          <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-            {/* Remember Password Checkbox */}
-            <div style={styles.checkboxContainer}>
-              <input
-                type="checkbox"
-                id="rememberPassword"
-                checked={rememberPassword}
-                onChange={(e) => setRememberPassword(e.target.checked)}
-                style={responsiveStyles.checkbox}
-              />
-              <label htmlFor="rememberPassword" style={responsiveStyles.checkboxLabel}>
-                Save Password
-              </label>
-            </div>
-            
-            {/* Teacher Login Checkbox */}
-            <div style={styles.checkboxContainer}>
-              <input
-                type="checkbox"
-                id="teacherLogin"
-                checked={isTeacherLogin}
-                onChange={(e) => setIsTeacherLogin(e.target.checked)}
-                style={responsiveStyles.checkbox}
-              />
-              <label htmlFor="teacherLogin" style={responsiveStyles.checkboxLabel}>
-                Teacher Login
-              </label>
-            </div>
+          {/* Remember Password Checkbox */}
+          <div style={styles.checkboxContainer}>
+            <input
+              type="checkbox"
+              id="rememberPassword"
+              checked={rememberPassword}
+              onChange={(e) => setRememberPassword(e.target.checked)}
+              style={responsiveStyles.checkbox}
+            />
+            <label htmlFor="rememberPassword" style={responsiveStyles.checkboxLabel}>
+              Save Password
+            </label>
           </div>
 
           {/* Login Button */}
@@ -406,6 +389,20 @@ const LoginPage = () => {
             Don't Have an account yet? {' '}
             <span style={styles.signupLink} onClick={handleSignUpClick}>Sign Up</span>
           </p>
+          
+          {/* Teacher Info */}
+          <div style={{
+            marginTop: '16px',
+            padding: '12px',
+            backgroundColor: 'rgba(255, 255, 255, 0.2)',
+            borderRadius: '8px',
+            fontSize: '12px',
+            color: 'white'
+          }}>
+            <p style={{ margin: '0 0 8px 0', fontWeight: 'bold' }}>Teacher Accounts:</p>
+            <p style={{ margin: '0 0 4px 0' }}>Email: guru@gmail.com / Password: 123456</p>
+            <p style={{ margin: '0' }}>Email: ms.aurel@gmail.com / Password: 123456</p>
+          </div>
         </form>
       </div>
     </div>
