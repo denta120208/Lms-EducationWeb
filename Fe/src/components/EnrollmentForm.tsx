@@ -29,7 +29,17 @@ const EnrollmentForm: React.FC<EnrollmentFormProps> = ({ courseId, onClose, onSu
   const loadStudents = async () => {
     try {
       setIsLoading(true);
-      const response = await api.get(`/api/teacher/courses/${courseId}/students`);
+      const token = localStorage.getItem('token');
+      if (!token) {
+        setError('Not authenticated');
+        return;
+      }
+
+      const response = await api.get(`/api/teacher/courses/${courseId}/students`, {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
       if (response.data && response.data.students) {
         setStudents(response.data.students);
         // Set initially selected students
@@ -51,9 +61,16 @@ const EnrollmentForm: React.FC<EnrollmentFormProps> = ({ courseId, onClose, onSu
     setIsLoading(true);
 
     try {
-      await api.put(`/api/teacher/courses/${courseId}/enrollments`, {
-        student_ids: selectedStudents
-      });
+      const token = localStorage.getItem('token');
+      if (!token) {
+        setError('Not authenticated');
+        return;
+      }
+
+      await api.put(`/api/teacher/courses/${courseId}/enrollments`, 
+        { student_ids: selectedStudents },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
       onSuccess();
       onClose();
     } catch (err: any) {
