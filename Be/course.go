@@ -200,9 +200,12 @@ func uploadFileHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Return the file path
+	filePath := "/uploads/" + filename
+	log.Printf("File uploaded successfully. Path: %s", filePath)
+	
 	response := UploadResponse{
 		Success:  true,
-		FilePath: "/uploads/" + filename,
+		FilePath: filePath,
 		Message:  "File uploaded successfully",
 	}
 
@@ -270,6 +273,12 @@ func GetCoursesWithImagesByTeacher(teacherID int) ([]CourseWithImage, error) {
 	// If no courses found, return empty array
 	if len(courses) == 0 {
 		log.Printf("No courses found for teacher ID %d", teacherID)
+	} else {
+		// Log the courses found
+		for i, course := range courses {
+			log.Printf("Course %d: ID=%d, Title=%s, ImagePath=%s", 
+				i+1, course.ID, course.Title, course.ImagePath)
+		}
 	}
 
 	return courses, nil

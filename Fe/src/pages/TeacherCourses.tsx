@@ -646,6 +646,8 @@ const TeacherCourses = () => {
                     backgroundPosition: 'center',
                     position: 'relative' as 'relative'
                   }}>
+                    {/* Log image path for debugging */}
+                    {(() => { console.log("Course image path:", course.image_path); return null; })()}
                     {!course.image_path && getPatternBySubject(course.subject, course.subject)}
                   </div>
 
