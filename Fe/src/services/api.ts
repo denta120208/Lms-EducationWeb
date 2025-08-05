@@ -1,5 +1,24 @@
 // API Configuration
+import axios from 'axios';
+
 const API_BASE_URL = 'http://localhost:8080/api';
+
+// Create axios instance
+export const api = axios.create({
+  baseURL: API_BASE_URL,
+});
+
+// Add request interceptor to include auth token
+api.interceptors.request.use(
+  (config) => {
+    const token = tokenManager.getToken();
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+    return config;
+  },
+  (error) => Promise.reject(error)
+);
 
 // Types
 export interface LoginRequest {
@@ -21,19 +40,6 @@ export interface RegisterRequest {
   name: string;
   email: string;
   password: string;
-}
-
-export interface Course {
-  id?: number;
-  title: string;
-  subject: string;
-  description: string;
-  grade: string;
-  teacher_id?: number;
-  teacher_name?: string;
-  image_url?: string;
-  created_at?: string;
-  updated_at?: string;
 }
 
 export interface ApiError {
@@ -176,40 +182,4 @@ export const authAPI = {
 // Health check
 export const healthCheck = async () => {
   return await apiCall('/health');
-};
-
-// Course API
-export const courseAPI = {
-  // Get all courses for a teacher
-  getCourses: async (): Promise<Course[]> => {
-    return await apiCall('/teacher/courses');
-  },
-  
-  // Get a specific course by ID
-  getCourse: async (id: number): Promise<Course> => {
-    return await apiCall(`/teacher/courses/${id}`);
-  },
-  
-  // Create a new course
-  createCourse: async (courseData: Course): Promise<Course> => {
-    return await apiCall('/teacher/courses', {
-      method: 'POST',
-      body: JSON.stringify(courseData),
-    });
-  },
-  
-  // Update an existing course
-  updateCourse: async (id: number, courseData: Course): Promise<Course> => {
-    return await apiCall(`/teacher/courses/${id}`, {
-      method: 'PUT',
-      body: JSON.stringify(courseData),
-    });
-  },
-  
-  // Delete a course
-  deleteCourse: async (id: number): Promise<{ message: string }> => {
-    return await apiCall(`/teacher/courses/${id}`, {
-      method: 'DELETE',
-    });
-  }
 };

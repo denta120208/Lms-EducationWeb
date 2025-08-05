@@ -45,7 +45,7 @@ const TeacherDashboard = () => {
   const handleLogout = async () => {
     try {
       await logout();
-      navigate('/login');
+    navigate('/login');
     } catch (error) {
       console.error('Logout failed:', error);
     }
@@ -67,7 +67,7 @@ const TeacherDashboard = () => {
     const startDate = new Date(firstDay);
     // Adjust start date to begin with Sunday
     startDate.setDate(startDate.getDate() - firstDay.getDay());
-    
+
     const days = [];
     const current = new Date(startDate);
     
@@ -98,36 +98,28 @@ const TeacherDashboard = () => {
       title: 'Mathematics',
       subject: 'Mathematics',
       description: 'A comprehensive mathematics course covering algebra, geometry, and calculus.',
-      grade: '10th grade',
-      teacher_name: 'Mr. Agus',
-      image_url: ''
+      teacher_name: 'Mr. Agus'
     },
     {
       id: 2,
       title: 'Science',
       subject: 'Science',
       description: 'An introduction to physics, chemistry, and biology concepts.',
-      grade: '9th grade',
-      teacher_name: 'Mr. Agus',
-      image_url: ''
+      teacher_name: 'Mr. Agus'
     },
     {
       id: 3,
       title: 'Social Science',
       subject: 'Social Science',
       description: 'Exploring history, geography, and social studies.',
-      grade: '8th grade',
-      teacher_name: 'Mr. Agus',
-      image_url: ''
+      teacher_name: 'Mr. Agus'
     },
     {
       id: 4,
       title: 'English',
       subject: 'English',
       description: 'Literature, grammar, and writing skills development.',
-      grade: '11th grade',
-      teacher_name: 'Mr. Agus',
-      image_url: ''
+      teacher_name: 'Mr. Agus'
     }
   ];
 
@@ -309,9 +301,9 @@ const TeacherDashboard = () => {
       color: '#9ca3af'
     },
     emptyState: {
-      display: 'flex',
-      flexDirection: 'column',
-      alignItems: 'center',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
       justifyContent: 'center',
       padding: '60px 20px',
       textAlign: 'center',
@@ -374,7 +366,7 @@ const TeacherDashboard = () => {
       gridTemplateColumns: 'repeat(7, 1fr)',
       gap: '1px',
       backgroundColor: 'rgb(255 255 255)',
-      borderRadius: '8px',
+          borderRadius: '8px',
       overflow: 'hidden',
       width: '100%',
       minWidth: '300px'
@@ -395,9 +387,9 @@ const TeacherDashboard = () => {
       minHeight: '36px',
       width: '40px',
       maxWidth: '40px',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
       fontSize: '14px',
       cursor: 'pointer',
       transition: 'background-color 0.2s'
@@ -472,8 +464,8 @@ const TeacherDashboard = () => {
                   <button style={styles.filterButton}>
                     {selectedFilter}
                   </button>
-                </div>
-                
+              </div>
+
                 <div style={styles.searchContainer}>
                   <div style={styles.searchIcon}>
                     <Search size={16} />
@@ -488,10 +480,10 @@ const TeacherDashboard = () => {
                 </div>
 
                 {isLoading ? (
-                  <div style={{
-                    display: 'flex',
+                <div style={{
+                  display: 'flex',
                     justifyContent: 'center',
-                    alignItems: 'center',
+                  alignItems: 'center',
                     height: '200px',
                     flexDirection: 'column',
                     gap: '16px'
@@ -514,11 +506,11 @@ const TeacherDashboard = () => {
                   }}>
                     {courses.slice(0, 3).map(course => (
                       <div key={course.id} style={{
-                        display: 'flex',
-                        justifyContent: 'space-between',
-                        alignItems: 'center',
-                        padding: '16px',
-                        backgroundColor: '#f8fafc',
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                  padding: '16px',
+                  backgroundColor: '#f8fafc',
                         borderRadius: '8px',
                         cursor: 'pointer'
                       }}
@@ -526,53 +518,53 @@ const TeacherDashboard = () => {
                       onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f1f5f9'}
                       onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#f8fafc'}
                       >
-                        <div>
-                          <div style={{ fontWeight: '600', color: '#374151' }}>{course.grade}</div>
+                  <div>
+                          <div style={{ fontWeight: '600', color: '#374151' }}>{course.title}</div>
                           <div style={{ fontSize: '14px', color: '#6b7280' }}>{course.subject}</div>
-                        </div>
-                        <button style={{
-                          backgroundColor: 'transparent',
-                          border: 'none',
-                          color: '#3b82f6',
-                          cursor: 'pointer',
-                          fontSize: '14px'
-                        }}>
+                  </div>
+                  <button style={{
+                    backgroundColor: 'transparent',
+                    border: 'none',
+                    color: '#3b82f6',
+                    cursor: 'pointer',
+                    fontSize: '14px'
+                  }}>
                           view course
-                        </button>
-                      </div>
+                  </button>
+                </div>
                     ))}
-                    
+
                     {courses.length > 3 && (
-                      <div style={{
+                <div style={{
                         textAlign: 'center',
                         marginTop: '8px'
                       }}>
                         <button 
                           style={{
-                            backgroundColor: 'transparent',
-                            border: 'none',
-                            color: '#3b82f6',
-                            cursor: 'pointer',
+                    backgroundColor: 'transparent',
+                    border: 'none',
+                    color: '#3b82f6',
+                    cursor: 'pointer',
                             fontSize: '14px',
                             fontWeight: '500'
                           }}
                           onClick={() => navigate('/teacher/courses')}
                         >
                           View all courses
-                        </button>
-                      </div>
+                  </button>
+                </div>
                     )}
-                  </div>
+              </div>
                 ) : (
                   <div style={styles.emptyState}>
                     <div style={styles.emptyIcon}>
                       <BookOpenCheck size={32} color="#9ca3af" />
-                    </div>
+            </div>
                     <p style={styles.emptyText}>No courses yet</p>
                     <button 
-                      style={{
+                    style={{
                         marginTop: '16px',
-                        padding: '8px 16px',
+                      padding: '8px 16px',
                         backgroundColor: '#3b82f6',
                         color: 'white',
                         border: 'none',
@@ -584,10 +576,10 @@ const TeacherDashboard = () => {
                     >
                       Add your first course
                     </button>
-                  </div>
+                </div>
                 )}
-              </div>
             </div>
+          </div>
 
             {/* Right Section - Calendar */}
             <div style={styles.calendarCard}>
@@ -597,11 +589,11 @@ const TeacherDashboard = () => {
                   New event
                 </button>
               </div>
-              
+
               <div style={styles.monthYear}>
                 {calendarData.monthYear}
               </div>
-              
+
               <div style={styles.calendarGrid}>
                 {dayHeaders.map((day) => (
                   <div key={day} style={styles.dayHeader}>

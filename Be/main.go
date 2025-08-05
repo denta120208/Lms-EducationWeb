@@ -54,9 +54,18 @@ func main() {
 	r.HandleFunc("/api/teacher/dashboard", teacherAuthMiddleware(teacherDashboardHandler)).Methods("GET")
 	r.HandleFunc("/api/teacher/dashboard", optionsHandler).Methods("OPTIONS")
 	r.HandleFunc("/api/teacher/courses", teacherAuthMiddleware(teacherCoursesHandler)).Methods("GET")
+	r.HandleFunc("/api/teacher/courses", teacherAuthMiddleware(createCourseHandler)).Methods("POST")
 	r.HandleFunc("/api/teacher/courses", optionsHandler).Methods("OPTIONS")
 	r.HandleFunc("/api/teacher/profile", teacherAuthMiddleware(teacherProfileHandler)).Methods("GET")
 	r.HandleFunc("/api/teacher/profile", optionsHandler).Methods("OPTIONS")
+	
+	// File uploads
+	r.HandleFunc("/api/upload", teacherAuthMiddleware(uploadFileHandler)).Methods("POST")
+	r.HandleFunc("/api/upload", optionsHandler).Methods("OPTIONS")
+	
+	// Serve uploaded files
+	fs := http.FileServer(http.Dir("./uploads"))
+	r.PathPrefix("/uploads/").Handler(http.StripPrefix("/uploads/", fs))
 
 	// Endpoint dasar (dummy)
 	r.HandleFunc("/api/users", func(w http.ResponseWriter, r *http.Request) {

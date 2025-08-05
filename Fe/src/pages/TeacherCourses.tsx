@@ -1,10 +1,179 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Grid3X3, BookOpen, User, Bell, LogOut, AlertCircle, Plus, Edit, Trash2 } from 'lucide-react';
+import { Grid3X3, BookOpen, User, Bell, LogOut, AlertCircle, Plus } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
-import type { Course } from '../services/api';
-import CourseModal from '../components/CourseModal';
-import type { CourseData } from '../components/CourseModal';
+import CourseForm from '../components/CourseForm';
+import { api } from '../services/api';
+
+interface Course {
+  id: number;
+  title: string;
+  description: string;
+  image_path: string;
+  teacher_id: number;
+  teacher_name: string;
+  subject: string;
+  grade: string;
+}
+
+// Helper functions for course images
+const getBackgroundBySubject = (subject: string): string => {
+  const lowerSubject = subject.toLowerCase();
+  if (lowerSubject.includes('math')) {
+    return 'linear-gradient(135deg, #1f2937 0%, #111827 100%)';
+  } else if (lowerSubject.includes('science')) {
+    return 'linear-gradient(135deg, #6b7280 0%, #4b5563 100%)';
+  } else if (lowerSubject.includes('social') || lowerSubject.includes('history')) {
+    return 'linear-gradient(135deg, #7e22ce 0%, #4c1d95 100%)';
+  } else if (lowerSubject.includes('english') || lowerSubject.includes('language')) {
+    return 'linear-gradient(135deg, #0369a1 0%, #0c4a6e 100%)';
+        } else {
+    // Default background for other subjects
+    return 'linear-gradient(135deg, #4f46e5 0%, #3730a3 100%)';
+  }
+};
+
+const getPatternBySubject = (subject: string, title: string) => {
+  const lowerSubject = subject.toLowerCase();
+  
+  if (lowerSubject.includes('math')) {
+    return (
+      <div style={{
+        position: 'absolute' as 'absolute',
+        top: 0,
+        left: 0,
+        width: '100%',
+        height: '100%',
+        opacity: 0.3
+      }}>
+        <div style={{
+          position: 'absolute' as 'absolute',
+                          top: '16px',
+                          left: '16px',
+                          width: '32px',
+                          height: '32px',
+                          backgroundColor: '#4b5563',
+                          transform: 'rotate(45deg)'
+                        }} />
+                        <div style={{
+          position: 'absolute' as 'absolute',
+                          top: '32px',
+                          right: '24px',
+                          width: '24px',
+                          height: '24px',
+                          backgroundColor: '#374151',
+                          transform: 'rotate(12deg)'
+                        }} />
+                        <div style={{
+          position: 'absolute' as 'absolute',
+                          bottom: '24px',
+                          left: '32px',
+                          width: '40px',
+                          height: '40px',
+                          backgroundColor: '#4b5563',
+                          transform: 'rotate(-12deg)'
+                        }} />
+        <div style={{
+          position: 'absolute' as 'absolute',
+          bottom: '16px',
+          right: '16px',
+          width: '48px',
+          height: '48px',
+          backgroundColor: '#374151',
+          transform: 'rotate(45deg)'
+        }} />
+      </div>
+    );
+  } else if (lowerSubject.includes('science')) {
+    return (
+                      <div style={{
+        position: 'absolute' as 'absolute',
+                        top: '50%',
+                        left: '50%',
+                        transform: 'translate(-50%, -50%)',
+                        width: '80px',
+                        height: '80px',
+                        backgroundColor: 'rgba(255,255,255,0.1)',
+                        borderRadius: '50%',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center'
+                      }}>
+                        <div style={{
+                          width: '40px',
+                          height: '40px',
+                          backgroundColor: 'rgba(255,255,255,0.2)',
+                          borderRadius: '50%'
+                        }} />
+                      </div>
+    );
+  } else if (lowerSubject.includes('social') || lowerSubject.includes('history')) {
+    return (
+                      <>
+                        <div style={{
+          position: 'absolute' as 'absolute',
+                          top: '20px',
+                          left: '20px',
+                          width: '60px',
+                          height: '60px',
+                          border: '3px solid rgba(255,255,255,0.2)',
+                          borderRadius: '50%'
+                        }} />
+                        <div style={{
+          position: 'absolute' as 'absolute',
+                          bottom: '20px',
+                          right: '20px',
+                          width: '40px',
+                          height: '40px',
+                          border: '3px solid rgba(255,255,255,0.2)',
+                          borderRadius: '50%'
+                        }} />
+                      </>
+    );
+  } else if (lowerSubject.includes('english') || lowerSubject.includes('language')) {
+    return (
+                      <>
+                        <div style={{
+          position: 'absolute' as 'absolute',
+                          top: '50%',
+                          left: '30px',
+                          transform: 'translateY(-50%)',
+                          fontSize: '48px',
+                          color: 'rgba(255,255,255,0.2)',
+                          fontWeight: 'bold'
+                        }}>
+                          A
+                        </div>
+                        <div style={{
+          position: 'absolute' as 'absolute',
+                          top: '50%',
+                          right: '30px',
+                          transform: 'translateY(-50%)',
+                          fontSize: '48px',
+                          color: 'rgba(255,255,255,0.2)',
+                          fontWeight: 'bold'
+                        }}>
+                          Z
+                        </div>
+                      </>
+    );
+  } else {
+    // Default pattern for other subjects - first letter
+    return (
+      <div style={{
+        position: 'absolute' as 'absolute',
+        top: '50%',
+        left: '50%',
+        transform: 'translate(-50%, -50%)',
+        fontSize: '64px',
+        color: 'rgba(255,255,255,0.2)',
+        fontWeight: 'bold'
+      }}>
+        {title.charAt(0).toUpperCase()}
+      </div>
+    );
+  }
+};
 
 const TeacherCourses = () => {
   const navigate = useNavigate();
@@ -13,32 +182,28 @@ const TeacherCourses = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [windowWidth, setWindowWidth] = useState(window.innerWidth);
+  const [courses, setCourses] = useState<Course[]>([]);
+  const [showCreateForm, setShowCreateForm] = useState(false);
   // Using underscore prefix to indicate intentionally unused variable
   const [_isSidebarOpen, setIsSidebarOpen] = useState(false);
-  const [courses, setCourses] = useState<Course[]>([]);
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [currentCourse, setCurrentCourse] = useState<Course | null>(null);
-  const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Load courses data
-  useEffect(() => {
-    const loadCourses = async () => {
-      try {
-        setIsLoading(true);
-        // In a real app, we would fetch from the API
-        // const response = await courseAPI.getCourses();
-        // setCourses(response);
-        
-        // For now, use default courses
-        await new Promise(resolve => setTimeout(resolve, 500));
-        setCourses(defaultCourses);
-      } catch (error: any) {
-        setError(error.message || 'Failed to load courses');
-      } finally {
-        setIsLoading(false);
+  const loadCourses = async () => {
+    try {
+      setIsLoading(true);
+      const response = await api.get('/teacher/courses');
+      if (response.data && response.data.courses) {
+        setCourses(response.data.courses);
       }
-    };
+    } catch (error: any) {
+      setError(error.response?.data?.message || 'Failed to load courses');
+      console.error('Error loading courses:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
+  useEffect(() => {
     loadCourses();
   }, []);
 
@@ -59,117 +224,11 @@ const TeacherCourses = () => {
     logout();
     navigate('/login');
   };
-  
-  // Default courses
-  const defaultCourses: Course[] = [
-    {
-      id: 1,
-      title: 'Mathematics',
-      subject: 'Mathematics',
-      description: 'A comprehensive mathematics course covering algebra, geometry, and calculus.',
-      grade: '10th grade',
-      teacher_name: 'Mr. Agus',
-      image_url: ''
-    },
-    {
-      id: 2,
-      title: 'Science',
-      subject: 'Science',
-      description: 'An introduction to physics, chemistry, and biology concepts.',
-      grade: '9th grade',
-      teacher_name: 'Mr. Agus',
-      image_url: ''
-    },
-    {
-      id: 3,
-      title: 'Social Science',
-      subject: 'Social Science',
-      description: 'Exploring history, geography, and social studies.',
-      grade: '8th grade',
-      teacher_name: 'Mr. Agus',
-      image_url: ''
-    },
-    {
-      id: 4,
-      title: 'English',
-      subject: 'English',
-      description: 'Literature, grammar, and writing skills development.',
-      grade: '11th grade',
-      teacher_name: 'Mr. Agus',
-      image_url: ''
-    }
-  ];
-  
+
   const filteredCourses = courses.filter((course) =>
-    course.title.toLowerCase().includes(searchTerm.toLowerCase())
+    course.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    course.subject.toLowerCase().includes(searchTerm.toLowerCase())
   );
-  
-  // Handle course CRUD operations
-  const handleOpenModal = (course: Course | null = null) => {
-    setCurrentCourse(course);
-    setIsModalOpen(true);
-  };
-  
-  const handleCloseModal = () => {
-    setIsModalOpen(false);
-    setCurrentCourse(null);
-  };
-  
-  const handleSubmitCourse = async (courseData: CourseData) => {
-    try {
-      setIsSubmitting(true);
-      
-      // In a real app, we would call the API
-      if (courseData.id) {
-        // Update existing course
-        // await courseAPI.updateCourse(courseData.id, courseData);
-        
-        // For now, update in local state
-        setCourses(prevCourses => 
-          prevCourses.map(course => 
-            course.id === courseData.id ? {...course, ...courseData} : course
-          )
-        );
-      } else {
-        // Create new course
-        // const newCourse = await courseAPI.createCourse(courseData);
-        
-        // For now, add to local state with a generated ID
-        const newCourse = {
-          ...courseData,
-          id: Math.max(0, ...courses.map(c => c.id || 0)) + 1,
-          teacher_name: user?.name || 'Teacher'
-        };
-        setCourses(prevCourses => [...prevCourses, newCourse]);
-      }
-      
-      handleCloseModal();
-    } catch (error: any) {
-      setError(error.message || 'Failed to save course');
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
-  
-  const handleDeleteCourse = async (id: number) => {
-    if (!window.confirm('Are you sure you want to delete this course?')) {
-      return;
-    }
-    
-    try {
-      setIsLoading(true);
-      
-      // In a real app, we would call the API
-      // await courseAPI.deleteCourse(id);
-      
-      // For now, remove from local state
-      setCourses(prevCourses => prevCourses.filter(course => course.id !== id));
-    } catch (error: any) {
-      setError(error.message || 'Failed to delete course');
-    } finally {
-      setIsLoading(false);
-    }
-  };
 
   // Responsive breakpoints
   const isMobile = windowWidth <= 768;
@@ -268,8 +327,8 @@ const TeacherCourses = () => {
       height: isSmallMobile ? '28px' : '32px',
       backgroundColor: '#4b5563',
       borderRadius: '50%',
-      display: 'flex',
-      alignItems: 'center',
+        display: 'flex',
+        alignItems: 'center',
       justifyContent: 'center',
       flexShrink: 0
     },
@@ -289,7 +348,7 @@ const TeacherCourses = () => {
     },
     courseOverview: {
       backgroundColor: 'white',
-      borderRadius: '8px',
+            borderRadius: '8px',
       boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
       padding: isSmallMobile ? '16px' : isMobile ? '20px' : '24px',
       width: '100%'
@@ -338,39 +397,12 @@ const TeacherCourses = () => {
       backgroundColor: '#3b82f6',
       border: 'none',
       borderRadius: '4px',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
       cursor: 'pointer',
       transition: 'background-color 0.2s',
       padding: 0
-    },
-    actionButtons: {
-      display: 'flex',
-      gap: '8px',
-      marginTop: '8px'
-    },
-    editButton: {
-      padding: '4px',
-      backgroundColor: '#3b82f6',
-      border: 'none',
-      borderRadius: '4px',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      cursor: 'pointer',
-      transition: 'background-color 0.2s'
-    },
-    deleteButton: {
-      padding: '4px',
-      backgroundColor: '#ef4444',
-      border: 'none',
-      borderRadius: '4px',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      cursor: 'pointer',
-      transition: 'background-color 0.2s'
     },
     courseGrid: {
       display: 'grid',
@@ -387,7 +419,7 @@ const TeacherCourses = () => {
       borderRadius: '8px',
       overflow: 'hidden',
       transition: 'box-shadow 0.2s',
-      cursor: 'pointer'
+            cursor: 'pointer'
     },
     courseImage: {
       height: isSmallMobile ? '120px' : isMobile ? '140px' : '160px',
@@ -489,12 +521,12 @@ const TeacherCourses = () => {
         <div style={styles.header}>
           <h1 style={styles.headerTitle}>
             Welcome, <span style={styles.headerName} className="poppins-semibold">{user?.name || 'Teacher'}</span>
-          </h1>
+            </h1>
           <div style={styles.headerRight}>
             <Bell size={isSmallMobile ? 20 : 24} color="#374151" />
             <div style={styles.userAvatar}>
               <User size={isSmallMobile ? 16 : 20} color="white" />
-            </div>
+          </div>
             <div 
               style={{...styles.userAvatar, cursor: 'pointer', backgroundColor: '#ef4444'}}
               onClick={handleLogout}
@@ -509,7 +541,7 @@ const TeacherCourses = () => {
         <div style={styles.content}>
           {/* Error Display */}
           {error && (
-            <div style={{
+        <div style={{ 
               backgroundColor: '#fef2f2',
               border: '1px solid #fecaca',
               borderRadius: '8px',
@@ -528,7 +560,7 @@ const TeacherCourses = () => {
           
           {/* Loading State */}
           {isLoading ? (
-            <div style={{
+          <div style={{
               display: 'flex',
               justifyContent: 'center',
               alignItems: 'center',
@@ -551,7 +583,7 @@ const TeacherCourses = () => {
               {/* Course Overview Section */}
               <div style={styles.courseOverview}>
             <h3 style={styles.overviewTitle}>Course overview</h3>
-            
+
             {/* Filter and Search */}
             <div style={styles.filterSection}>
               <button 
@@ -573,9 +605,9 @@ const TeacherCourses = () => {
                 />
                 <button 
                   style={styles.addButton}
-                  onClick={() => handleOpenModal()}
                   onMouseEnter={(e) => (e.currentTarget as HTMLElement).style.backgroundColor = '#2563eb'}
                   onMouseLeave={(e) => (e.currentTarget as HTMLElement).style.backgroundColor = '#3b82f6'}
+                  onClick={() => setShowCreateForm(true)}
                 >
                   <Plus size={20} color="white" />
                 </button>
@@ -591,131 +623,26 @@ const TeacherCourses = () => {
                   onMouseEnter={(e) => e.currentTarget.style.boxShadow = '0 4px 6px rgba(0, 0, 0, 0.1)'}
                   onMouseLeave={(e) => e.currentTarget.style.boxShadow = 'none'}
                 >
-                  {/* Course Image with Geometric Pattern */}
+                  {/* Course Image */}
                   <div style={{
                     ...styles.courseImage,
-                    background: 
-                      course.title === 'Mathematics' ? 'linear-gradient(135deg, #1f2937 0%, #111827 100%)' :
-                      course.title === 'Science' ? 'linear-gradient(135deg, #6b7280 0%, #4b5563 100%)' :
-                      course.title === 'Social Science' ? 'linear-gradient(135deg, #7e22ce 0%, #4c1d95 100%)' :
-                      'linear-gradient(135deg, #0369a1 0%, #0c4a6e 100%)'
+                    background: course.image_path 
+                      ? `url(http://localhost:8080${course.image_path})`
+                      : getBackgroundBySubject(course.subject),
+                    backgroundSize: course.image_path ? 'cover' : 'auto',
+                    backgroundPosition: 'center',
+                    position: 'relative' as 'relative'
                   }}>
-                    {course.title === 'Mathematics' && (
-                      <div style={styles.geometricPattern}>
-                        <div style={styles.shape1}></div>
-                        <div style={styles.shape2}></div>
-                        <div style={styles.shape3}></div>
-                        <div style={styles.shape4}></div>
-                      </div>
-                    )}
-                    
-                    {course.title === 'Science' && (
-                      <div style={{
-                        position: 'absolute' as 'absolute',
-                        top: '50%',
-                        left: '50%',
-                        transform: 'translate(-50%, -50%)',
-                        width: '80px',
-                        height: '80px',
-                        backgroundColor: 'rgba(255,255,255,0.1)',
-                        borderRadius: '50%',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center'
-                      }}>
-                        <div style={{
-                          width: '40px',
-                          height: '40px',
-                          backgroundColor: 'rgba(255,255,255,0.2)',
-                          borderRadius: '50%'
-                        }} />
-                      </div>
-                    )}
-
-                    {course.title === 'Social Science' && (
-                      <>
-                        <div style={{
-                          position: 'absolute' as 'absolute',
-                          top: '20px',
-                          left: '20px',
-                          width: '60px',
-                          height: '60px',
-                          border: '3px solid rgba(255,255,255,0.2)',
-                          borderRadius: '50%'
-                        }} />
-                        <div style={{
-                          position: 'absolute' as 'absolute',
-                          bottom: '20px',
-                          right: '20px',
-                          width: '40px',
-                          height: '40px',
-                          border: '3px solid rgba(255,255,255,0.2)',
-                          borderRadius: '50%'
-                        }} />
-                      </>
-                    )}
-
-                    {course.title === 'English' && (
-                      <>
-                        <div style={{
-                          position: 'absolute' as 'absolute',
-                          top: '50%',
-                          left: '30px',
-                          transform: 'translateY(-50%)',
-                          fontSize: '48px',
-                          color: 'rgba(255,255,255,0.2)',
-                          fontWeight: 'bold'
-                        }}>
-                          A
-                        </div>
-                        <div style={{
-                          position: 'absolute' as 'absolute',
-                          top: '50%',
-                          right: '30px',
-                          transform: 'translateY(-50%)',
-                          fontSize: '48px',
-                          color: 'rgba(255,255,255,0.2)',
-                          fontWeight: 'bold'
-                        }}>
-                          Z
-                        </div>
-                      </>
-                    )}
+                    {!course.image_path && getPatternBySubject(course.subject, course.subject)}
                   </div>
-                  
+
                   {/* Course Info */}
                   <div style={styles.courseInfo}>
                     <h4 style={styles.courseTitle}>{course.title}</h4>
-                    <p style={styles.courseInstructor}>{course.teacher_name || 'Mr. Agus'}</p>
+                    <p style={styles.courseInstructor}>{course.teacher_name || user?.name}</p>
                     <p style={styles.courseProgress}>
-                      {course.grade}
+                      {course.grade || course.subject}
                     </p>
-                    
-                    {/* Action Buttons */}
-                    <div style={styles.actionButtons}>
-                      <button 
-                        style={styles.editButton}
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleOpenModal(course);
-                        }}
-                        onMouseEnter={(e) => (e.currentTarget as HTMLElement).style.backgroundColor = '#2563eb'}
-                        onMouseLeave={(e) => (e.currentTarget as HTMLElement).style.backgroundColor = '#3b82f6'}
-                      >
-                        <Edit size={16} color="white" />
-                      </button>
-                      <button 
-                        style={styles.deleteButton}
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          if (course.id) handleDeleteCourse(course.id);
-                        }}
-                        onMouseEnter={(e) => (e.currentTarget as HTMLElement).style.backgroundColor = '#dc2626'}
-                        onMouseLeave={(e) => (e.currentTarget as HTMLElement).style.backgroundColor = '#ef4444'}
-                      >
-                        <Trash2 size={16} color="white" />
-                      </button>
-                    </div>
                   </div>
                 </div>
               ))}
@@ -726,15 +653,6 @@ const TeacherCourses = () => {
         </div>
       </div>
       
-      {/* Course Modal */}
-      <CourseModal
-        isOpen={isModalOpen}
-        onClose={handleCloseModal}
-        onSubmit={handleSubmitCourse}
-        course={currentCourse}
-        isLoading={isSubmitting}
-      />
-      
       {/* CSS Animation */}
       <style>
         {`
@@ -744,6 +662,16 @@ const TeacherCourses = () => {
           }
         `}
       </style>
+
+      {/* Course Creation Form */}
+      {showCreateForm && (
+        <CourseForm 
+          onClose={() => setShowCreateForm(false)}
+          onSuccess={() => {
+            loadCourses();
+          }}
+        />
+      )}
     </div>
   );
 };

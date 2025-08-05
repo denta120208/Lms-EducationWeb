@@ -14,8 +14,6 @@ export interface CourseData {
   title: string;
   subject: string;
   description: string;
-  grade: string;
-  image_url?: string;
 }
 
 const CourseModal: React.FC<CourseModalProps> = ({ 
@@ -28,9 +26,7 @@ const CourseModal: React.FC<CourseModalProps> = ({
   const [formData, setFormData] = useState<CourseData>({
     title: '',
     subject: '',
-    description: '',
-    grade: '',
-    image_url: ''
+    description: ''
   });
 
   useEffect(() => {
@@ -39,17 +35,13 @@ const CourseModal: React.FC<CourseModalProps> = ({
         id: course.id,
         title: course.title || '',
         subject: course.subject || '',
-        description: course.description || '',
-        grade: course.grade || '',
-        image_url: course.image_url || ''
+        description: course.description || ''
       });
     } else {
       setFormData({
         title: '',
         subject: '',
-        description: '',
-        grade: '',
-        image_url: ''
+        description: ''
       });
     }
   }, [course, isOpen]);
@@ -235,26 +227,6 @@ const CourseModal: React.FC<CourseModalProps> = ({
           </div>
 
           <div style={modalStyles.formGroup}>
-            <label style={modalStyles.label} htmlFor="grade">Grade Level</label>
-            <select
-              id="grade"
-              name="grade"
-              value={formData.grade}
-              onChange={handleChange}
-              style={modalStyles.select}
-              required
-            >
-              <option value="">Select Grade</option>
-              <option value="7th grade">7th Grade</option>
-              <option value="8th grade">8th Grade</option>
-              <option value="9th grade">9th Grade</option>
-              <option value="10th grade">10th Grade</option>
-              <option value="11th grade">11th Grade</option>
-              <option value="12th grade">12th Grade</option>
-            </select>
-          </div>
-
-          <div style={modalStyles.formGroup}>
             <label style={modalStyles.label} htmlFor="description">Description</label>
             <textarea
               id="description"
@@ -263,19 +235,6 @@ const CourseModal: React.FC<CourseModalProps> = ({
               onChange={handleChange}
               style={modalStyles.textarea}
               placeholder="Course description..."
-            />
-          </div>
-
-          <div style={modalStyles.formGroup}>
-            <label style={modalStyles.label} htmlFor="image_url">Image URL (Optional)</label>
-            <input
-              type="text"
-              id="image_url"
-              name="image_url"
-              value={formData.image_url}
-              onChange={handleChange}
-              style={modalStyles.input}
-              placeholder="https://example.com/image.jpg"
             />
           </div>
 
