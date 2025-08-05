@@ -97,8 +97,8 @@ func main() {
 // CORS Middleware
 func corsMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		// Set CORS headers
-		w.Header().Set("Access-Control-Allow-Origin", "*")
+		// Set CORS headers for all responses
+		w.Header().Set("Access-Control-Allow-Origin", "*") // Allow any origin
 		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
 		w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization, X-Requested-With")
 		w.Header().Set("Access-Control-Allow-Credentials", "true")
@@ -110,6 +110,7 @@ func corsMiddleware(next http.Handler) http.Handler {
 			return
 		}
 
+		// Call the next handler
 		next.ServeHTTP(w, r)
 	})
 }

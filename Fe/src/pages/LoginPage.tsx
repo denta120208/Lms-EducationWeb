@@ -390,19 +390,7 @@ const LoginPage = () => {
             <span style={styles.signupLink} onClick={handleSignUpClick}>Sign Up</span>
           </p>
           
-          {/* Teacher Info */}
-          <div style={{
-            marginTop: '16px',
-            padding: '12px',
-            backgroundColor: 'rgba(255, 255, 255, 0.2)',
-            borderRadius: '8px',
-            fontSize: '12px',
-            color: 'white'
-          }}>
-            <p style={{ margin: '0 0 8px 0', fontWeight: 'bold' }}>Teacher Accounts:</p>
-            <p style={{ margin: '0 0 4px 0' }}>Email: guru@gmail.com / Password: 123456</p>
-            <p style={{ margin: '0' }}>Email: ms.aurel@gmail.com / Password: 123456</p>
-          </div>
+
         </form>
       </div>
     </div>

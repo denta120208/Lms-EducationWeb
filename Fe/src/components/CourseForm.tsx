@@ -96,8 +96,21 @@ const CourseForm: React.FC<CourseFormProps> = ({ onClose, onSuccess }) => {
         setError(response.data.message || 'Failed to create course');
       }
     } catch (err: any) {
-      setError(err.response?.data?.message || 'An error occurred while creating the course');
       console.error('Error creating course:', err);
+      
+      // Provide more specific error messages
+      if (err.code === 'ERR_NETWORK') {
+        setError('Network error: Please check if the backend server is running');
+      } else if (err.response) {
+        // The request was made and the server responded with a status code
+        setError(`Server error: ${err.response.data?.message || err.response.statusText || 'Unknown error'}`);
+      } else if (err.request) {
+        // The request was made but no response was received
+        setError('No response from server. Please check your backend connection.');
+      } else {
+        // Something happened in setting up the request
+        setError(`Error: ${err.message || 'Unknown error occurred'}`);
+      }
     } finally {
       setIsLoading(false);
     }
