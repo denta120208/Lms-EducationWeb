@@ -9,13 +9,6 @@ import (
 	"github.com/gorilla/mux"
 )
 
-// Student represents a student user
-type Student struct {
-	ID    int    `json:"id"`
-	Name  string `json:"name"`
-	Email string `json:"email"`
-}
-
 // EnrollmentRequest represents the request body for enrolling students
 type EnrollmentRequest struct {
 	StudentIDs []int `json:"student_ids"`
