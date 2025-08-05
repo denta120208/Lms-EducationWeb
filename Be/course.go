@@ -13,8 +13,8 @@ import (
 	"time"
 )
 
-// Course represents a course in the system
-type Course struct {
+// CourseWithImage extends the base Course struct with additional fields for image and created_at
+type CourseWithImage struct {
 	ID          int       `json:"id"`
 	Title       string    `json:"title"`
 	Description string    `json:"description"`
@@ -101,7 +101,7 @@ func createCourseHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Create response
-	course := Course{
+	course := CourseWithImage{
 		ID:          int(courseID),
 		Title:       req.Title,
 		Description: req.Description,
@@ -201,8 +201,8 @@ func uploadFileHandler(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(response)
 }
 
-// GetCoursesByTeacher retrieves all courses for a specific teacher
-func GetCoursesByTeacher(teacherID int) ([]Course, error) {
+// GetCoursesWithImagesByTeacher retrieves all courses with images for a specific teacher
+func GetCoursesWithImagesByTeacher(teacherID int) ([]CourseWithImage, error) {
 	query := `
 		SELECT c.id, c.title, c.description, c.image_path, c.teacher_id, 
 		       t.name as teacher_name, c.subject, c.grade, c.created_at
@@ -218,9 +218,9 @@ func GetCoursesByTeacher(teacherID int) ([]Course, error) {
 	}
 	defer rows.Close()
 
-	var courses []Course
+	var courses []CourseWithImage
 	for rows.Next() {
-		var course Course
+		var course CourseWithImage
 		err := rows.Scan(
 			&course.ID,
 			&course.Title,
@@ -245,7 +245,7 @@ func GetCoursesByTeacher(teacherID int) ([]Course, error) {
 	return courses, nil
 }
 
-// Update the teacherCoursesHandler to use the new GetCoursesByTeacher function
+// teacherCoursesHandler handles the GET request for teacher's courses
 func teacherCoursesHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
@@ -264,7 +264,7 @@ func teacherCoursesHandler(w http.ResponseWriter, r *http.Request) {
 		Subject string `json:"subject"`
 	}
 
-	err := db.QueryRow("SELECT id, name, email, subject FROM users WHERE id = ? AND role = 'teacher'", teacherID).
+	err := DB.QueryRow("SELECT id, name, email, subject FROM teachers WHERE id = ?", teacherID).
 		Scan(&teacher.ID, &teacher.Name, &teacher.Email, &teacher.Subject)
 	
 	if err != nil {
@@ -278,7 +278,7 @@ func teacherCoursesHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Get courses taught by this teacher
-	courses, err := GetCoursesByTeacher(teacherID)
+	courses, err := GetCoursesWithImagesByTeacher(teacherID)
 	if err != nil {
 		log.Printf("Error getting courses: %v", err)
 		http.Error(w, "Failed to get courses", http.StatusInternalServerError)

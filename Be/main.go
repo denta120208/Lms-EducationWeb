@@ -421,11 +421,15 @@ func teacherDashboardHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Get courses for this teacher
-	courses, err := GetCoursesByTeacher(teacherID)
+	// Get basic course data for dashboard
+	var courses interface{} = []interface{}{}
+	
+	// Get courses from auth.go's implementation
+	basicCourses, err := GetCoursesByTeacher(teacherID)
 	if err != nil {
 		log.Printf("Error getting courses: %v", err)
-		courses = []Course{} // Empty array if error
+	} else {
+		courses = basicCourses
 	}
 
 	response := map[string]interface{}{
@@ -451,50 +455,7 @@ func teacherDashboardHandler(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(response)
 }
 
-// Teacher Courses Handler (My Courses)
-func teacherCoursesHandler(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json")
-
-	// Get teacher ID from context
-	teacherID, ok := r.Context().Value("user_id").(int)
-	if !ok {
-		http.Error(w, "Unauthorized or invalid teacher ID", http.StatusUnauthorized)
-		return
-	}
-
-	// Get teacher email from context
-	email, _ := r.Context().Value("user_email").(string)
-	if email == "" {
-		email = r.Header.Get("X-Teacher-Email") // Fallback to header
-	}
-
-	// Get teacher information
-	teacher, err := GetTeacherByEmail(email)
-	if err != nil {
-		http.Error(w, "Teacher not found", http.StatusNotFound)
-		return
-	}
-
-	// Get courses for this teacher
-	courses, err := GetCoursesByTeacher(teacherID)
-	if err != nil {
-		log.Printf("Error getting courses: %v", err)
-		courses = []Course{} // Empty array if error
-	}
-
-	response := map[string]interface{}{
-		"courses": courses,
-		"teacher": map[string]interface{}{
-			"id":      teacher.ID,
-			"name":    teacher.Name,
-			"email":   teacher.Email,
-			"subject": teacher.Subject,
-		},
-	}
-
-	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(response)
-}
+// teacherCoursesHandler is now defined in course.go
 
 // Teacher Profile Handler
 func teacherProfileHandler(w http.ResponseWriter, r *http.Request) {
