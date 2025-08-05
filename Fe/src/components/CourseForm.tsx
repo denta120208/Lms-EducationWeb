@@ -57,7 +57,7 @@ const CourseForm: React.FC<CourseFormProps> = ({ onClose, onSuccess }) => {
           const formData = new FormData();
           formData.append('file', file);
           
-          const uploadResponse = await api.post('/upload', formData, {
+          const uploadResponse = await api.post('/api/upload', formData, {
             headers: {
               'Content-Type': 'multipart/form-data',
             },
@@ -77,7 +77,7 @@ const CourseForm: React.FC<CourseFormProps> = ({ onClose, onSuccess }) => {
       }
       
       // Create course (with or without image)
-      const response = await api.post('/teacher/courses', courseData);
+      const response = await api.post('/api/teacher/courses', courseData);
     
       if (response.data.success) {
         onSuccess();
@@ -336,22 +336,7 @@ const CourseForm: React.FC<CourseFormProps> = ({ onClose, onSuccess }) => {
           </div>
           
           <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '12px' }}>
-            <button
-              type="button"
-              onClick={onClose}
-              style={{
-                padding: '10px 16px',
-                backgroundColor: '#f3f4f6',
-                border: '1px solid #d1d5db',
-                borderRadius: '6px',
-                fontSize: '14px',
-                cursor: 'pointer',
-              }}
-              disabled={isLoading}
-            >
-              Cancel
-            </button>
-            
+
             <button
               type="submit"
               style={{

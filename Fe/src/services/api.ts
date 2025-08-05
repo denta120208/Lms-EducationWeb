@@ -185,48 +185,40 @@ const apiCall = async (endpoint: string, options: RequestInit = {}): Promise<any
 export const authAPI = {
   login: async (credentials: LoginRequest): Promise<LoginResponse> => {
     try {
-      const response = await apiCall('/auth/login', {
-        method: 'POST',
-        body: JSON.stringify(credentials),
-      });
+      const response = await api.post('/api/auth/login', credentials);
       
       // Store token and user data
-      tokenManager.setToken(response.token);
-      userManager.setUser(response.student);
+      tokenManager.setToken(response.data.token);
+      userManager.setUser(response.data.student);
       
       // Set token in axios defaults
-      api.defaults.headers.common['Authorization'] = `Bearer ${response.token}`;
+      api.defaults.headers.common['Authorization'] = `Bearer ${response.data.token}`;
       
-      return response;
+      return response.data;
     } catch (error: any) {
-      console.error('Student login error:', error);
-      throw error.message || 'Failed to login';
+      throw error.response?.data?.message || 'Failed to login';
     }
   },
   
   teacherLogin: async (credentials: LoginRequest): Promise<TeacherLoginResponse> => {
     try {
-      const response = await apiCall('/auth/teacher/login', {
-        method: 'POST',
-        body: JSON.stringify(credentials),
-      });
+      const response = await api.post('/api/auth/teacher/login', credentials);
       
       // Store token and user data
-      tokenManager.setToken(response.token, true);
-      userManager.setUser(response.teacher, true);
+      tokenManager.setToken(response.data.token, true);
+      userManager.setUser(response.data.teacher, true);
       
       // Set token in axios defaults
-      api.defaults.headers.common['Authorization'] = `Bearer ${response.token}`;
+      api.defaults.headers.common['Authorization'] = `Bearer ${response.data.token}`;
       
-      return response;
+      return response.data;
     } catch (error: any) {
-      console.error('Teacher login error:', error);
-      throw error.message || 'Failed to login';
+      throw error.response?.data?.message || 'Failed to login';
     }
   },
   
   register: async (userData: RegisterRequest): Promise<{ message: string }> => {
-    return await apiCall('/auth/register', {
+    return await apiCall('/api/auth/register', {
       method: 'POST',
       body: JSON.stringify(userData),
     });
@@ -238,15 +230,15 @@ export const authAPI = {
   },
   
   getProfile: async () => {
-    return await apiCall('/profile');
+    return await apiCall('/api/profile');
   },
   
   getDashboard: async () => {
-    return await apiCall('/dashboard');
+    return await apiCall('/api/dashboard');
   }
 };
 
 // Health check
 export const healthCheck = async () => {
-  return await apiCall('/health');
+  return await apiCall('/api/health');
 };

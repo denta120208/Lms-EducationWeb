@@ -80,7 +80,7 @@ const CourseEditForm: React.FC<CourseEditFormProps> = ({ course, onClose, onSucc
           const formData = new FormData();
           formData.append('file', file);
           
-          const uploadResponse = await api.post('/upload', formData, {
+          const uploadResponse = await api.post('/api/upload', formData, {
             headers: {
               'Content-Type': 'multipart/form-data',
             },
@@ -100,7 +100,7 @@ const CourseEditForm: React.FC<CourseEditFormProps> = ({ course, onClose, onSucc
       }
       
       // Update course
-      const response = await api.put(`/teacher/courses/${course.id}`, courseData);
+      const response = await api.put(`/api/teacher/courses/${course.id}`, courseData);
     
       if (response.data.success) {
         onSuccess();
@@ -135,7 +135,7 @@ const CourseEditForm: React.FC<CourseEditFormProps> = ({ course, onClose, onSucc
     setError(null);
 
     try {
-      const response = await api.delete(`/teacher/courses/${course.id}`);
+      const response = await api.delete(`/api/teacher/courses/${course.id}`);
       
       if (response.data.success) {
         if (onDelete) {
