@@ -136,7 +136,7 @@ const LoginPage = () => {
       objectFit: 'contain'
     },
     loginCard: {
-      backgroundColor: 'rgba(45, 125, 122, 0.85)',
+      backgroundColor: 'rgba(45, 125, 122, 0.80)',
       backdropFilter: 'blur(10px)',
       WebkitBackdropFilter: 'blur(10px)',
       borderRadius: '16px',
