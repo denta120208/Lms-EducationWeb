@@ -93,33 +93,68 @@ const LoginPage = () => {
     container: {
       minHeight: '100vh',
       width: '100%',
-      backgroundColor: '#f8fafc',
+      backgroundImage: 'url(/SMKMetland.jpg)',
+      backgroundSize: 'cover',
+      backgroundPosition: 'center',
+      backgroundRepeat: 'no-repeat',
       display: 'flex',
       flexDirection: 'column',
       alignItems: 'center',
       justifyContent: 'center',
       margin: 0,
-      padding: '16px',
+      padding: '120px 16px 16px 16px',
       boxSizing: 'border-box',
       overflowX: 'hidden',
-      overflowY: 'auto'
+      overflowY: 'auto',
+      position: 'relative'
+    },
+    overlay: {
+      position: 'absolute',
+      top: 0,
+      left: 0,
+      right: 0,
+      bottom: 0,
+      backgroundColor: 'rgba(0, 0, 0, 0.3)',
+      zIndex: 0
+    },
+    sponsorLogos: {
+      position: 'absolute',
+      top: '40px',
+      left: '50%',
+      transform: 'translateX(-50%)',
+      display: 'flex',
+      gap: '30px',
+      alignItems: 'center',
+      zIndex: 2,
+      flexWrap: 'wrap',
+      justifyContent: 'center',
+      padding: '0 20px'
+    },
+    logoImage: {
+      height: '80px',
+      width: 'auto',
+      objectFit: 'contain'
     },
     loginCard: {
-      backgroundColor: '#799EFF',
+      backgroundColor: 'rgba(45, 125, 122, 0.85)',
+      backdropFilter: 'blur(10px)',
+      WebkitBackdropFilter: 'blur(10px)',
       borderRadius: '16px',
-      padding: '40px',
+      padding: '50px',
       width: '100%',
-      maxWidth: '400px',
-      minWidth: '280px',
-      boxShadow: '0 10px 25px rgba(0, 0, 0, 0.1)',
+      maxWidth: '650px',
+      minWidth: '480px',
+      boxShadow: '0 20px 40px rgba(0, 0, 0, 0.3)',
+      border: '1px solid rgba(255, 255, 255, 0.1)',
       position: 'relative',
       margin: '0 auto',
-      boxSizing: 'border-box'
+      boxSizing: 'border-box',
+      zIndex: 1
     },
     loginTitle: {
-      fontSize: '24px',
-      fontWeight: '600',
-      color: '#000000ff',
+      fontSize: '32px',
+      fontWeight: '700',
+      color: 'white',
       textAlign: 'center',
       marginBottom: '32px',
       marginTop: 0,
@@ -144,10 +179,10 @@ const LoginPage = () => {
     },
     input: {
       width: '100%',
-      padding: '12px 16px 12px 48px',
+      padding: '18px 20px 18px 52px',
       border: 'none',
       borderRadius: '8px',
-      fontSize: '14px',
+      fontSize: '16px',
       backgroundColor: 'white',
       color: '#374151',
       outline: 'none',
@@ -161,25 +196,25 @@ const LoginPage = () => {
       marginTop: '8px'
     },
     checkbox: {
-      width: '12px',
-      height: '12px',
-      accentColor: '#fbbf24'
+      width: '16px',
+      height: '16px',
+      accentColor: '#22c55e'
     },
     checkboxLabel: {
-      fontSize: '12px',
+      fontSize: '14px',
       color: 'white',
       cursor: 'pointer'
     },
     loginButton: {
-      backgroundColor: '#FFDE63',
-      color: '#1f2937',
+      backgroundColor: '#799EFF',
+      color: 'white',
       border: 'none',
       borderRadius: '8px',
-      padding: '12px 24px',
+      padding: '14px 24px',
       fontSize: '16px',
       fontWeight: '600',
       cursor: 'pointer',
-      transition: 'background-color 0.2s',
+      transition: 'all 0.2s',
       marginTop: '8px'
     },
     signupText: {
@@ -190,12 +225,13 @@ const LoginPage = () => {
       margin: 0
     },
     signupLink: {
-      color: '#fbbf24',
+      color: '#22c55e',
       textDecoration: 'underline',
-      cursor: 'pointer'
+      cursor: 'pointer',
+      fontWeight: '600'
     },
     errorContainer: {
-      backgroundColor: '#fef2f2',
+      backgroundColor: 'rgba(254, 242, 242, 0.95)',
       border: '1px solid #fecaca',
       borderRadius: '8px',
       padding: '12px',
@@ -210,13 +246,13 @@ const LoginPage = () => {
       margin: 0
     },
     fieldError: {
-      color: '#dc2626',
+      color: '#fecaca',
       fontSize: '12px',
       marginTop: '4px',
       marginLeft: '4px'
     },
     loadingButton: {
-      backgroundColor: '#9ca3af',
+      backgroundColor: '#6b7280',
       cursor: 'not-allowed'
     }
   };
@@ -231,38 +267,46 @@ const LoginPage = () => {
       ...styles,
       container: {
         ...styles.container,
-        padding: isSmallMobile ? '8px' : isMobile ? '12px' : isTablet ? '16px' : '20px',
+        padding: isSmallMobile ? '120px 8px 8px 8px' : isMobile ? '140px 12px 12px 12px' : isTablet ? '150px 16px 16px 16px' : '160px 16px 16px 16px',
         minHeight: '100vh'
+      },
+      sponsorLogos: {
+        ...styles.sponsorLogos,
+        top: isSmallMobile ? '20px' : isMobile ? '30px' : '40px',
+        gap: isSmallMobile ? '15px' : isMobile ? '20px' : '30px'
+      },
+      logoImage: {
+        ...styles.logoImage,
+        height: isSmallMobile ? '60px' : isMobile ? '70px' : '80px'
       },
       loginCard: {
         ...styles.loginCard,
-        padding: isSmallMobile ? '16px' : isMobile ? '20px' : isTablet ? '28px' : '40px',
-        maxWidth: isSmallMobile ? '95%' : isMobile ? '90%' : isTablet ? '350px' : '400px',
-        minWidth: isSmallMobile ? '280px' : '300px'
+        padding: isSmallMobile ? '30px' : isMobile ? '40px' : isTablet ? '45px' : '50px',
+        maxWidth: isSmallMobile ? '95%' : isMobile ? '90%' : isTablet ? '550px' : '600px',
+        minWidth: isSmallMobile ? '320px' : '450px'
       },
       loginTitle: {
         ...styles.loginTitle,
-        fontSize: isSmallMobile ? '20px' : isMobile ? '22px' : '24px'
+        fontSize: isSmallMobile ? '24px' : isMobile ? '28px' : '32px'
       },
       input: {
         ...styles.input,
-        fontSize: isSmallMobile ? '16px' : isMobile ? '16px' : '14px',
-        padding: isSmallMobile ? '10px 14px 10px 44px' : '12px 16px 12px 48px'
+        fontSize: isSmallMobile ? '16px' : isMobile ? '16px' : '16px',
+        padding: isSmallMobile ? '16px 18px 16px 48px' : isMobile ? '17px 19px 17px 50px' : '18px 20px 18px 52px'
       },
       loginButton: {
         ...styles.loginButton,
         fontSize: isSmallMobile ? '14px' : '16px',
-        padding: isSmallMobile ? '10px 20px' : '12px 24px'
+        padding: isSmallMobile ? '12px 20px' : '14px 24px'
       },
       checkbox: {
         ...styles.checkbox,
-        width: isSmallMobile ? '14px' : isMobile ? '16px' : '18px',
-        height: isSmallMobile ? '14px' : isMobile ? '16px' : '18px',
-        transform: isSmallMobile ? 'scale(1)' : isMobile ? 'scale(1.1)' : 'scale(1.3)'
+        width: isSmallMobile ? '14px' : '16px',
+        height: isSmallMobile ? '14px' : '16px'
       },
       checkboxLabel: {
         ...styles.checkboxLabel,
-        fontSize: isSmallMobile ? '11px' : isMobile ? '12px' : '14px'
+        fontSize: isSmallMobile ? '12px' : '14px'
       }
     };
   };
@@ -271,32 +315,17 @@ const LoginPage = () => {
 
   return (
     <div style={responsiveStyles.container}>
-      {/* Lomba Image */}
-      <div style={{
-        marginBottom: windowWidth <= 480 ? '32px' : '56px',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        padding: '0 16px'
-      }}>
-        <img 
-          src="/lomba.png" 
-          alt="Lomba" 
-          style={{
-            width: windowWidth <= 360 ? '280px' : 
-                   windowWidth <= 480 ? '350px' : 
-                   windowWidth <= 768 ? '500px' : 
-                   windowWidth <= 1024 ? '600px' : '700px',
-            height: 'auto',
-            maxWidth: '95%',
-            objectFit: 'contain'
-          }}
-        />
+      <div style={styles.overlay}></div>
+      
+      {/* Sponsor Logos */}
+      <div style={responsiveStyles.sponsorLogos}>
+        <img src="/lomba.png" alt="INFRA Competition" style={responsiveStyles.logoImage} />
+        {/* Add other sponsor logos as needed */}
       </div>
 
       {/* Login Card */}
       <div style={responsiveStyles.loginCard}>
-        <h2 style={responsiveStyles.loginTitle} className="poppins-bold">Login</h2>
+        <h2 style={responsiveStyles.loginTitle}>Login</h2>
         
         {/* Error Display */}
         {error && (
@@ -312,11 +341,11 @@ const LoginPage = () => {
             <User size={20} style={styles.inputIcon} />
             <input
               type="email"
-              placeholder="enter your email"
+              placeholder="Username"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               style={responsiveStyles.input}
-              onFocus={(e) => (e.target as HTMLInputElement).style.boxShadow = '0 0 0 2px rgba(251, 191, 36, 0.5)'}
+              onFocus={(e) => (e.target as HTMLInputElement).style.boxShadow = '0 0 0 2px rgba(34, 197, 94, 0.5)'}
               onBlur={(e) => (e.target as HTMLInputElement).style.boxShadow = 'none'}
               disabled={isSubmitting}
             />
@@ -330,11 +359,11 @@ const LoginPage = () => {
             <Lock size={20} style={styles.inputIcon} />
             <input
               type="password"
-              placeholder="enter password"
+              placeholder="Enter Password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               style={responsiveStyles.input}
-              onFocus={(e) => (e.target as HTMLInputElement).style.boxShadow = '0 0 0 2px rgba(251, 191, 36, 0.5)'}
+              onFocus={(e) => (e.target as HTMLInputElement).style.boxShadow = '0 0 0 2px rgba(34, 197, 94, 0.5)'}
               onBlur={(e) => (e.target as HTMLInputElement).style.boxShadow = 'none'}
               disabled={isSubmitting}
             />
@@ -353,7 +382,7 @@ const LoginPage = () => {
               style={responsiveStyles.checkbox}
             />
             <label htmlFor="rememberPassword" style={responsiveStyles.checkboxLabel}>
-              Save Password
+              Show Password
             </label>
           </div>
 
@@ -367,14 +396,16 @@ const LoginPage = () => {
             }}
             onMouseEnter={(e) => {
               if (!isSubmitting) {
+                (e.target as HTMLButtonElement).style.backgroundColor = '#6B8EFF';
                 (e.target as HTMLButtonElement).style.transform = 'translateY(-2px)';
-                (e.target as HTMLButtonElement).style.boxShadow = '0 8px 25px rgba(102, 126, 234, 0.6)';
+                (e.target as HTMLButtonElement).style.boxShadow = '0 8px 25px rgba(121, 158, 255, 0.4)';
               }
             }}
             onMouseLeave={(e) => {
               if (!isSubmitting) {
+                (e.target as HTMLButtonElement).style.backgroundColor = '#799EFF';
                 (e.target as HTMLButtonElement).style.transform = 'translateY(0px)';
-                (e.target as HTMLButtonElement).style.boxShadow = '0 4px 15px rgba(102, 126, 234, 0.4)';
+                (e.target as HTMLButtonElement).style.boxShadow = 'none';
               }
             }}
           >
@@ -383,11 +414,9 @@ const LoginPage = () => {
 
           {/* Signup Link */}
           <p style={styles.signupText}>
-            Don't Have an account yet? {' '}
+            Don't Have an account yet?{' '}
             <span style={styles.signupLink} onClick={handleSignUpClick}>Sign Up</span>
           </p>
-          
-
         </form>
       </div>
     </div>
