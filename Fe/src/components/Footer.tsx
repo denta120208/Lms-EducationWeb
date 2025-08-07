@@ -1,4 +1,5 @@
 import React from 'react';
+import type { CSSProperties } from 'react';
 import WhatsAppIcon from '../assets/WhatsApp.svg';
 import InstagramIcon from '../assets/InstaGram.svg';
 import FacebookIcon from '../assets/FaceBook.svg';
@@ -6,11 +7,16 @@ import YouTubeIcon from '../assets/YouTube.svg';
 import TikTokIcon from '../assets/TikTok.svg';
 
 const Footer: React.FC = () => {
-  const styles = {
+  const styles: Record<string, CSSProperties> = {
     footer: {
       backgroundColor: '#004E4E',
+      backgroundImage: 'url(/footer.jpg)',
+      backgroundSize: 'cover',
+      backgroundPosition: 'center',
+      backgroundRepeat: 'no-repeat',
       color: 'white',
       padding: '2rem 2rem 1rem',
+      position: 'relative',
     },
     footerContent: {
       maxWidth: '1200px',
@@ -76,14 +82,24 @@ const Footer: React.FC = () => {
     <>
       {/* Footer */}
       <footer style={styles.footer}>
-        <div style={styles.footerContent}>
+        {/* Green overlay */}
+        <div style={{
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          backgroundColor: 'rgba(0, 78, 78, 0.8)',
+          zIndex: 1,
+        }}></div>
+        <div style={{ ...styles.footerContent, position: 'relative', zIndex: 2 }}>
           <div style={styles.footerGrid}>
             {/* Left Column - Logo and Social Media */}
             <div style={styles.footerSection}>
-              <div style={{ textAlign: 'center', marginBottom: '1rem' }}>
+              <div style={{ textAlign: 'left', marginBottom: '1rem', marginTop: '5rem' }}>
                 <img src="/SMK LOGO.png" alt="SMK Metland Logo" style={{ height: '200px', marginBottom: '1rem' }} />
               </div>
-              <div style={{ ...styles.footerSocial, justifyContent: 'center' }}>
+              <div style={{ ...styles.footerSocial, justifyContent: 'flex-start', marginTop: '2rem', marginLeft: '-2rem' }}>
                 <a href="#" style={styles.socialIcon}>
                   <img src={WhatsAppIcon} alt="WhatsApp" style={{ width: '20px', height: '20px', filter: 'brightness(0) invert(1)' }} />
                 </a>

@@ -17,6 +17,44 @@ import EnFlag from '../assets/en.png';
 import IdFlag from '../assets/id 1.png';
 import Footer from '../components/Footer';
 
+// Import partnership images
+// Top row images
+import SilaTea from '../assets/Partnership/Top/Sila_Tea-removebg-preview-150x150.png';
+import SekolahanId from '../assets/Partnership/Top/Sekolahan.id-removebg-preview-150x150.png';
+import RaSuites from '../assets/Partnership/Top/Ra_Suites-removebg-preview-150x150.png';
+import Pullman from '../assets/Partnership/Top/Pullman-removebg-preview-150x150.png';
+import PTMetland from '../assets/Partnership/Top/PT_Metland-removebg-preview-e1704943421395-150x150.png';
+import MetropolitanMall from '../assets/Partnership/Top/Metropolitan_Mall_Cibubur-removebg-preview-150x150.png';
+import Kempinski from '../assets/Partnership/Top/Kempinski-removebg-preview-150x150.png';
+import KalianaApartment from '../assets/Partnership/Top/Kaliana_Apartment-removebg-preview-150x150.png';
+import Indesso from '../assets/Partnership/Top/Indesso-removebg-preview-150x150.png';
+import HotelCiputra from '../assets/Partnership/Top/Hotel_Ciputra_Cibubur-removebg-preview-150x150.png';
+import HorisonHotels from '../assets/Partnership/Top/Horison_Hotels_Group__1_-removebg-preview-150x150.png';
+import HarrisHotel from '../assets/Partnership/Top/Harris_Hotel-removebg-preview-150x150.png';
+import GrandMetropolitan from '../assets/Partnership/Top/Grand_Metropolitan-removebg-preview-150x150.png';
+import Ayana from '../assets/Partnership/Top/Ayana-removebg-preview-1-150x150.png';
+
+// Bottom row images
+import Virtalus from '../assets/Partnership/Bottom/virtalus-150x150.png';
+import Unesco from '../assets/Partnership/Bottom/unesco-150x150.png';
+import Trskt from '../assets/Partnership/Bottom/trskt-150x150.png';
+import ThailangIjo from '../assets/Partnership/Bottom/thailang-ijo-150x150.png';
+import Tgroup from '../assets/Partnership/Bottom/tgroup-150x150.png';
+import Teii from '../assets/Partnership/Bottom/teii-e1705024305638-150x150.png';
+import Stada from '../assets/Partnership/Bottom/stada-1-150x150.png';
+import Shangri from '../assets/Partnership/Bottom/shangri-150x150.png';
+import RitzCalton from '../assets/Partnership/Bottom/ritz-calton-150x150.png';
+import Puket from '../assets/Partnership/Bottom/puket-1-150x150.png';
+import Phucket from '../assets/Partnership/Bottom/phucket.png';
+import PhilipinUniversity from '../assets/Partnership/Bottom/philipin-university-150x150.png';
+import LongBeach from '../assets/Partnership/Bottom/long-beach-150x150.png';
+import Dt153037286 from '../assets/Partnership/Bottom/dt_153037286-150x90.png';
+import Biru from '../assets/Partnership/Bottom/biru-150x150.png';
+import Accor from '../assets/Partnership/Bottom/accor-e1705022947913-150x150.png';
+import PhitsanulokLogo from '../assets/Partnership/Bottom/Phitsanulok_Logo-1-150x150.jpg';
+import Img20230612 from '../assets/Partnership/Bottom/IMG-20230612-WA0015-1-150x150.jpg';
+import Img14 from '../assets/Partnership/Bottom/14-150x150.jpg';
+
 const Index = () => {
   const navigate = useNavigate();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -42,10 +80,10 @@ const Index = () => {
       const currentScrollY = window.scrollY;
       
       if (currentScrollY > lastScrollY && currentScrollY > 50) {
-        // Scrolling down and past 50px (reduced from 100px)
+        // Scrolling down and past 50px
         setIsSocialBarVisible(false);
-      } else if (currentScrollY < lastScrollY && currentScrollY < lastScrollY - 10) {
-        // Scrolling up with minimum threshold
+      } else if (currentScrollY <= 0) {
+        // Only show when at the very top of the page
         setIsSocialBarVisible(true);
       }
       
@@ -57,7 +95,7 @@ const Index = () => {
   }, [lastScrollY]);
 
   const handleSignUpClick = () => {
-    navigate('/signup');
+    navigate('/login');
   };
 
   const toggleMenu = () => {
@@ -129,7 +167,7 @@ const Index = () => {
       flexDirection: 'column',
       margin: 0,
       padding: 0,
-      paddingTop: isSocialBarVisible ? (isMobile ? '96px' : '104px') : '64px', // Adjust based on social bar visibility
+      paddingTop: '104px', // Fixed padding to prevent auto-scroll
       boxSizing: 'border-box',
       fontFamily: '"Inter", sans-serif',
       overflowX: 'hidden',
@@ -151,7 +189,7 @@ const Index = () => {
       zIndex: 1001,
       height: isMobile ? '32px' : '40px',
       transform: isSocialBarVisible ? 'translateY(0)' : 'translateY(-100%)',
-      transition: 'transform 0.15s ease',
+      transition: 'transform 0.1s ease',
     },
     socialLinks: {
       display: 'flex',
@@ -217,12 +255,12 @@ const Index = () => {
       backgroundColor: '#ffffff',
       boxShadow: '0 2px 4px rgba(0,0,0,0.05)',
       position: 'fixed',
-      top: isSocialBarVisible ? (isMobile ? '32px' : '40px') : '0px', // Adjust based on social bar visibility
+      top: isSocialBarVisible ? (isMobile ? '32px' : '40px') : '0px',
       left: 0,
       right: 0,
       zIndex: 1000,
       width: '100%',
-      transition: 'all 0.15s ease',
+      transition: 'top 0.05s ease',
       height: '64px',
     },
     logo: {
@@ -634,7 +672,7 @@ const Index = () => {
       lineHeight: 1.3,
     },
     newsIndexButton: {
-      backgroundColor: '#6b46c1',
+      backgroundColor: '#035757',
       color: 'white',
       border: 'none',
       borderRadius: '0.375rem',
@@ -650,7 +688,7 @@ const Index = () => {
     // Infographics Section
     infographicsSection: {
       padding: '4rem 2rem',
-      backgroundColor: '#f8f9fa',
+        backgroundColor: 'white',
     },
     infographicsContent: {
       maxWidth: '1200px',
@@ -663,7 +701,7 @@ const Index = () => {
       textAlign: 'center',
       letterSpacing: '0.05em',
       textTransform: 'uppercase',
-      backgroundColor: 'white',
+      backgroundColor: '#e9ecef',
       padding: '1rem 0',
       width: '100vw',
       marginLeft: 'calc(-50vw + 50%)',
@@ -685,9 +723,6 @@ const Index = () => {
       alignItems: 'center',
       justifyContent: 'center',
       padding: '1rem',
-      backgroundColor: 'white',
-      borderRadius: '0.5rem',
-      boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
     },
     infographicNumber: {
       fontSize: '2.5rem',
@@ -703,7 +738,7 @@ const Index = () => {
     // Programs Section
     programsSection: {
       padding: '4rem 2rem',
-      backgroundColor: '#f8f9fa',
+      backgroundColor: '#ffffff',
     },
     programsTitle: {
       fontSize: '2.5rem',
@@ -712,7 +747,7 @@ const Index = () => {
       textAlign: 'center',
       letterSpacing: '0.05em',
       textTransform: 'uppercase',
-      backgroundColor: 'white',
+      backgroundColor: '#e9ecef',
       padding: '1rem 0',
       width: '100vw',
       marginLeft: 'calc(-50vw + 50%)',
@@ -776,7 +811,7 @@ const Index = () => {
     // Partnership Section
     partnershipSection: {
       padding: '4rem 2rem',
-      backgroundColor: '#f8f9fa',
+      backgroundColor: '#ffffff',
     },
     partnershipTitle: {
       fontSize: '2.5rem',
@@ -785,7 +820,7 @@ const Index = () => {
       textAlign: 'center',
       letterSpacing: '0.05em',
       textTransform: 'uppercase',
-      backgroundColor: 'white',
+      backgroundColor: '#e9ecef',
       padding: '1rem 0',
       width: '100vw',
       marginLeft: 'calc(-50vw + 50%)',
@@ -801,10 +836,9 @@ const Index = () => {
       marginBottom: '2rem',
     },
     partnerLogo: {
-      width: '150px',
-      height: '80px',
+      width: '200px',
+      height: '120px',
       objectFit: 'contain',
-      filter: 'grayscale(1)',
       transition: 'filter 0.3s ease',
       margin: '0 1rem',
     },
@@ -1100,7 +1134,7 @@ const Index = () => {
               </a>
             </div>
             
-            <button style={styles.button}>PPDB</button>
+            <button style={styles.button} onClick={handleSignUpClick}>MS Learn</button>
           </nav>
         )}
 
@@ -1140,7 +1174,7 @@ const Index = () => {
           <a style={styles.navLink}>COLLEGE</a>
           <a style={styles.navLink}>E-BOOK</a>
           <a style={styles.navLink}>BKK</a>
-            <button style={{...styles.button, width: '100%', marginTop: '1rem'}}>PPDB</button>
+                         <button style={{...styles.button, width: '100%', marginTop: '1rem'}} onClick={handleSignUpClick}>MS Learn</button>
           </div>
       </header>
 
@@ -1212,12 +1246,12 @@ const Index = () => {
             />
             <div style={styles.featuredNewsContent}>
               <div>
-                <div style={styles.featuredNewsDate}>06, Agustus 2025</div>
+                <div style={styles.featuredNewsDate}>15, Januari 2025</div>
                 <h3 style={styles.featuredNewsTitle}>
-                  Kuliah Umum Internasional FKIP Unpak & Jepang Bahas SDGs & ESD Global
+                  Lorem Ipsum Dolor Sit Amet Consectetur Adipiscing Elit
                 </h3>
                 <p style={styles.featuredNewsDescription}>
-                  Acara ini diadakan dalam rangka memperingati Hari Konservasi Alam Nasional (HKAN) 2025 dan diikuti oleh lebih dari 100 peserta.
+                  Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
                 </p>
               </div>
               <button style={styles.readMoreButton}>Baca Selengkapnya</button>
@@ -1233,7 +1267,7 @@ const Index = () => {
                 style={styles.newsCardImage}
               />
               <h3 style={styles.newsCardTitle}>
-                Universitas Pakuan Latih Warga Bojong Olah Lele Jadi Sarden Kaleng Bernilai Ekonomi
+                Lorem Ipsum Dolor Sit Amet Consectetur Adipiscing Elit Sed Do Eiusmod
               </h3>
             </div>
             <div style={styles.newsCard}>
@@ -1243,7 +1277,7 @@ const Index = () => {
                 style={styles.newsCardImage}
               />
               <h3 style={styles.newsCardTitle}>
-                Universitas Pakuan Wisuda 797 Lulusan, Cetak Prestasi dan Inovasi di Tahun 2025
+                Tempor Incididunt Ut Labore Et Dolore Magna Aliqua Ut Enim Ad Minim
               </h3>
             </div>
             <div style={styles.newsCard}>
@@ -1253,7 +1287,7 @@ const Index = () => {
                 style={styles.newsCardImage}
               />
               <h3 style={styles.newsCardTitle}>
-                Studi Lapangan Teknik Elektro Unpak di UPDL Cibogo Tambah Wawasan TM-TT
+                Veniam Quis Nostrud Exercitation Ullamco Laboris Nisi Ut Aliquip Ex
               </h3>
             </div>
             <div style={styles.newsCard}>
@@ -1263,7 +1297,7 @@ const Index = () => {
                 style={styles.newsCardImage}
               />
               <h3 style={styles.newsCardTitle}>
-                Pengembangan Karir dan Alumni Unpak Gelar Seminar Grooming for Success
+                Ea Commodo Consequat Duis Aute Irure Dolor In Reprehenderit Voluptate
               </h3>
           </div>
           </div>
@@ -1382,18 +1416,20 @@ const Index = () => {
                 cssEase="ease"
                 rtl={false}
               >
-                <div><img src="/logo.png" alt="Partner 1" style={styles.partnerLogo} /></div>
-                <div><img src="/logo.png" alt="Partner 2" style={styles.partnerLogo} /></div>
-                <div><img src="/logo.png" alt="Partner 3" style={styles.partnerLogo} /></div>
-                <div><img src="/logo.png" alt="Partner 4" style={styles.partnerLogo} /></div>
-                <div><img src="/logo.png" alt="Partner 5" style={styles.partnerLogo} /></div>
-                <div><img src="/logo.png" alt="Partner 6" style={styles.partnerLogo} /></div>
-                <div><img src="/logo.png" alt="Partner 7" style={styles.partnerLogo} /></div>
-                <div><img src="/logo.png" alt="Partner 8" style={styles.partnerLogo} /></div>
-                <div><img src="/logo.png" alt="Partner 9" style={styles.partnerLogo} /></div>
-                <div><img src="/logo.png" alt="Partner 10" style={styles.partnerLogo} /></div>
-                <div><img src="/logo.png" alt="Partner 11" style={styles.partnerLogo} /></div>
-                <div><img src="/logo.png" alt="Partner 12" style={styles.partnerLogo} /></div>
+                <div><img src={SilaTea} alt="Sila Tea" style={styles.partnerLogo} /></div>
+                <div><img src={SekolahanId} alt="Sekolahan.id" style={styles.partnerLogo} /></div>
+                <div><img src={RaSuites} alt="Ra Suites" style={styles.partnerLogo} /></div>
+                <div><img src={Pullman} alt="Pullman" style={styles.partnerLogo} /></div>
+                <div><img src={PTMetland} alt="PT Metland" style={styles.partnerLogo} /></div>
+                <div><img src={MetropolitanMall} alt="Metropolitan Mall Cibubur" style={styles.partnerLogo} /></div>
+                <div><img src={Kempinski} alt="Kempinski" style={styles.partnerLogo} /></div>
+                <div><img src={KalianaApartment} alt="Kaliana Apartment" style={styles.partnerLogo} /></div>
+                <div><img src={Indesso} alt="Indesso" style={styles.partnerLogo} /></div>
+                <div><img src={HotelCiputra} alt="Hotel Ciputra Cibubur" style={styles.partnerLogo} /></div>
+                <div><img src={HorisonHotels} alt="Horison Hotels Group" style={styles.partnerLogo} /></div>
+                <div><img src={HarrisHotel} alt="Harris Hotel" style={styles.partnerLogo} /></div>
+                <div><img src={GrandMetropolitan} alt="Grand Metropolitan" style={styles.partnerLogo} /></div>
+                <div><img src={Ayana} alt="Ayana" style={styles.partnerLogo} /></div>
               </Slider>
         </div>
             
@@ -1410,18 +1446,25 @@ const Index = () => {
                 cssEase="ease"
                 rtl={true}
               >
-                <div><img src="/logo.png" alt="Partner 13" style={styles.partnerLogo} /></div>
-                <div><img src="/logo.png" alt="Partner 14" style={styles.partnerLogo} /></div>
-                <div><img src="/logo.png" alt="Partner 15" style={styles.partnerLogo} /></div>
-                <div><img src="/logo.png" alt="Partner 16" style={styles.partnerLogo} /></div>
-                <div><img src="/logo.png" alt="Partner 17" style={styles.partnerLogo} /></div>
-                <div><img src="/logo.png" alt="Partner 18" style={styles.partnerLogo} /></div>
-                <div><img src="/logo.png" alt="Partner 19" style={styles.partnerLogo} /></div>
-                <div><img src="/logo.png" alt="Partner 20" style={styles.partnerLogo} /></div>
-                <div><img src="/logo.png" alt="Partner 21" style={styles.partnerLogo} /></div>
-                <div><img src="/logo.png" alt="Partner 22" style={styles.partnerLogo} /></div>
-                <div><img src="/logo.png" alt="Partner 23" style={styles.partnerLogo} /></div>
-                <div><img src="/logo.png" alt="Partner 24" style={styles.partnerLogo} /></div>
+                <div><img src={Virtalus} alt="Virtalus" style={styles.partnerLogo} /></div>
+                <div><img src={Unesco} alt="UNESCO" style={styles.partnerLogo} /></div>
+                <div><img src={Trskt} alt="TRSKT" style={styles.partnerLogo} /></div>
+                <div><img src={ThailangIjo} alt="Thailang Ijo" style={styles.partnerLogo} /></div>
+                <div><img src={Tgroup} alt="T Group" style={styles.partnerLogo} /></div>
+                <div><img src={Teii} alt="TEII" style={styles.partnerLogo} /></div>
+                <div><img src={Stada} alt="STADA" style={styles.partnerLogo} /></div>
+                <div><img src={Shangri} alt="Shangri-La" style={styles.partnerLogo} /></div>
+                <div><img src={RitzCalton} alt="Ritz Carlton" style={styles.partnerLogo} /></div>
+                <div><img src={Puket} alt="Puket" style={styles.partnerLogo} /></div>
+                <div><img src={Phucket} alt="Phucket" style={styles.partnerLogo} /></div>
+                <div><img src={PhilipinUniversity} alt="Philippine University" style={styles.partnerLogo} /></div>
+                <div><img src={LongBeach} alt="Long Beach" style={styles.partnerLogo} /></div>
+                <div><img src={Dt153037286} alt="DT 153037286" style={styles.partnerLogo} /></div>
+                <div><img src={Biru} alt="Biru" style={styles.partnerLogo} /></div>
+                <div><img src={Accor} alt="Accor" style={styles.partnerLogo} /></div>
+                <div><img src={PhitsanulokLogo} alt="Phitsanulok Logo" style={styles.partnerLogo} /></div>
+                <div><img src={Img20230612} alt="IMG 20230612" style={styles.partnerLogo} /></div>
+                <div><img src={Img14} alt="IMG 14" style={styles.partnerLogo} /></div>
               </Slider>
           </div>
             </div>
