@@ -1072,7 +1072,7 @@ const Index = () => {
               </a>
             </div>
             
-            <button style={styles.button}>PPDB</button>
+            <button style={styles.button}>MS-LEARN</button>
           </nav>
         )}
 
@@ -1137,7 +1137,7 @@ const Index = () => {
             style={styles.heroButton}
             onClick={handleSignUpClick}
           >
-            DAFTAR SEKARANG
+          MS-LEARN
           </button>
         </div>
       </section>

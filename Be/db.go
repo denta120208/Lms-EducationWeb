@@ -64,6 +64,11 @@ func InitDB() error {
 		fmt.Printf("⚠️  Warning: Gagal membuat tabel: %v\n", err)
 	}
 
+	// Create course materials table
+	if err := createCourseMaterialsTable(); err != nil {
+		fmt.Printf("⚠️  Warning: Gagal membuat tabel course_materials: %v\n", err)
+	}
+
 	return nil
 }
 
@@ -137,6 +142,15 @@ func createTables() error {
 			correct_answer ENUM('A', 'B', 'C', 'D') NOT NULL,
 			created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 			FOREIGN KEY (quiz_id) REFERENCES quizzes(id) ON DELETE CASCADE
+		)`,
+		`CREATE TABLE IF NOT EXISTS course_enrollments (
+			id INT AUTO_INCREMENT PRIMARY KEY,
+			course_id INT NOT NULL,
+			student_id INT NOT NULL,
+			enrolled_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+			UNIQUE KEY unique_enrollment (course_id, student_id),
+			FOREIGN KEY (course_id) REFERENCES courses(id) ON DELETE CASCADE,
+			FOREIGN KEY (student_id) REFERENCES students(id) ON DELETE CASCADE
 		)`,
 	}
 

@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Grid3X3, BookOpen, User, Bell, LogOut, AlertCircle, Plus, Edit, Trash2, Users } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import CourseForm from '../components/CourseForm';
-import CourseEditForm from '../components/CourseEditForm';
+import CourseManagementModal from '../components/CourseManagementModal';
 import EnrollmentForm from '../components/EnrollmentForm';
 import { api, API_BASE_URL } from '../services/api';
 
@@ -723,9 +723,9 @@ const TeacherCourses = () => {
         />
       )}
 
-      {/* Course Edit Form */}
+      {/* Course Management Modal */}
       {showEditForm && selectedCourse && (
-        <CourseEditForm 
+        <CourseManagementModal 
           course={selectedCourse}
           onClose={() => {
             setShowEditForm(false);

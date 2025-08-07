@@ -71,6 +71,90 @@ func SeedTestData() error {
 		fmt.Println("✅ Test teachers sudah ada")
 	}
 
+	// Seed some test courses with images
+	var courseCount int
+	err = DB.QueryRow("SELECT COUNT(*) FROM courses").Scan(&courseCount)
+	if err != nil {
+		return fmt.Errorf("gagal cek existing course data: %v", err)
+	}
+
+	if courseCount == 0 {
+		// Get teacher IDs
+		var teacherID1, teacherID2 int
+		err = DB.QueryRow("SELECT id FROM teachers WHERE email = ?", "guru@gmail.com").Scan(&teacherID1)
+		if err != nil {
+			fmt.Printf("⚠️  Teacher guru@gmail.com not found: %v\n", err)
+			teacherID1 = 0
+		}
+		
+		err = DB.QueryRow("SELECT id FROM teachers WHERE email = ?", "gmail").Scan(&teacherID2)
+		if err != nil {
+			// Create the gmail teacher if not exists
+			err = CreateTeacher("Teacher Gmail", "gmail", "ya", "General Studies")
+			if err != nil {
+				fmt.Printf("⚠️  Gagal membuat teacher gmail: %v\n", err)
+				teacherID2 = 0
+			} else {
+				err = DB.QueryRow("SELECT id FROM teachers WHERE email = ?", "gmail").Scan(&teacherID2)
+				if err != nil {
+					fmt.Printf("⚠️  Gagal mendapatkan ID teacher gmail: %v\n", err)
+					teacherID2 = 0
+				} else {
+					fmt.Printf("✅ Teacher gmail berhasil dibuat dengan ID %d\n", teacherID2)
+				}
+			}
+		}
+
+		// Create test courses
+		testCourses := []struct {
+			title       string
+			description string
+			subject     string
+			grade       string
+			teacherID   int
+			imagePath   string
+		}{
+			{
+				"Mathematics Grade 10",
+				"Advanced mathematics course covering algebra, geometry, and calculus basics",
+				"Mathematics",
+				"10",
+				teacherID1,
+				"/uploads/1754465600902445500_Screenshot_(153).png",
+			},
+			{
+				"Science Fundamentals",
+				"Introduction to physics, chemistry, and biology concepts",
+				"Science",
+				"9",
+				teacherID2,
+				"/uploads/1754556399763364000_Screenshot_(187).png",
+			},
+			{
+				"English Literature",
+				"Exploring classic and modern literature with writing exercises",
+				"English",
+				"11",
+				teacherID1,
+				"",
+			},
+		}
+
+		for _, course := range testCourses {
+			if course.teacherID > 0 {
+				query := "INSERT INTO courses (title, description, subject, grade, teacher_id, image_path) VALUES (?, ?, ?, ?, ?, ?)"
+				_, err := DB.Exec(query, course.title, course.description, course.subject, course.grade, course.teacherID, course.imagePath)
+				if err != nil {
+					fmt.Printf("⚠️  Gagal membuat course %s: %v\n", course.title, err)
+				} else {
+					fmt.Printf("✅ Course %s berhasil dibuat\n", course.title)
+				}
+			}
+		}
+	} else {
+		fmt.Println("✅ Test courses sudah ada")
+	}
+
 	fmt.Println("🌱 Seeding selesai!")
 	return nil
 }

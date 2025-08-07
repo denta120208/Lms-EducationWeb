@@ -1,47 +1,26 @@
-import React, { useState, useEffect } from 'react';
-import { X, Upload, Plus, BookOpen } from 'lucide-react';
+import React, { useState } from 'react';
+import { X, Upload, FileText, Image, Video, Youtube } from 'lucide-react';
 import { api } from '../services/api';
-import CourseMaterialForm from './CourseMaterialForm';
-import CourseMaterialsList from './CourseMaterialsList';
 
-interface CourseEditFormProps {
-  course: {
-    id: number;
-    title: string;
-    description: string;
-    image_path: string;
-    subject: string;
-
-  };
+interface CourseMaterialFormProps {
+  courseId: number;
   onClose: () => void;
   onSuccess: () => void;
-  onDelete?: () => void;
 }
 
-const CourseEditForm: React.FC<CourseEditFormProps> = ({ course, onClose, onSuccess, onDelete }) => {
-  const [title, setTitle] = useState(course.title);
-  const [description, setDescription] = useState(course.description || '');
-  const [subject, setSubject] = useState(course.subject);
-
+const CourseMaterialForm: React.FC<CourseMaterialFormProps> = ({ courseId, onClose, onSuccess }) => {
+  const [title, setTitle] = useState('');
+  const [description, setDescription] = useState('');
+  const [type, setType] = useState<'image' | 'pdf' | 'video' | 'youtube'>('image');
   const [file, setFile] = useState<File | null>(null);
-  const [previewUrl, setPreviewUrl] = useState<string | null>(
-    course.image_path ? `http://localhost:8080${course.image_path}` : null
-  );
+  const [youtubeUrl, setYoutubeUrl] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [isDeleting, setIsDeleting] = useState(false);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFile = e.target.files?.[0];
     if (selectedFile) {
       setFile(selectedFile);
-      
-      // Create a preview URL
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setPreviewUrl(reader.result as string);
-      };
-      reader.readAsDataURL(selectedFile);
     }
   };
 
@@ -50,8 +29,12 @@ const CourseEditForm: React.FC<CourseEditFormProps> = ({ course, onClose, onSucc
       setError('Title is required');
       return false;
     }
-    if (!subject) {
-      setError('Subject is required');
+    if (type === 'youtube' && !youtubeUrl) {
+      setError('YouTube URL is required');
+      return false;
+    }
+    if ((type === 'image' || type === 'pdf' || type === 'video') && !file) {
+      setError('File is required');
       return false;
     }
     return true;
@@ -68,52 +51,51 @@ const CourseEditForm: React.FC<CourseEditFormProps> = ({ course, onClose, onSucc
     setIsLoading(true);
 
     try {
-      let courseData = {
+      let materialData = {
         title,
         description,
-        subject,
-
-        image_path: course.image_path // Keep existing image path by default
+        type,
+        file_path: '',
+        youtube_url: type === 'youtube' ? youtubeUrl : ''
       };
 
-      // Upload image if provided
-      if (file) {
+      // Upload file if provided
+      if (file && type !== 'youtube') {
         try {
           const formData = new FormData();
           formData.append('file', file);
           
-          const uploadResponse = await api.post('/api/upload', formData, {
+          const uploadResponse = await api.post('/api/upload/material', formData, {
             headers: {
               'Content-Type': 'multipart/form-data',
             },
           });
           
           if (uploadResponse.data && uploadResponse.data.success && uploadResponse.data.file_path) {
-            // Store the exact path returned from the server
-            courseData.image_path = uploadResponse.data.file_path;
-            console.log("Image uploaded successfully, path:", uploadResponse.data.file_path);
+            materialData.file_path = uploadResponse.data.file_path;
+            console.log("File uploaded successfully, path:", uploadResponse.data.file_path);
           } else {
-            console.warn("Image upload response did not contain success flag or file_path", uploadResponse.data);
+            throw new Error('File upload failed');
           }
         } catch (uploadErr) {
-          console.error('Image upload failed, continuing with existing image:', uploadErr);
-          // Continue with existing image if upload fails
+          console.error('File upload failed:', uploadErr);
+          setError('Failed to upload file');
+          return;
         }
       }
       
-      // Update course
-      const response = await api.put(`/api/teacher/courses/${course.id}`, courseData);
+      // Create material
+      const response = await api.post(`/api/courses/${courseId}/materials`, materialData);
     
       if (response.data.success) {
         onSuccess();
         onClose();
       } else {
-        setError(response.data.message || 'Failed to update course');
+        setError(response.data.message || 'Failed to create material');
       }
     } catch (err: any) {
-      console.error('Error updating course:', err);
+      console.error('Error creating material:', err);
       
-      // Provide more specific error messages
       if (err.code === 'ERR_NETWORK') {
         setError('Network error: Please check if the backend server is running');
       } else if (err.response) {
@@ -128,40 +110,44 @@ const CourseEditForm: React.FC<CourseEditFormProps> = ({ course, onClose, onSucc
     }
   };
 
-  const handleDelete = async () => {
-    if (!window.confirm('Are you sure you want to delete this course? This action cannot be undone.')) {
-      return;
+  const getFileAccept = () => {
+    switch (type) {
+      case 'image':
+        return 'image/jpeg,image/png,image/gif,image/webp';
+      case 'pdf':
+        return 'application/pdf';
+      case 'video':
+        return 'video/mp4,video/avi,video/mov,video/wmv,video/flv,video/webm';
+      default:
+        return '';
     }
+  };
 
-    setIsDeleting(true);
-    setError(null);
+  const getMaxFileSize = () => {
+    switch (type) {
+      case 'image':
+        return '15MB';
+      case 'pdf':
+        return '50MB';
+      case 'video':
+        return '50MB';
+      default:
+        return '';
+    }
+  };
 
-    try {
-      const response = await api.delete(`/api/teacher/courses/${course.id}`);
-      
-      if (response.data.success) {
-        if (onDelete) {
-          onDelete();
-        }
-        onSuccess();
-        onClose();
-      } else {
-        setError(response.data.message || 'Failed to delete course');
-      }
-    } catch (err: any) {
-      console.error('Error deleting course:', err);
-      
-      if (err.code === 'ERR_NETWORK') {
-        setError('Network error: Please check if the backend server is running');
-      } else if (err.response) {
-        setError(`Server error: ${err.response.data?.message || err.response.statusText || 'Unknown error'}`);
-      } else if (err.request) {
-        setError('No response from server. Please check your backend connection.');
-      } else {
-        setError(`Error: ${err.message || 'Unknown error occurred'}`);
-      }
-    } finally {
-      setIsDeleting(false);
+  const getTypeIcon = (materialType: string) => {
+    switch (materialType) {
+      case 'image':
+        return <Image size={20} />;
+      case 'pdf':
+        return <FileText size={20} />;
+      case 'video':
+        return <Video size={20} />;
+      case 'youtube':
+        return <Youtube size={20} />;
+      default:
+        return <FileText size={20} />;
     }
   };
 
@@ -209,7 +195,7 @@ const CourseEditForm: React.FC<CourseEditFormProps> = ({ course, onClose, onSucc
           color: '#374151',
           marginBottom: '24px',
         }}>
-          Edit Course
+          Add Course Material
         </h2>
         
         {error && (
@@ -278,7 +264,7 @@ const CourseEditForm: React.FC<CourseEditFormProps> = ({ course, onClose, onSucc
                 borderRadius: '6px',
                 border: '1px solid #d1d5db',
                 fontSize: '14px',
-                minHeight: '100px',
+                minHeight: '80px',
                 resize: 'vertical',
               }}
             />
@@ -286,7 +272,7 @@ const CourseEditForm: React.FC<CourseEditFormProps> = ({ course, onClose, onSucc
           
           <div style={{ marginBottom: '16px' }}>
             <label 
-              htmlFor="subject"
+              htmlFor="type"
               style={{
                 display: 'block',
                 marginBottom: '6px',
@@ -295,13 +281,12 @@ const CourseEditForm: React.FC<CourseEditFormProps> = ({ course, onClose, onSucc
                 color: '#374151',
               }}
             >
-              Subject *
+              Material Type *
             </label>
-            <input
-              id="subject"
-              type="text"
-              value={subject}
-              onChange={(e) => setSubject(e.target.value)}
+            <select
+              id="type"
+              value={type}
+              onChange={(e) => setType(e.target.value as 'image' | 'pdf' | 'video' | 'youtube')}
               style={{
                 width: '100%',
                 padding: '8px 12px',
@@ -310,93 +295,116 @@ const CourseEditForm: React.FC<CourseEditFormProps> = ({ course, onClose, onSucc
                 fontSize: '14px',
               }}
               required
-            />
-          </div>
-          
-
-          
-          <div style={{ marginBottom: '20px' }}>
-            <label 
-              htmlFor="image"
-              style={{
-                display: 'block',
-                marginBottom: '6px',
-                fontSize: '14px',
-                fontWeight: '500',
-                color: '#374151',
-              }}
             >
-              Course Image
-            </label>
-            
-            {previewUrl && (
-              <div style={{ marginBottom: '12px' }}>
-                <img 
-                  src={previewUrl} 
-                  alt="Course preview" 
-                  style={{
-                    width: '100%',
-                    maxHeight: '200px',
-                    objectFit: 'cover',
-                    borderRadius: '6px',
-                  }}
+              <option value="image">Image</option>
+              <option value="pdf">PDF Document</option>
+              <option value="video">Video File</option>
+              <option value="youtube">YouTube Video</option>
+            </select>
+          </div>
+
+          {type === 'youtube' ? (
+            <div style={{ marginBottom: '20px' }}>
+              <label 
+                htmlFor="youtubeUrl"
+                style={{
+                  display: 'block',
+                  marginBottom: '6px',
+                  fontSize: '14px',
+                  fontWeight: '500',
+                  color: '#374151',
+                }}
+              >
+                YouTube URL *
+              </label>
+              <input
+                id="youtubeUrl"
+                type="url"
+                value={youtubeUrl}
+                onChange={(e) => setYoutubeUrl(e.target.value)}
+                placeholder="https://www.youtube.com/watch?v=..."
+                style={{
+                  width: '100%',
+                  padding: '8px 12px',
+                  borderRadius: '6px',
+                  border: '1px solid #d1d5db',
+                  fontSize: '14px',
+                }}
+                required
+              />
+            </div>
+          ) : (
+            <div style={{ marginBottom: '20px' }}>
+              <label 
+                htmlFor="file"
+                style={{
+                  display: 'block',
+                  marginBottom: '6px',
+                  fontSize: '14px',
+                  fontWeight: '500',
+                  color: '#374151',
+                }}
+              >
+                {type === 'image' ? 'Image File' : type === 'pdf' ? 'PDF File' : 'Video File'} *
+              </label>
+              
+              <label
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '8px',
+                  padding: '12px 16px',
+                  backgroundColor: '#f3f4f6',
+                  color: '#374151',
+                  border: '2px dashed #d1d5db',
+                  borderRadius: '6px',
+                  cursor: 'pointer',
+                  fontSize: '14px',
+                  width: '100%',
+                  minHeight: '60px',
+                  textAlign: 'center',
+                }}
+              >
+                {getTypeIcon(type)}
+                {file ? file.name : `Choose ${type} file`}
+                <Upload size={16} />
+                <input
+                  id="file"
+                  type="file"
+                  accept={getFileAccept()}
+                  onChange={handleFileChange}
+                  style={{ display: 'none' }}
+                  required
                 />
-              </div>
-            )}
-            
-            <label
+              </label>
+              <p style={{ margin: '8px 0 0 0', color: '#6b7280', fontSize: '12px' }}>
+                Max size: {getMaxFileSize()}
+              </p>
+            </div>
+          )}
+          
+          <div style={{ 
+            display: 'flex', 
+            justifyContent: 'flex-end',
+            gap: '12px',
+            marginTop: '24px' 
+          }}>
+            <button
+              type="button"
+              onClick={onClose}
               style={{
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: '8px',
                 padding: '8px 16px',
                 backgroundColor: '#f3f4f6',
                 color: '#374151',
                 border: '1px solid #d1d5db',
                 borderRadius: '6px',
-                cursor: 'pointer',
-                fontSize: '14px',
-                width: 'fit-content',
-              }}
-            >
-              <Upload size={16} />
-              {previewUrl ? 'Change Image' : 'Upload Image'}
-              <input
-                id="image"
-                type="file"
-                accept="image/jpeg,image/png,image/gif,image/webp"
-                onChange={handleFileChange}
-                style={{ display: 'none' }}
-              />
-            </label>
-            <p style={{ margin: '8px 0 0 0', color: '#6b7280', fontSize: '12px' }}>
-              Supported formats: JPG, PNG, GIF, WEBP. Max size: 15MB
-            </p>
-          </div>
-          
-          <div style={{ 
-            display: 'flex', 
-            justifyContent: 'space-between',
-            marginTop: '24px' 
-          }}>
-            <button
-              type="button"
-              onClick={handleDelete}
-              disabled={isLoading || isDeleting}
-              style={{
-                padding: '8px 16px',
-                backgroundColor: '#ef4444',
-                color: 'white',
-                border: 'none',
-                borderRadius: '6px',
                 fontSize: '14px',
                 fontWeight: '500',
-                cursor: isDeleting ? 'not-allowed' : 'pointer',
-                opacity: isDeleting ? 0.7 : 1,
+                cursor: 'pointer',
               }}
             >
-              {isDeleting ? 'Deleting...' : 'Delete Course'}
+              Cancel
             </button>
             
             <button
@@ -414,7 +422,7 @@ const CourseEditForm: React.FC<CourseEditFormProps> = ({ course, onClose, onSucc
                 opacity: isLoading ? 0.7 : 1,
               }}
             >
-              {isLoading ? 'Saving...' : 'Save Changes'}
+              {isLoading ? 'Adding...' : 'Add Material'}
             </button>
           </div>
         </form>
@@ -423,4 +431,4 @@ const CourseEditForm: React.FC<CourseEditFormProps> = ({ course, onClose, onSucc
   );
 };
 
-export default CourseEditForm;
+export default CourseMaterialForm;
