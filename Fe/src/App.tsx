@@ -9,6 +9,7 @@ import HomePage from './pages/Home';
 import GridView from './pages/GridView';
 import TeacherDashboard from './pages/TeacherDashboard';
 import TeacherCourses from './pages/TeacherCourses';
+import Index from './pages/index';
 import './App.css';
 
 function App() {
@@ -55,8 +56,8 @@ function App() {
             <Route path="/teacher/dashboard" element={<TeacherDashboard />} />
             <Route path="/teacher/courses" element={<TeacherCourses />} />
             
-            {/* Default route redirects to home for authenticated users */}
-            <Route path="/" element={<Navigate to="/home" replace />} />
+            {/* Landing page as the default route */}
+            <Route path="/" element={<Index />} />
             
             {/* Catch all route - redirect to login */}
             <Route path="*" element={<Navigate to="/login" replace />} />
