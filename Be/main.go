@@ -75,16 +75,26 @@ func main() {
 	// Student course endpoints
 	r.HandleFunc("/api/dashboard/courses", authMiddleware(getEnrolledCoursesHandler)).Methods("GET")
 	r.HandleFunc("/api/dashboard/courses", optionsHandler).Methods("OPTIONS")
+	r.HandleFunc("/api/dashboard/all-courses", authMiddleware(getAllAvailableCoursesHandler)).Methods("GET")
+	r.HandleFunc("/api/dashboard/all-courses", optionsHandler).Methods("OPTIONS")
 	r.HandleFunc("/api/teacher/profile", teacherAuthMiddleware(teacherProfileHandler)).Methods("GET")
 	r.HandleFunc("/api/teacher/profile", optionsHandler).Methods("OPTIONS")
 	
 	// File uploads
 	r.HandleFunc("/api/upload", teacherAuthMiddleware(uploadFileHandler)).Methods("POST")
 	r.HandleFunc("/api/upload", optionsHandler).Methods("OPTIONS")
+	r.HandleFunc("/api/upload/material", teacherAuthMiddleware(uploadMaterialFileHandler)).Methods("POST")
+	r.HandleFunc("/api/upload/material", optionsHandler).Methods("OPTIONS")
 	
-	// Serve uploaded files
-	fs := http.FileServer(http.Dir("./uploads"))
-	r.PathPrefix("/uploads/").Handler(http.StripPrefix("/uploads/", fs))
+	// Course materials endpoints
+	r.HandleFunc("/api/courses/{courseId:[0-9]+}/materials", teacherAuthMiddleware(createCourseMaterialHandler)).Methods("POST")
+	r.HandleFunc("/api/courses/{courseId:[0-9]+}/materials", getCourseMaterialsHandler).Methods("GET")
+	r.HandleFunc("/api/courses/{courseId:[0-9]+}/materials", optionsHandler).Methods("OPTIONS")
+	r.HandleFunc("/api/materials/{materialId:[0-9]+}", teacherAuthMiddleware(deleteMaterialHandler)).Methods("DELETE")
+	r.HandleFunc("/api/materials/{materialId:[0-9]+}", optionsHandler).Methods("OPTIONS")
+	
+	// Serve uploaded files with CORS support
+	r.PathPrefix("/uploads/").Handler(corsFileHandler(http.StripPrefix("/uploads/", http.FileServer(http.Dir("./uploads")))))
 
 	// Endpoint dasar (dummy)
 	r.HandleFunc("/api/users", func(w http.ResponseWriter, r *http.Request) {
@@ -113,11 +123,42 @@ func main() {
 	log.Fatal(http.ListenAndServe(":"+port, r))
 }
 
+// CORS File Handler for static files
+func corsFileHandler(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		// Set CORS headers for file requests
+		origin := r.Header.Get("Origin")
+		if origin == "http://localhost:5173" || origin == "http://localhost:5174" {
+			w.Header().Set("Access-Control-Allow-Origin", origin)
+		} else {
+			w.Header().Set("Access-Control-Allow-Origin", "*")
+		}
+		w.Header().Set("Access-Control-Allow-Methods", "GET, OPTIONS")
+		w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization, X-Requested-With")
+		w.Header().Set("Access-Control-Allow-Credentials", "true")
+		w.Header().Set("Access-Control-Max-Age", "86400")
+
+		// Handle preflight requests
+		if r.Method == "OPTIONS" {
+			w.WriteHeader(http.StatusOK)
+			return
+		}
+
+		// Call the next handler
+		next.ServeHTTP(w, r)
+	})
+}
+
 // CORS Middleware
 func corsMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		// Set CORS headers for all responses
-		w.Header().Set("Access-Control-Allow-Origin", "http://localhost:5173") // Allow frontend origin
+		origin := r.Header.Get("Origin")
+		if origin == "http://localhost:5173" || origin == "http://localhost:5174" {
+			w.Header().Set("Access-Control-Allow-Origin", origin)
+		} else {
+			w.Header().Set("Access-Control-Allow-Origin", "*") // Allow all origins for development
+		}
 		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
 		w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization, X-Requested-With")
 		w.Header().Set("Access-Control-Allow-Credentials", "true")

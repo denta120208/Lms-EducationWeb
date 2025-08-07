@@ -264,3 +264,80 @@ func getEnrolledCoursesHandler(w http.ResponseWriter, r *http.Request) {
 		"courses": courses,
 	})
 }
+
+// getAllAvailableCoursesHandler returns all available courses (not just enrolled ones)
+func getAllAvailableCoursesHandler(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+
+	// Get student ID from context (for future use, like checking enrollment status)
+	studentID, ok := r.Context().Value("user_id").(int)
+	if !ok {
+		http.Error(w, "Unauthorized", http.StatusUnauthorized)
+		return
+	}
+
+	// Get all available courses
+	query := `
+		SELECT 
+			c.id, 
+			c.title, 
+			c.description, 
+			IFNULL(c.image_path, '') as image_path,
+			c.teacher_id,
+			IFNULL(t.name, 'Unknown Teacher') as teacher_name,
+			c.subject,
+			c.created_at,
+			CASE WHEN e.student_id IS NOT NULL THEN 1 ELSE 0 END as is_enrolled
+		FROM courses c
+		LEFT JOIN teachers t ON c.teacher_id = t.id
+		LEFT JOIN course_enrollments e ON c.id = e.course_id AND e.student_id = ?
+		ORDER BY c.created_at DESC
+	`
+
+	rows, err := DB.Query(query, studentID)
+	if err != nil {
+		log.Printf("Error querying all available courses: %v", err)
+		http.Error(w, "Failed to get courses", http.StatusInternalServerError)
+		return
+	}
+	defer rows.Close()
+
+	var courses []map[string]interface{}
+	for rows.Next() {
+		var course CourseWithImage
+		var isEnrolled int
+		err := rows.Scan(
+			&course.ID,
+			&course.Title,
+			&course.Description,
+			&course.ImagePath,
+			&course.TeacherID,
+			&course.TeacherName,
+			&course.Subject,
+			&course.CreatedAt,
+			&isEnrolled,
+		)
+		if err != nil {
+			log.Printf("Error scanning course row: %v", err)
+			continue
+		}
+		
+		courseMap := map[string]interface{}{
+			"id":           course.ID,
+			"title":        course.Title,
+			"description":  course.Description,
+			"image_path":   course.ImagePath,
+			"teacher_id":   course.TeacherID,
+			"teacher_name": course.TeacherName,
+			"subject":      course.Subject,
+			"created_at":   course.CreatedAt,
+			"is_enrolled":  isEnrolled == 1,
+		}
+		courses = append(courses, courseMap)
+	}
+
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(map[string]interface{}{
+		"courses": courses,
+	})
+}

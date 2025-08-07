@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Home, Grid3X3, BookOpen, User, Bell, LogOut, AlertCircle } from 'lucide-react';
 import { api, API_BASE_URL } from '../services/api';
 import { useAuth } from '../contexts/AuthContext';
+import CourseViewModal from '../components/CourseViewModal';
 
 const DashboardPage = () => {
   const navigate = useNavigate();
@@ -20,12 +21,14 @@ const DashboardPage = () => {
     const loadDashboard = async () => {
       try {
         setIsLoading(true);
-        const response = await api.get('/api/dashboard/courses');
+        // Use the new endpoint that shows all available courses
+        const response = await api.get('/api/dashboard/all-courses');
         if (response.data && response.data.courses) {
           setCourses(response.data.courses);
         }
       } catch (error: any) {
         setError(error.response?.data?.message || 'Failed to load courses');
+        console.error('Error loading courses:', error);
       } finally {
         setIsLoading(false);
       }
@@ -53,7 +56,14 @@ const DashboardPage = () => {
   };
   
   const [courses, setCourses] = useState<any[]>([]);
+  const [selectedCourse, setSelectedCourse] = useState<any | null>(null);
+  const [showCourseView, setShowCourseView] = useState(false);
   console.log('Courses to display:', courses.length, courses);
+
+  const handleCourseClick = (course: any) => {
+    setSelectedCourse(course);
+    setShowCourseView(true);
+  };
 
   const filteredCourses = courses.filter((course: any) =>
     course.title.toLowerCase().includes(searchTerm.toLowerCase())
@@ -437,6 +447,7 @@ const DashboardPage = () => {
                   style={styles.courseCard}
                   onMouseEnter={(e) => e.currentTarget.style.boxShadow = '0 4px 6px rgba(0, 0, 0, 0.1)'}
                   onMouseLeave={(e) => e.currentTarget.style.boxShadow = 'none'}
+                  onClick={() => handleCourseClick(course)}
                 >
                   {/* Course Image with Geometric Pattern */}
                   <div style={{
@@ -576,6 +587,17 @@ const DashboardPage = () => {
           }
         `}
       </style>
+
+      {/* Course View Modal */}
+      {showCourseView && selectedCourse && (
+        <CourseViewModal
+          course={selectedCourse}
+          onClose={() => {
+            setShowCourseView(false);
+            setSelectedCourse(null);
+          }}
+        />
+      )}
     </div>
   );
 };
