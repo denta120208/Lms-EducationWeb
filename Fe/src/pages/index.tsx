@@ -2,6 +2,10 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Menu, X, ChevronDown, GraduationCap, Users, Trophy, MapPin, Phone, Mail, MessageCircle, BookOpen } from 'lucide-react';
 import type { CSSProperties } from 'react';
+import CountUp from 'react-countup';
+import Slider from 'react-slick';
+import 'slick-carousel/slick/slick.css';
+import 'slick-carousel/slick/slick-theme.css';
 // Import social media icons
 import WhatsAppIcon from '../assets/WhatsApp.svg';
 import InstagramIcon from '../assets/InstaGram.svg';
@@ -11,6 +15,7 @@ import TikTokIcon from '../assets/TikTok.svg';
 // Import language flags
 import EnFlag from '../assets/en.png';
 import IdFlag from '../assets/id 1.png';
+import Footer from '../components/Footer';
 
 const Index = () => {
   const navigate = useNavigate();
@@ -36,11 +41,11 @@ const Index = () => {
     const handleScroll = () => {
       const currentScrollY = window.scrollY;
       
-      if (currentScrollY > lastScrollY && currentScrollY > 100) {
-        // Scrolling down and past 100px
+      if (currentScrollY > lastScrollY && currentScrollY > 50) {
+        // Scrolling down and past 50px (reduced from 100px)
         setIsSocialBarVisible(false);
-      } else if (currentScrollY < lastScrollY) {
-        // Scrolling up
+      } else if (currentScrollY < lastScrollY && currentScrollY < lastScrollY - 10) {
+        // Scrolling up with minimum threshold
         setIsSocialBarVisible(true);
       }
       
@@ -146,7 +151,7 @@ const Index = () => {
       zIndex: 1001,
       height: isMobile ? '32px' : '40px',
       transform: isSocialBarVisible ? 'translateY(0)' : 'translateY(-100%)',
-      transition: 'transform 0.3s ease',
+      transition: 'transform 0.15s ease',
     },
     socialLinks: {
       display: 'flex',
@@ -217,7 +222,7 @@ const Index = () => {
       right: 0,
       zIndex: 1000,
       width: '100%',
-      transition: 'all 0.3s ease',
+      transition: 'all 0.15s ease',
       height: '64px',
     },
     logo: {
@@ -540,34 +545,112 @@ const Index = () => {
       textAlign: 'center',
       marginBottom: '3rem',
     },
-    newsGrid: {
-      display: 'grid',
-      gridTemplateColumns: isMobile ? '1fr' : 'repeat(auto-fit, minmax(350px, 1fr))',
+    // Featured News
+    featuredNews: {
+      display: 'flex',
+      flexDirection: isMobile ? 'column' : 'row',
       gap: '2rem',
-    },
-    newsCard: {
+      marginBottom: '3rem',
       backgroundColor: 'white',
       borderRadius: '0.5rem',
       padding: '2rem',
       boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
       border: '1px solid #e0e0e0',
+      alignItems: 'flex-start',
+    },
+    featuredNewsImage: {
+      width: isMobile ? '100%' : '569.7px',
+      height: '356.63px',
+      objectFit: 'cover',
+      borderRadius: '0.5rem',
+      backgroundColor: '#f0f0f0',
+    },
+    featuredNewsContent: {
+      flex: 1,
+      display: 'flex',
+      flexDirection: 'column',
+      justifyContent: 'space-between',
+      height: '356.63px',
+    },
+    featuredNewsDate: {
+      fontSize: '0.9rem',
+      color: '#64748b',
+      marginBottom: '0.5rem',
+    },
+    featuredNewsTitle: {
+      fontSize: '1.3rem',
+      fontWeight: 700,
+      color: '#000000',
+      marginBottom: '1rem',
+      lineHeight: 1.3,
+    },
+    featuredNewsDescription: {
+      fontSize: '0.95rem',
+      lineHeight: 1.5,
+      color: '#000000',
+      marginBottom: '1.5rem',
+    },
+    readMoreButton: {
+      backgroundColor: '#f8f9fa',
+      color: '#000000',
+      border: '1px solid #e0e0e0',
+      borderRadius: '0.375rem',
+      padding: '0.5rem 1rem',
+      fontSize: '0.85rem',
+      fontWeight: 600,
+      cursor: 'pointer',
+      transition: 'all 0.2s',
+      alignSelf: 'flex-start',
+    },
+    // News Grid
+    newsGrid: {
+      display: 'grid',
+      gridTemplateColumns: isMobile ? '1fr' : 'repeat(4, 1fr)',
+      gap: '1rem',
+      marginBottom: '2rem',
+    },
+    newsCard: {
+      backgroundColor: 'white',
+      borderRadius: '0.5rem',
+      padding: '1.5rem',
+      boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
+      border: '1px solid #e0e0e0',
       transition: 'transform 0.3s ease',
+      cursor: 'pointer',
+    },
+    newsCardImage: {
+      width: '268.2px',
+      height: '155px',
+      objectFit: 'cover',
+      borderRadius: '0.375rem',
+      marginBottom: '1rem',
+      backgroundColor: '#f0f0f0',
     },
     newsCardTitle: {
-      fontSize: '1.2rem',
+      fontSize: '0.9rem',
       fontWeight: 600,
-      color: '#035757',
-      marginBottom: '1rem',
+      color: '#000000',
+      marginBottom: '0.5rem',
+      lineHeight: 1.3,
     },
-    newsCardText: {
+    newsIndexButton: {
+      backgroundColor: '#6b46c1',
+      color: 'white',
+      border: 'none',
+      borderRadius: '0.375rem',
+      padding: '0.75rem 1.5rem',
       fontSize: '1rem',
-      lineHeight: 1.6,
-      color: '#64748b',
+      fontWeight: 600,
+      cursor: 'pointer',
+      transition: 'all 0.2s',
+      display: 'flex',
+      alignItems: 'center',
+      gap: '0.5rem',
     },
     // Infographics Section
     infographicsSection: {
       padding: '4rem 2rem',
-      backgroundColor: '#EEEEEE',
+      backgroundColor: '#f8f9fa',
     },
     infographicsContent: {
       maxWidth: '1200px',
@@ -607,20 +690,20 @@ const Index = () => {
       boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
     },
     infographicNumber: {
-      fontSize: '3.5rem',
+      fontSize: '2.5rem',
       fontWeight: 800,
       color: '#009390',
       marginBottom: '0.5rem',
     },
     infographicLabel: {
-      fontSize: '1.2rem',
+      fontSize: '1rem',
       color: 'black',
       fontWeight: 600,
     },
     // Programs Section
     programsSection: {
       padding: '4rem 2rem',
-      backgroundColor: '#EEEEEE',
+      backgroundColor: '#f8f9fa',
     },
     programsTitle: {
       fontSize: '2.5rem',
@@ -660,12 +743,12 @@ const Index = () => {
       minHeight: '220px',
     },
     programIconContainer: {
-      width: '120px',
-      height: '120px',
+      width: '100px',
+      height: '100px',
       marginBottom: '1rem',
       borderRadius: '50%',
       backgroundColor: '#f8f9fa',
-      padding: '1.5rem',
+      padding: '1.2rem',
       border: '2px solid #69727d',
       transition: 'all 0.3s ease',
       display: 'flex',
@@ -678,7 +761,7 @@ const Index = () => {
       objectFit: 'contain',
     },
     programTitle: {
-      fontSize: '0.9rem',
+      fontSize: '0.8rem',
       fontWeight: 600,
       color: 'black',
       marginTop: '1rem',
@@ -710,77 +793,22 @@ const Index = () => {
       marginTop: '-4rem',
       marginBottom: '4rem',
     },
-    partnershipGrid: {
-      display: 'grid',
-      gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))',
-      gap: '2rem',
+    partnershipSlider: {
       maxWidth: '1200px',
       margin: '0 auto',
-      alignItems: 'center',
+    },
+    sliderRow: {
+      marginBottom: '2rem',
     },
     partnerLogo: {
-      width: '100%',
+      width: '150px',
       height: '80px',
       objectFit: 'contain',
       filter: 'grayscale(1)',
       transition: 'filter 0.3s ease',
+      margin: '0 1rem',
     },
-    // Footer
-    footer: {
-      backgroundColor: '#023535',
-      color: 'white',
-      padding: '3rem 2rem 1rem',
-    },
-    footerContent: {
-      maxWidth: '1200px',
-      margin: '0 auto',
-    },
-    footerGrid: {
-      display: 'grid',
-      gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
-      gap: '2rem',
-      marginBottom: '2rem',
-    },
-    footerSection: {
-      display: 'flex',
-      flexDirection: 'column',
-    },
-    footerTitle: {
-      fontSize: '1.2rem',
-      fontWeight: 600,
-      marginBottom: '1rem',
-      color: 'white',
-    },
-    footerText: {
-      fontSize: '0.9rem',
-      lineHeight: 1.6,
-      color: '#b0c4c4',
-      marginBottom: '0.5rem',
-    },
-    footerSocial: {
-      display: 'flex',
-      gap: '1rem',
-      marginTop: '1rem',
-    },
-    socialIcon: {
-      width: '40px',
-      height: '40px',
-      borderRadius: '50%',
-      backgroundColor: '#035757',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      color: 'white',
-      textDecoration: 'none',
-      transition: 'background-color 0.3s ease',
-    },
-    footerBottom: {
-      borderTop: '1px solid #035757',
-      paddingTop: '1rem',
-      textAlign: 'center',
-      color: '#b0c4c4',
-      fontSize: '0.9rem',
-    },
+
   };
 
   return (
@@ -1103,7 +1131,7 @@ const Index = () => {
         )}
         
         {/* Mobile Menu */}
-        <div style={styles.mobileMenu}>
+          <div style={styles.mobileMenu}>
           <a style={styles.navLink}>BERANDA</a>
           <a style={styles.navLink}>TENTANG SEKOLAH</a>
           <a style={styles.navLink}>PROGRAM KEAHLIAN</a>
@@ -1112,8 +1140,8 @@ const Index = () => {
           <a style={styles.navLink}>COLLEGE</a>
           <a style={styles.navLink}>E-BOOK</a>
           <a style={styles.navLink}>BKK</a>
-          <button style={{...styles.button, width: '100%', marginTop: '1rem'}}>PPDB</button>
-        </div>
+            <button style={{...styles.button, width: '100%', marginTop: '1rem'}}>PPDB</button>
+          </div>
       </header>
 
       {/* Hero Section */}
@@ -1173,27 +1201,77 @@ const Index = () => {
       {/* News Section */}
       <section style={styles.newsSection}>
         <div style={styles.newsContent}>
-          <h2 style={styles.newsTitle}>BERITA</h2>
-          <div style={styles.newsGrid}>
-            <div style={styles.newsCard}>
-              <h3 style={styles.newsCardTitle}>SMK Metland Gelar "A Tribute of Love to Honorable Parents"</h3>
-              <p style={styles.newsCardText}>
-                Suasana haru dan kehangatan menyelimuti Ballroom Metropolitan Mall Cileungsi pada Sabtu, 4 Juli 2025 saat SMK Metland sukses menggelar acara "A Tribute of Love to Honorable Parents".
-              </p>
-            </div>
-            <div style={styles.newsCard}>
-              <h3 style={styles.newsCardTitle}>Metland School Selenggarakan Generasi Cinta Prestasi (GCP) Award</h3>
-              <p style={styles.newsCardText}>
-                Apresiasi Gemilang untuk Murid Berprestasi dalam berbagai bidang akademik dan non-akademik.
-              </p>
-            </div>
-            <div style={styles.newsCard}>
-              <h3 style={styles.newsCardTitle}>Pembelajaran Large Language Models (LLM)</h3>
-              <p style={styles.newsCardText}>
-                Implementasi teknologi AI dalam kurikulum Sekolah Menengah Kejuruan untuk mempersiapkan siswa menghadapi era digital.
-              </p>
+          <h2 style={styles.newsTitle}>RILIS BERITA</h2>
+          
+          {/* Featured News */}
+          <div style={styles.featuredNews}>
+            <img 
+              src="/sekolah.jpg" 
+              alt="Featured News" 
+              style={styles.featuredNewsImage}
+            />
+            <div style={styles.featuredNewsContent}>
+              <div>
+                <div style={styles.featuredNewsDate}>06, Agustus 2025</div>
+                <h3 style={styles.featuredNewsTitle}>
+                  Kuliah Umum Internasional FKIP Unpak & Jepang Bahas SDGs & ESD Global
+                </h3>
+                <p style={styles.featuredNewsDescription}>
+                  Acara ini diadakan dalam rangka memperingati Hari Konservasi Alam Nasional (HKAN) 2025 dan diikuti oleh lebih dari 100 peserta.
+                </p>
+              </div>
+              <button style={styles.readMoreButton}>Baca Selengkapnya</button>
             </div>
           </div>
+
+          {/* News Grid */}
+          <div style={styles.newsGrid}>
+            <div style={styles.newsCard}>
+              <img 
+                src="/sekolah.jpg" 
+                alt="News 1" 
+                style={styles.newsCardImage}
+              />
+              <h3 style={styles.newsCardTitle}>
+                Universitas Pakuan Latih Warga Bojong Olah Lele Jadi Sarden Kaleng Bernilai Ekonomi
+              </h3>
+            </div>
+            <div style={styles.newsCard}>
+              <img 
+                src="/sekolah.jpg" 
+                alt="News 2" 
+                style={styles.newsCardImage}
+              />
+              <h3 style={styles.newsCardTitle}>
+                Universitas Pakuan Wisuda 797 Lulusan, Cetak Prestasi dan Inovasi di Tahun 2025
+              </h3>
+            </div>
+            <div style={styles.newsCard}>
+              <img 
+                src="/sekolah.jpg" 
+                alt="News 3" 
+                style={styles.newsCardImage}
+              />
+              <h3 style={styles.newsCardTitle}>
+                Studi Lapangan Teknik Elektro Unpak di UPDL Cibogo Tambah Wawasan TM-TT
+              </h3>
+            </div>
+            <div style={styles.newsCard}>
+              <img 
+                src="/sekolah.jpg" 
+                alt="News 4" 
+                style={styles.newsCardImage}
+              />
+              <h3 style={styles.newsCardTitle}>
+                Pengembangan Karir dan Alumni Unpak Gelar Seminar Grooming for Success
+              </h3>
+          </div>
+          </div>
+
+          {/* News Index Button */}
+          <button style={styles.newsIndexButton}>
+            Indeks Berita →
+          </button>
         </div>
       </section>
 
@@ -1206,21 +1284,42 @@ const Index = () => {
               <div style={styles.programIconContainer}>
                 <Users size={64} color="#69727d" />
               </div>
-              <div style={styles.infographicNumber}>683</div>
+              <CountUp 
+                end={683} 
+                duration={2.5}
+                style={styles.infographicNumber}
+                enableScrollSpy={true}
+                scrollSpyDelay={500}
+                scrollSpyOnce={true}
+              />
               <div style={styles.infographicLabel}>Siswa</div>
             </div>
             <div style={styles.infographicCard}>
               <div style={styles.programIconContainer}>
                 <BookOpen size={64} color="#69727d" />
               </div>
-              <div style={styles.infographicNumber}>75</div>
+              <CountUp 
+                end={75} 
+                duration={2.5}
+                style={styles.infographicNumber}
+                enableScrollSpy={true}
+                scrollSpyDelay={500}
+                scrollSpyOnce={true}
+              />
               <div style={styles.infographicLabel}>Guru</div>
             </div>
             <div style={styles.infographicCard}>
               <div style={styles.programIconContainer}>
             <GraduationCap size={64} color="#69727d" />
               </div>
-              <div style={styles.infographicNumber}>28</div>
+              <CountUp 
+                end={28} 
+                duration={2.5}
+                style={styles.infographicNumber}
+                enableScrollSpy={true}
+                scrollSpyDelay={500}
+                scrollSpyOnce={true}
+              />
               <div style={styles.infographicLabel}>Tendik</div>
             </div>
           </div>
@@ -1269,63 +1368,66 @@ const Index = () => {
       {/* Partnership Section */}
       <section style={styles.partnershipSection}>
         <h2 style={styles.partnershipTitle}>KERJASAMA INDUSTRI</h2>
-        <div style={styles.partnershipGrid}>
-          {/* Placeholder for partner logos - these should be replaced with actual logos */}
-          <img src="/logo.png" alt="Partner 1" style={styles.partnerLogo} />
-          <img src="/logo.png" alt="Partner 2" style={styles.partnerLogo} />
-          <img src="/logo.png" alt="Partner 3" style={styles.partnerLogo} />
-          <img src="/logo.png" alt="Partner 4" style={styles.partnerLogo} />
-          <img src="/logo.png" alt="Partner 5" style={styles.partnerLogo} />
-          <img src="/logo.png" alt="Partner 6" style={styles.partnerLogo} />
-          <img src="/logo.png" alt="Partner 7" style={styles.partnerLogo} />
-          <img src="/logo.png" alt="Partner 8" style={styles.partnerLogo} />
+          <div style={styles.partnershipSlider}>
+            {/* Top Row - Slides to the right */}
+            <div style={styles.sliderRow}>
+              <Slider
+                dots={false}
+                infinite={true}
+                slidesToShow={6}
+                slidesToScroll={1}
+                autoplay={true}
+                speed={1000}
+                autoplaySpeed={5000}
+                cssEase="ease"
+                rtl={false}
+              >
+                <div><img src="/logo.png" alt="Partner 1" style={styles.partnerLogo} /></div>
+                <div><img src="/logo.png" alt="Partner 2" style={styles.partnerLogo} /></div>
+                <div><img src="/logo.png" alt="Partner 3" style={styles.partnerLogo} /></div>
+                <div><img src="/logo.png" alt="Partner 4" style={styles.partnerLogo} /></div>
+                <div><img src="/logo.png" alt="Partner 5" style={styles.partnerLogo} /></div>
+                <div><img src="/logo.png" alt="Partner 6" style={styles.partnerLogo} /></div>
+                <div><img src="/logo.png" alt="Partner 7" style={styles.partnerLogo} /></div>
+                <div><img src="/logo.png" alt="Partner 8" style={styles.partnerLogo} /></div>
+                <div><img src="/logo.png" alt="Partner 9" style={styles.partnerLogo} /></div>
+                <div><img src="/logo.png" alt="Partner 10" style={styles.partnerLogo} /></div>
+                <div><img src="/logo.png" alt="Partner 11" style={styles.partnerLogo} /></div>
+                <div><img src="/logo.png" alt="Partner 12" style={styles.partnerLogo} /></div>
+              </Slider>
         </div>
-      </section>
-
-      {/* Footer */}
-      <footer style={styles.footer}>
-        <div style={styles.footerContent}>
-          <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
-            <img src="/SMKMetland.png" alt="SMK Metland Logo" style={{ height: '60px', marginBottom: '1rem' }} />
-          </div>
-          <div style={styles.footerGrid}>
-            <div style={styles.footerSection}>
-              <h4 style={styles.footerTitle}>PROGRAM KEAHLIAN</h4>
-              <p style={styles.footerText}>Akuntansi Bisnis</p>
-              <p style={styles.footerText}>Perhotelan</p>
-              <p style={styles.footerText}>Kuliner</p>
-              <p style={styles.footerText}>Desain Komunikasi Visual</p>
-              <p style={styles.footerText}>Teknologi Informasi</p>
-            </div>
             
-            <div style={styles.footerSection}>
-              <h4 style={styles.footerTitle}>HUBUNGI KAMI</h4>
-              <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.5rem', marginBottom: '0.5rem' }}>
-                <MapPin size={16} style={{ marginTop: '0.2rem', flexShrink: 0 }} />
-                <p style={styles.footerText}>
-                  Jl. Kota Taman Metropolitan, Cileungsi Kidul, Kec. Cileungsi, Kabupaten Bogor, Jawa Barat 16820
-                </p>
-              </div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
-                <Phone size={16} />
-                <p style={styles.footerText}>(021) 82496976</p>
-              </div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
-                <MessageCircle size={16} />
-                <p style={styles.footerText}>+6281293395500</p>
-            </div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                <Mail size={16} />
-                <p style={styles.footerText}>www.smkmetland.net</p>
-            </div>
-            </div>
+            {/* Bottom Row - Slides to the left */}
+            <div style={styles.sliderRow}>
+              <Slider
+                dots={false}
+                infinite={true}
+                slidesToShow={6}
+                slidesToScroll={1}
+                autoplay={true}
+                speed={1000}
+                autoplaySpeed={5000}
+                cssEase="ease"
+                rtl={true}
+              >
+                <div><img src="/logo.png" alt="Partner 13" style={styles.partnerLogo} /></div>
+                <div><img src="/logo.png" alt="Partner 14" style={styles.partnerLogo} /></div>
+                <div><img src="/logo.png" alt="Partner 15" style={styles.partnerLogo} /></div>
+                <div><img src="/logo.png" alt="Partner 16" style={styles.partnerLogo} /></div>
+                <div><img src="/logo.png" alt="Partner 17" style={styles.partnerLogo} /></div>
+                <div><img src="/logo.png" alt="Partner 18" style={styles.partnerLogo} /></div>
+                <div><img src="/logo.png" alt="Partner 19" style={styles.partnerLogo} /></div>
+                <div><img src="/logo.png" alt="Partner 20" style={styles.partnerLogo} /></div>
+                <div><img src="/logo.png" alt="Partner 21" style={styles.partnerLogo} /></div>
+                <div><img src="/logo.png" alt="Partner 22" style={styles.partnerLogo} /></div>
+                <div><img src="/logo.png" alt="Partner 23" style={styles.partnerLogo} /></div>
+                <div><img src="/logo.png" alt="Partner 24" style={styles.partnerLogo} /></div>
+              </Slider>
           </div>
-          
-          <div style={styles.footerBottom}>
-            <p>Copyright © 2023 SMK METLAND | Powered by SMK METLAND.</p>
-          </div>
-        </div>
-      </footer>
+            </div>
+        </section>
+
+        <Footer />
     </div>
   );
 };
