@@ -53,8 +53,8 @@ const SiteHeader: React.FC<Props> = ({ fixed = true, scrollTargetSelector }) => 
       transition: 'none',
     },
     socialLinks: { display: 'flex', gap: isMobile ? '0.5rem' : '1rem', alignItems: 'center' },
-    socialLink: { color: 'white', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '0.3rem', transition: 'color 0.2s ease' },
-    socialIconImage: { width: 16, height: 16, filter: 'brightness(0) invert(1)', transition: 'filter 0.2s ease' },
+    socialLink: { color: 'white', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '0.3rem' },
+    socialIconImage: { width: 16, height: 16, filter: 'brightness(0) invert(1)' },
     flagButton: {
       width: isMobile ? 16 : 24,
       height: isMobile ? 12 : 16,
@@ -168,10 +168,7 @@ const SiteHeader: React.FC<Props> = ({ fixed = true, scrollTargetSelector }) => 
         <img
           src={hovered ? iconHover : icon}
           alt={label}
-          style={{
-            ...styles.socialIconImage,
-            filter: hovered ? 'none' : 'brightness(0) invert(1)'
-          }}
+          style={{ ...styles.socialIconImage, filter: hovered ? 'none' : 'brightness(0) invert(1)' }}
         />
         {!isMobile && label}
       </a>

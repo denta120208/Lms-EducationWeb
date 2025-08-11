@@ -52,6 +52,50 @@ const Index = () => {
   const navigate = useNavigate();
   const [isMobile, setIsMobile] = useState(false);
   const [hoveredProgram, setHoveredProgram] = useState<string | null>(null);
+  // Trending headlines and animation state
+  const trendingHeadlines: string[] = [
+    'Cybersecurity Di Sekolah : Dimulai Dari Diri Sendiri',
+    'JALIN KERJASAMA, METLAND SCHOOL DAN PARALLAXNET USUNG KURIKULUM TECHNOPRENEUR',
+    'SMK Metland Cileungsi Bersama Huion Gelar Seminar dan Workshop Ilustrasi Digital',
+    'Pembelajaran Large Language Models (LLM) dalam Kurikulum Sekolah Menengah Kejuruan',
+  ];
+  const [currentHeadlineIndex, setCurrentHeadlineIndex] = useState<number>(0);
+  const [nextHeadlineIndex, setNextHeadlineIndex] = useState<number | null>(null);
+  const [isTrendingAnimating, setIsTrendingAnimating] = useState<boolean>(false);
+  const [trendingDirection, setTrendingDirection] = useState<'next' | 'prev'>('next');
+  const [trendingRun, setTrendingRun] = useState<boolean>(false);
+
+  const slideDurationMs = 320;
+  const triggerTrending = (dir: 'next' | 'prev') => {
+    if (isTrendingAnimating) return;
+    const total = trendingHeadlines.length;
+    const target = dir === 'next'
+      ? (currentHeadlineIndex + 1) % total
+      : (currentHeadlineIndex - 1 + total) % total;
+    setTrendingDirection(dir);
+    setNextHeadlineIndex(target);
+    setIsTrendingAnimating(true);
+    setTrendingRun(false);
+    // Start animation next tick so incoming begins offscreen
+    window.setTimeout(() => setTrendingRun(true), 20);
+    // Finish animation
+    window.setTimeout(() => {
+      setCurrentHeadlineIndex(target);
+      setNextHeadlineIndex(null);
+      setIsTrendingAnimating(false);
+      setTrendingRun(false);
+    }, slideDurationMs);
+  };
+
+  // Auto-rotate trending headlines every 3 seconds
+  useEffect(() => {
+    const id = window.setInterval(() => {
+      if (!isTrendingAnimating && nextHeadlineIndex === null) {
+        triggerTrending('next');
+      }
+    }, 3000);
+    return () => window.clearInterval(id);
+  }, [isTrendingAnimating, nextHeadlineIndex, currentHeadlineIndex]);
   
 
   useEffect(() => {
@@ -460,6 +504,20 @@ const Index = () => {
       justifyContent: 'center',
       width: isMobile ? '100%' : 'auto',
     },
+    trendingViewport: {
+      position: 'relative',
+      overflow: 'hidden',
+      width: '100%',
+      minHeight: isMobile ? '1.3rem' : '1rem',
+    },
+    trendingSlide: {
+      position: 'absolute',
+      left: 0,
+      top: 0,
+      width: '100%',
+      display: 'flex',
+      justifyContent: 'center',
+    },
     trendingText: {
       color: '#ffff00',
       fontSize: isMobile ? '0.9rem' : '1rem',
@@ -707,7 +765,6 @@ const Index = () => {
       height: '220px',
       minHeight: '220px',
       cursor: 'pointer',
-      transition: 'transform 0.2s ease, box-shadow 0.2s ease',
     },
     programIconContainer: {
       width: '100px',
@@ -736,7 +793,6 @@ const Index = () => {
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
-      transition: 'all 0.3s ease',
       clipPath: 'polygon(25% 6.7%, 75% 6.7%, 100% 50%, 75% 93.3%, 25% 93.3%, 0% 50%)',
     },
     programHexInner: {
@@ -748,13 +804,9 @@ const Index = () => {
       justifyContent: 'center',
       clipPath: 'polygon(25% 6.7%, 75% 6.7%, 100% 50%, 75% 93.3%, 25% 93.3%, 0% 50%)',
     },
-    programCardHover: {
-      transform: 'translateY(-6px)',
-      boxShadow: '0 6px 14px rgba(0, 0, 0, 0.15)'
-    },
+    programCardHover: {},
     programHexOuterHover: {
-      backgroundColor: '#009390',
-      transform: 'scale(1.06)'
+      backgroundColor: '#009390'
     },
     programHexInnerHover: {
       backgroundColor: '#ffffff'
@@ -869,13 +921,44 @@ const Index = () => {
       <section style={styles.trendingSection}>
         <div style={styles.trendingLabel}>TRENDING TODAY</div>
         <div style={styles.trendingContent}>
-          <div style={styles.trendingText}>
-            Metland School Selenggarakan Generasi Cinta Prestasi (GCP) Award: Apresiasi Gemilang Untuk Murid Berprestasi
+          <div style={styles.trendingViewport}>
+            {/* Current */}
+            <div
+              style={{
+                ...styles.trendingSlide,
+                transform:
+                  isTrendingAnimating && trendingRun
+                    ? `translateX(${trendingDirection === 'next' ? '-100%' : '100%'})`
+                    : 'translateX(0)',
+                transition: isTrendingAnimating && trendingRun ? `transform ${slideDurationMs}ms ease` : 'none',
+              }}
+            >
+              <div style={styles.trendingText}>
+                {trendingHeadlines[currentHeadlineIndex]}
+              </div>
+            </div>
+
+            {/* Incoming */}
+            {nextHeadlineIndex !== null && (
+              <div
+                style={{
+                  ...styles.trendingSlide,
+                  transform: trendingRun
+                    ? 'translateX(0)'
+                    : `translateX(${trendingDirection === 'next' ? '100%' : '-100%'})`,
+                  transition: trendingRun ? `transform ${slideDurationMs}ms ease` : 'none',
+                }}
+              >
+                <div style={styles.trendingText}>
+                  {trendingHeadlines[nextHeadlineIndex]}
+                </div>
+              </div>
+            )}
           </div>
         </div>
         <div style={styles.trendingNav}>
-          <button style={styles.trendingNavButton}>&lt;</button>
-          <button style={styles.trendingNavButton}>&gt;</button>
+          <button style={styles.trendingNavButton} onClick={() => triggerTrending('prev')}>&lt;</button>
+          <button style={styles.trendingNavButton} onClick={() => triggerTrending('next')}>&gt;</button>
         </div>
       </section>
 
