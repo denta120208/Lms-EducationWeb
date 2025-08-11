@@ -1,20 +1,13 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Menu, X, ChevronDown, GraduationCap, Users, Trophy, MapPin, Phone, Mail, MessageCircle, BookOpen } from 'lucide-react';
+import { GraduationCap, Users, BookOpen } from 'lucide-react';
 import type { CSSProperties } from 'react';
 import CountUp from 'react-countup';
 import Slider from 'react-slick';
 import 'slick-carousel/slick/slick.css';
 import 'slick-carousel/slick/slick-theme.css';
-// Import social media icons
-import WhatsAppIcon from '../assets/WhatsApp.svg';
-import InstagramIcon from '../assets/InstaGram.svg';
-import FacebookIcon from '../assets/FaceBook.svg';
-import YouTubeIcon from '../assets/YouTube.svg';
-import TikTokIcon from '../assets/TikTok.svg';
-// Import language flags
-import EnFlag from '../assets/en.png';
-import IdFlag from '../assets/id 1.png';
+import SiteHeader from '../components/SiteHeader';
+// Social bar removed
 import Footer from '../components/Footer';
 
 // Import partnership images
@@ -57,12 +50,8 @@ import Img14 from '../assets/Partnership/Bottom/14-150x150.jpg';
 
 const Index = () => {
   const navigate = useNavigate();
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
-  const [hoveredDropdown, setHoveredDropdown] = useState('');
-  const [hoveredSubDropdown, setHoveredSubDropdown] = useState('');
-  const [isSocialBarVisible, setIsSocialBarVisible] = useState(true);
-  const [lastScrollY, setLastScrollY] = useState(0);
+  
 
   useEffect(() => {
     const checkMobile = () => {
@@ -75,88 +64,15 @@ const Index = () => {
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
 
-  useEffect(() => {
-    const handleScroll = () => {
-      const currentScrollY = window.scrollY;
-      
-      if (currentScrollY > lastScrollY && currentScrollY > 50) {
-        // Scrolling down and past 50px
-        setIsSocialBarVisible(false);
-      } else if (currentScrollY <= 0) {
-        // Only show when at the very top of the page
-        setIsSocialBarVisible(true);
-      }
-      
-      setLastScrollY(currentScrollY);
-    };
-
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, [lastScrollY]);
+  // Removed social bar/auto-hide logic
 
   const handleSignUpClick = () => {
     navigate('/login');
   };
 
-  const toggleMenu = () => {
-    setIsMenuOpen(!isMenuOpen);
-  };
+  // Removed dropdown/nav handlers
 
-  const handleMouseEnter = (dropdown: string) => {
-    setHoveredDropdown(dropdown);
-  };
-
-  const handleMouseLeave = () => {
-    setHoveredDropdown('');
-  };
-
-  const handleDropdownItemHover = (e: React.MouseEvent<HTMLAnchorElement>) => {
-    e.currentTarget.style.backgroundColor = '#f0f9f9';
-    e.currentTarget.style.color = '#00bcd4';
-    e.currentTarget.style.paddingLeft = '1.25rem';
-  };
-
-  const handleDropdownItemLeave = (e: React.MouseEvent<HTMLAnchorElement>) => {
-    e.currentTarget.style.backgroundColor = '';
-    e.currentTarget.style.color = '#035757';
-    e.currentTarget.style.paddingLeft = '0.75rem';
-  };
-
-  const handleNavLinkHover = (e: React.MouseEvent<HTMLAnchorElement>) => {
-    e.currentTarget.style.color = '#00bcd4';
-  };
-
-  const handleNavLinkLeave = (e: React.MouseEvent<HTMLAnchorElement>) => {
-    e.currentTarget.style.color = '#035757';
-  };
-
-  const handleSubDropdownHover = (subDropdown: string) => {
-    setHoveredSubDropdown(subDropdown);
-  };
-
-  const handleSubDropdownLeave = () => {
-    setHoveredSubDropdown('');
-  };
-
-  const handleDropdownItemWithSubmenuHover = (e: React.MouseEvent<HTMLDivElement>) => {
-    e.currentTarget.style.backgroundColor = '#f0f9f9';
-    e.currentTarget.style.color = '#00bcd4';
-    // Change text color in the span
-    const span = e.currentTarget.querySelector('span');
-    if (span) {
-      span.style.color = '#00bcd4';
-    }
-  };
-
-  const handleDropdownItemWithSubmenuLeave = (e: React.MouseEvent<HTMLDivElement>) => {
-    e.currentTarget.style.backgroundColor = '';
-    e.currentTarget.style.color = '#035757';
-    // Reset text color in the span
-    const span = e.currentTarget.querySelector('span');
-    if (span) {
-      span.style.color = '#035757';
-    }
-  };
+  // Removed submenu handlers
 
   const styles: Record<string, CSSProperties> = {
     container: {
@@ -167,7 +83,7 @@ const Index = () => {
       flexDirection: 'column',
       margin: 0,
       padding: 0,
-      paddingTop: '104px', // Fixed padding to prevent auto-scroll
+      paddingTop: isMobile ? '96px' : '104px',
       boxSizing: 'border-box',
       fontFamily: '"Inter", sans-serif',
       overflowX: 'hidden',
@@ -182,14 +98,14 @@ const Index = () => {
       paddingLeft: isMobile ? '1rem' : '2rem',
       paddingRight: isMobile ? '1rem' : '2rem',
       fontSize: isMobile ? '0.8rem' : '1rem',
-      position: 'fixed',
+      position: 'relative',
       top: 0,
       left: 0,
       right: 0,
       zIndex: 1001,
       height: isMobile ? '32px' : '40px',
-      transform: isSocialBarVisible ? 'translateY(0)' : 'translateY(-100%)',
-      transition: 'transform 0.1s ease',
+      transform: 'translateY(-100%)',
+      transition: 'none',
     },
     socialLinks: {
       display: 'flex',
@@ -254,8 +170,8 @@ const Index = () => {
       padding: '1rem 2rem',
       backgroundColor: '#ffffff',
       boxShadow: '0 2px 4px rgba(0,0,0,0.05)',
-      position: 'fixed',
-      top: isSocialBarVisible ? (isMobile ? '32px' : '40px') : '0px',
+      position: 'relative',
+      top: 0,
       left: 0,
       right: 0,
       zIndex: 1000,
@@ -402,7 +318,7 @@ const Index = () => {
       boxShadow: '-4px 0 6px rgba(0, 0, 0, 0.1)',
       zIndex: 1000,
       padding: '2rem 1rem',
-      transform: isMenuOpen ? 'translateX(0)' : 'translateX(100%)',
+      transform: 'translateX(100%)',
       transition: 'transform 0.3s ease',
       display: 'flex',
       flexDirection: 'column',
@@ -587,18 +503,18 @@ const Index = () => {
     featuredNews: {
       display: 'flex',
       flexDirection: isMobile ? 'column' : 'row',
-      gap: '2rem',
-      marginBottom: '3rem',
+      gap: isMobile ? '1rem' : '2rem',
+      marginBottom: isMobile ? '1rem' : '3rem',
       backgroundColor: 'white',
       borderRadius: '0.5rem',
-      padding: '2rem',
+      padding: isMobile ? '1.5rem' : '2rem',
       boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
       border: '1px solid #e0e0e0',
       alignItems: 'flex-start',
     },
     featuredNewsImage: {
-      width: isMobile ? '100%' : '569.7px',
-      height: '356.63px',
+      width: isMobile ? '268.2px' : '569.7px',
+      height: isMobile ? '155px' : '356.63px',
       objectFit: 'cover',
       borderRadius: '0.5rem',
       backgroundColor: '#f0f0f0',
@@ -608,15 +524,18 @@ const Index = () => {
       display: 'flex',
       flexDirection: 'column',
       justifyContent: 'space-between',
-      height: '356.63px',
+      height: isMobile ? 'auto' : '356.63px',
     },
     featuredNewsDate: {
-      fontSize: '0.9rem',
+      fontSize: '0.8rem',
       color: '#64748b',
+      marginTop: isMobile ? '-0.25rem' : '0',
       marginBottom: '0.5rem',
+      textAlign: isMobile ? 'left' : 'left',
+      display: 'block',
     },
     featuredNewsTitle: {
-      fontSize: '1.3rem',
+      fontSize: isMobile ? '0.9rem' : '1.3rem',
       fontWeight: 700,
       color: '#000000',
       marginBottom: '1rem',
@@ -627,6 +546,7 @@ const Index = () => {
       lineHeight: 1.5,
       color: '#000000',
       marginBottom: '1.5rem',
+      display: isMobile ? 'none' : 'block',
     },
     readMoreButton: {
       backgroundColor: '#f8f9fa',
@@ -639,6 +559,7 @@ const Index = () => {
       cursor: 'pointer',
       transition: 'all 0.2s',
       alignSelf: 'flex-start',
+      display: isMobile ? 'none' : 'inline-block',
     },
     // News Grid
     newsGrid: {
@@ -671,6 +592,12 @@ const Index = () => {
       marginBottom: '0.5rem',
       lineHeight: 1.3,
     },
+    newsCardDate: {
+      fontSize: '0.8rem',
+      color: '#64748b',
+      textAlign: 'left',
+      display: isMobile ? 'block' : 'none',
+    },
     newsIndexButton: {
       backgroundColor: '#035757',
       color: 'white',
@@ -695,7 +622,7 @@ const Index = () => {
       margin: '0 auto',
     },
     infographicsTitle: {
-      fontSize: isMobile ? '1.8rem' : '2.5rem',
+      fontSize: isMobile ? '1.4rem' : '2.5rem',
       fontWeight: 700,
       color: '#035757',
       textAlign: 'center',
@@ -741,7 +668,7 @@ const Index = () => {
       backgroundColor: '#ffffff',
     },
     programsTitle: {
-      fontSize: '2.5rem',
+      fontSize: isMobile ? '1.4rem' : '2.5rem',
       fontWeight: 700,
       color: '#035757',
       textAlign: 'center',
@@ -760,7 +687,9 @@ const Index = () => {
       gridTemplateColumns: isMobile ? '1fr' : 'repeat(5, 1fr)',
       gap: '2rem',
       maxWidth: '1200px',
-      margin: '0 auto',
+      margin: isMobile ? '0 auto' : '0 auto',
+      justifyItems: isMobile ? 'center' : 'center',
+      justifyContent: isMobile ? 'center' : 'center',
       alignItems: 'start',
     },
     programCard: {
@@ -795,6 +724,32 @@ const Index = () => {
       height: '100%',
       objectFit: 'contain',
     },
+    // Hex styles for Program Keahlian icons
+    programHexOuter: {
+      width: '110px',
+      height: '110px',
+      marginBottom: '1rem',
+      backgroundColor: '#69727d',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      transition: 'all 0.3s ease',
+      clipPath: 'polygon(25% 6.7%, 75% 6.7%, 100% 50%, 75% 93.3%, 25% 93.3%, 0% 50%)',
+    },
+    programHexInner: {
+      width: '100px',
+      height: '100px',
+      backgroundColor: '#f8f9fa',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      clipPath: 'polygon(25% 6.7%, 75% 6.7%, 100% 50%, 75% 93.3%, 25% 93.3%, 0% 50%)',
+    },
+    programHexImage: {
+      width: '70%',
+      height: '70%',
+      objectFit: 'contain',
+    },
     programTitle: {
       fontSize: '0.8rem',
       fontWeight: 600,
@@ -814,7 +769,7 @@ const Index = () => {
       backgroundColor: '#ffffff',
     },
     partnershipTitle: {
-      fontSize: '2.5rem',
+      fontSize: isMobile ? '1.4rem' : '2.5rem',
       fontWeight: 700,
       color: '#035757',
       textAlign: 'center',
@@ -836,347 +791,22 @@ const Index = () => {
       marginBottom: '2rem',
     },
     partnerLogo: {
-      width: '200px',
-      height: '120px',
+      width: '100%',
+      maxWidth: '200px',
+      height: isMobile ? '80px' : '120px',
       objectFit: 'contain',
       transition: 'filter 0.3s ease',
-      margin: '0 1rem',
+      margin: isMobile ? '0 0.5rem' : '0 1rem',
     },
 
   };
 
   return (
     <div style={styles.container}>
-      {/* Top Social Bar - Fixed */}
-      <div style={styles.socialBar}>
-        <div style={styles.socialLinks}>
-          <a href="#" style={styles.socialLink}>
-            <img src={WhatsAppIcon} alt="WhatsApp" style={styles.socialIconImage} />
-            {!isMobile && 'Whatsapp'}
-          </a>
-          <a href="#" style={styles.socialLink}>
-            <img src={InstagramIcon} alt="Instagram" style={styles.socialIconImage} />
-            {!isMobile && 'Instagram'}
-          </a>
-          <a href="#" style={styles.socialLink}>
-            <img src={FacebookIcon} alt="Facebook" style={styles.socialIconImage} />
-            {!isMobile && 'Facebook'}
-          </a>
-          <a href="#" style={styles.socialLink}>
-            <img src={YouTubeIcon} alt="YouTube" style={styles.socialIconImage} />
-            {!isMobile && 'Youtube'}
-          </a>
-          <a href="#" style={styles.socialLink}>
-            <img src={TikTokIcon} alt="TikTok" style={styles.socialIconImage} />
-            {!isMobile && 'Tiktok'}
-          </a>
-        </div>
-        <div style={styles.langSwitch}>
-          <button style={styles.flagButton}>
-            <img src={IdFlag} alt="Bahasa Indonesia" style={styles.flagIcon} />
-          </button>
-          <button style={styles.flagButton}>
-            <img src={EnFlag} alt="English" style={styles.flagIcon} />
-          </button>
-        </div>
-      </div>
+      {/* Header with social bar */}
+      <SiteHeader />
 
-      {/* Header - Fixed */}
-      <header style={styles.header}>
-        <div style={styles.logo}>
-          <img src="/SMKMetland.png" alt="SMK Metland" style={styles.logoImage} />
-        </div>
-        
-        {/* Desktop Navigation */}
-        {!isMobile && (
-        <nav style={styles.nav}>
-            <div style={styles.navItem}>
-              <a 
-                href="#" 
-                style={styles.navLink}
-                onMouseEnter={handleNavLinkHover}
-                onMouseLeave={handleNavLinkLeave}
-              >
-                BERANDA
-              </a>
-            </div>
-            
-            <div 
-              style={styles.navItem}
-              onMouseEnter={() => handleMouseEnter('tentang')}
-              onMouseLeave={handleMouseLeave}
-            >
-              <a 
-                href="#" 
-                style={styles.navLink}
-                onMouseEnter={handleNavLinkHover}
-                onMouseLeave={handleNavLinkLeave}
-              >
-                TENTANG SEKOLAH <ChevronDown size={16} />
-              </a>
-              <div style={hoveredDropdown === 'tentang' ? styles.dropdownVisible : styles.dropdown}>
-                <a 
-                  href="#" 
-                  style={styles.dropdownItem}
-                  onMouseEnter={handleDropdownItemHover}
-                  onMouseLeave={handleDropdownItemLeave}
-                >
-                  Sejarah Sekolah
-                </a>
-                <a 
-                  href="#" 
-                  style={styles.dropdownItem}
-                  onMouseEnter={handleDropdownItemHover}
-                  onMouseLeave={handleDropdownItemLeave}
-                >
-                  VISI & MISI
-                </a>
-                <a 
-                  href="#" 
-                  style={styles.dropdownItem}
-                  onMouseEnter={handleDropdownItemHover}
-                  onMouseLeave={handleDropdownItemLeave}
-                >
-                  Nilai Budaya Sekolah
-                </a>
-                <a 
-                  href="#" 
-                  style={styles.dropdownItem}
-                  onMouseEnter={handleDropdownItemHover}
-                  onMouseLeave={handleDropdownItemLeave}
-                >
-                  Kampus Cibitung
-                </a>
-              </div>
-            </div>
-            
-            <div 
-              style={styles.navItem}
-              onMouseEnter={() => handleMouseEnter('kurikulum')}
-              onMouseLeave={handleMouseLeave}
-            >
-              <a 
-                href="#" 
-                style={styles.navLink}
-                onMouseEnter={handleNavLinkHover}
-                onMouseLeave={handleNavLinkLeave}
-              >
-                KURIKULUM <ChevronDown size={16} />
-              </a>
-              <div style={hoveredDropdown === 'kurikulum' ? styles.dropdownVisible : styles.dropdown}>
-                <a 
-                  href="#" 
-                  style={styles.dropdownItem}
-                  onMouseEnter={handleDropdownItemHover}
-                  onMouseLeave={handleDropdownItemLeave}
-                >
-                  Kurikulum Operasional Sekolah
-                </a>
-                <div 
-                  style={styles.dropdownItem}
-                  onMouseEnter={(e) => {
-                    handleSubDropdownHover('sarana');
-                    handleDropdownItemWithSubmenuHover(e);
-                  }}
-                  onMouseLeave={(e) => {
-                    handleSubDropdownLeave();
-                    handleDropdownItemWithSubmenuLeave(e);
-                  }}
-                >
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
-                    <span>Sarana Praktik Siswa</span>
-                    <ChevronDown size={16} style={{ transform: 'rotate(-90deg)' }} />
-                  </div>
-                  <div style={hoveredSubDropdown === 'sarana' ? styles.subDropdownVisible : styles.subDropdown}>
-                    <a 
-                      href="#" 
-                      style={styles.subDropdownItem}
-                      onMouseEnter={handleDropdownItemHover}
-                      onMouseLeave={handleDropdownItemLeave}
-                    >
-                      ARTISAN BEVERAGES STUDIO
-                    </a>
-                    <a 
-                      href="#" 
-                      style={styles.subDropdownItem}
-                      onMouseEnter={handleDropdownItemHover}
-                      onMouseLeave={handleDropdownItemLeave}
-                    >
-                      METSCHOO DELI
-                    </a>
-                    <a 
-                      href="#" 
-                      style={styles.subDropdownItem}
-                      onMouseEnter={handleDropdownItemHover}
-                      onMouseLeave={handleDropdownItemLeave}
-                    >
-                      PILLO @KALIANA APARTMENT
-                    </a>
-                  </div>
-                </div>
-                <a 
-                  href="#" 
-                  style={styles.dropdownItem}
-                  onMouseEnter={handleDropdownItemHover}
-                  onMouseLeave={handleDropdownItemLeave}
-                >
-                  Organisasi
-                </a>
-                <a 
-                  href="#" 
-                  style={styles.dropdownItem}
-                  onMouseEnter={handleDropdownItemHover}
-                  onMouseLeave={handleDropdownItemLeave}
-                >
-                  Ekstrakulikuler
-                </a>
-              </div>
-            </div>
-            
-            <div 
-              style={styles.navItem}
-              onMouseEnter={() => handleMouseEnter('program')}
-              onMouseLeave={handleMouseLeave}
-            >
-              <a 
-                href="#" 
-                style={styles.navLink}
-                onMouseEnter={handleNavLinkHover}
-                onMouseLeave={handleNavLinkLeave}
-              >
-                PROGRAM KEAHLIAN <ChevronDown size={16} />
-              </a>
-              <div style={hoveredDropdown === 'program' ? styles.dropdownVisible : styles.dropdown}>
-                <a 
-                  href="#" 
-                  style={styles.dropdownItem}
-                  onMouseEnter={handleDropdownItemHover}
-                  onMouseLeave={handleDropdownItemLeave}
-                >
-                  Akuntansi Bisnis
-                </a>
-                <a 
-                  href="#" 
-                  style={styles.dropdownItem}
-                  onMouseEnter={handleDropdownItemHover}
-                  onMouseLeave={handleDropdownItemLeave}
-                >
-                  Kuliner
-                </a>
-                <a 
-                  href="#" 
-                  style={styles.dropdownItem}
-                  onMouseEnter={handleDropdownItemHover}
-                  onMouseLeave={handleDropdownItemLeave}
-                >
-                  Perhotelan
-                </a>
-                <a 
-                  href="#" 
-                  style={styles.dropdownItem}
-                  onMouseEnter={handleDropdownItemHover}
-                  onMouseLeave={handleDropdownItemLeave}
-                >
-                  Teknologi Informasi
-                </a>
-                <a 
-                  href="#" 
-                  style={styles.dropdownItem}
-                  onMouseEnter={handleDropdownItemHover}
-                  onMouseLeave={handleDropdownItemLeave}
-                >
-                  Desain Komunikasi Visual
-                </a>
-              </div>
-            </div>
-            
-            <div style={styles.navItem}>
-              <a 
-                href="#" 
-                style={styles.navLink}
-                onMouseEnter={handleNavLinkHover}
-                onMouseLeave={handleNavLinkLeave}
-              >
-                BERITA SEKOLAH
-              </a>
-            </div>
-            
-            <div style={styles.navItem}>
-              <a 
-                href="#" 
-                style={styles.navLink}
-                onMouseEnter={handleNavLinkHover}
-                onMouseLeave={handleNavLinkLeave}
-              >
-                COLLEGE
-              </a>
-            </div>
-            
-            <div style={styles.navItem}>
-              <a 
-                href="#" 
-                style={styles.navLink}
-                onMouseEnter={handleNavLinkHover}
-                onMouseLeave={handleNavLinkLeave}
-              >
-                E-BOOK
-              </a>
-            </div>
-            
-            <div style={styles.navItem}>
-              <a 
-                href="#" 
-                style={styles.navLink}
-                onMouseEnter={handleNavLinkHover}
-                onMouseLeave={handleNavLinkLeave}
-              >
-                BKK
-              </a>
-            </div>
-            
-            <button style={styles.button} onClick={handleSignUpClick}>MS Learn</button>
-          </nav>
-        )}
-
-        {/* Mobile Menu Button */}
-        {isMobile && (
-          <button 
-            style={styles.mobileMenuButton}
-            onClick={toggleMenu}
-          >
-            {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
-          </button>
-        )}
-
-        {/* Mobile Menu Backdrop */}
-        {isMenuOpen && (
-          <div 
-            style={{
-              position: 'fixed',
-              top: 0,
-              left: 0,
-              right: 0,
-              bottom: 0,
-              backgroundColor: 'rgba(0, 0, 0, 0.5)',
-              zIndex: 999,
-            }}
-            onClick={toggleMenu}
-          />
-        )}
-        
-        {/* Mobile Menu */}
-          <div style={styles.mobileMenu}>
-          <a style={styles.navLink}>BERANDA</a>
-          <a style={styles.navLink}>TENTANG SEKOLAH</a>
-          <a style={styles.navLink}>PROGRAM KEAHLIAN</a>
-          <a style={styles.navLink}>KURIKULUM</a>
-          <a style={styles.navLink}>BERITA SEKOLAH</a>
-          <a style={styles.navLink}>COLLEGE</a>
-          <a style={styles.navLink}>E-BOOK</a>
-          <a style={styles.navLink}>BKK</a>
-                         <button style={{...styles.button, width: '100%', marginTop: '1rem'}} onClick={handleSignUpClick}>MS Learn</button>
-          </div>
-      </header>
+      {/* Header removed */}
 
       {/* Hero Section */}
       <section style={styles.hero}>
@@ -1246,10 +876,15 @@ const Index = () => {
             />
             <div style={styles.featuredNewsContent}>
               <div>
-                <div style={styles.featuredNewsDate}>15, Januari 2025</div>
+                {!isMobile && (
+                  <div style={styles.featuredNewsDate}>15, Januari 2025</div>
+                )}
                 <h3 style={styles.featuredNewsTitle}>
                   Lorem Ipsum Dolor Sit Amet Consectetur Adipiscing Elit
                 </h3>
+                {isMobile && (
+                  <div style={styles.featuredNewsDate}>15, Januari 2025</div>
+                )}
                 <p style={styles.featuredNewsDescription}>
                   Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
                 </p>
@@ -1269,6 +904,7 @@ const Index = () => {
               <h3 style={styles.newsCardTitle}>
                 Lorem Ipsum Dolor Sit Amet Consectetur Adipiscing Elit Sed Do Eiusmod
               </h3>
+              <div style={styles.newsCardDate}>06 Agustus 2025</div>
             </div>
             <div style={styles.newsCard}>
               <img 
@@ -1279,6 +915,7 @@ const Index = () => {
               <h3 style={styles.newsCardTitle}>
                 Tempor Incididunt Ut Labore Et Dolore Magna Aliqua Ut Enim Ad Minim
               </h3>
+              <div style={styles.newsCardDate}>30 Juli 2025</div>
             </div>
             <div style={styles.newsCard}>
               <img 
@@ -1289,6 +926,7 @@ const Index = () => {
               <h3 style={styles.newsCardTitle}>
                 Veniam Quis Nostrud Exercitation Ullamco Laboris Nisi Ut Aliquip Ex
               </h3>
+              <div style={styles.newsCardDate}>23 Juli 2025</div>
             </div>
             <div style={styles.newsCard}>
               <img 
@@ -1299,6 +937,7 @@ const Index = () => {
               <h3 style={styles.newsCardTitle}>
                 Ea Commodo Consequat Duis Aute Irure Dolor In Reprehenderit Voluptate
               </h3>
+              <div style={styles.newsCardDate}>22 Juli 2025</div>
           </div>
           </div>
 
@@ -1367,32 +1006,42 @@ const Index = () => {
         <h2 style={styles.programsTitle}>PROGRAM KEAHLIAN</h2>
         <div style={styles.programsGrid}>
           <div style={styles.programCard}>
-            <div style={styles.programIconContainer}>
-              <img src="/Akutansi.svg" alt="Akuntansi Bisnis" style={styles.programIcon} />
+            <div style={styles.programHexOuter}>
+              <div style={styles.programHexInner}>
+                <img src="/Akutansi.svg" alt="Akuntansi Bisnis" style={styles.programHexImage} />
+              </div>
             </div>
             <h3 style={styles.programTitle}>Akuntansi Bisnis</h3>
           </div>
           <div style={styles.programCard}>
-            <div style={styles.programIconContainer}>
-              <img src="/Kuliner.svg" alt="Kuliner" style={styles.programIcon} />
+            <div style={styles.programHexOuter}>
+              <div style={styles.programHexInner}>
+                <img src="/Kuliner.svg" alt="Kuliner" style={styles.programHexImage} />
+              </div>
             </div>
             <h3 style={styles.programTitle}>Kuliner</h3>
           </div>
           <div style={styles.programCard}>
-            <div style={styles.programIconContainer}>
-              <img src="/Perhotelan.svg" alt="Perhotelan" style={styles.programIcon} />
+            <div style={styles.programHexOuter}>
+              <div style={styles.programHexInner}>
+                <img src="/Perhotelan.svg" alt="Perhotelan" style={styles.programHexImage} />
+              </div>
             </div>
             <h3 style={styles.programTitle}>Perhotelan</h3>
           </div>
           <div style={styles.programCard}>
-            <div style={styles.programIconContainer}>
-              <img src="/Teknologi Informasi.svg" alt="Teknologi Informasi" style={styles.programIcon} />
+            <div style={styles.programHexOuter}>
+              <div style={styles.programHexInner}>
+                <img src="/Teknologi Informasi.svg" alt="Teknologi Informasi" style={styles.programHexImage} />
+              </div>
             </div>
             <h3 style={styles.programTitle}>Teknologi Informasi</h3>
           </div>
           <div style={styles.programCard}>
-            <div style={styles.programIconContainer}>
-              <img src="/Desain Komunikasi Visual.svg" alt="Desain Komunikasi Visual" style={styles.programIcon} />
+            <div style={styles.programHexOuter}>
+              <div style={styles.programHexInner}>
+                <img src="/Desain Komunikasi Visual.svg" alt="Desain Komunikasi Visual" style={styles.programHexImage} />
+              </div>
             </div>
             <h3 style={styles.programTitle}>Desain Komunikasi Visual</h3>
           </div>
@@ -1408,7 +1057,7 @@ const Index = () => {
               <Slider
                 dots={false}
                 infinite={true}
-                slidesToShow={6}
+                slidesToShow={isMobile ? 3 : 6}
                 slidesToScroll={1}
                 autoplay={true}
                 speed={1000}
@@ -1438,7 +1087,7 @@ const Index = () => {
               <Slider
                 dots={false}
                 infinite={true}
-                slidesToShow={6}
+                slidesToShow={isMobile ? 3 : 6}
                 slidesToScroll={1}
                 autoplay={true}
                 speed={1000}

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import type { CSSProperties } from 'react';
 import WhatsAppIcon from '../assets/WhatsApp.svg';
 import InstagramIcon from '../assets/InstaGram.svg';
@@ -7,6 +7,15 @@ import YouTubeIcon from '../assets/YouTube.svg';
 import TikTokIcon from '../assets/TikTok.svg';
 
 const Footer: React.FC = () => {
+  const [windowWidth, setWindowWidth] = useState<number>(typeof window !== 'undefined' ? window.innerWidth : 1024);
+  const isMobile = windowWidth <= 768;
+
+  useEffect(() => {
+    const onResize = () => setWindowWidth(window.innerWidth);
+    window.addEventListener('resize', onResize);
+    return () => window.removeEventListener('resize', onResize);
+  }, []);
+
   const styles: Record<string, CSSProperties> = {
     footer: {
       backgroundColor: '#004E4E',
@@ -15,7 +24,7 @@ const Footer: React.FC = () => {
       backgroundPosition: 'center',
       backgroundRepeat: 'no-repeat',
       color: 'white',
-      padding: '2rem 2rem 1rem',
+      padding: isMobile ? '1.5rem 1rem 0.75rem' : '2rem 2rem 1rem',
       position: 'relative',
     },
     footerContent: {
@@ -24,34 +33,37 @@ const Footer: React.FC = () => {
     },
     footerGrid: {
       display: 'grid',
-      gridTemplateColumns: 'repeat(3, 1fr)',
-      gap: '2rem',
+      gridTemplateColumns: isMobile ? '1fr' : 'repeat(3, 1fr)',
+      gap: isMobile ? '1.25rem' : '2rem',
       marginBottom: '2rem',
+      alignItems: 'start',
     },
     footerSection: {
       display: 'flex',
       flexDirection: 'column',
     },
     footerTitle: {
-      fontSize: '1rem',
+      fontSize: isMobile ? '0.95rem' : '1rem',
       fontWeight: 600,
       marginBottom: '0.5rem',
       color: 'white',
     },
     footerText: {
-      fontSize: '0.8rem',
+      fontSize: isMobile ? '0.85rem' : '0.8rem',
       lineHeight: '1.3',
       color: '#b0c4c4',
       marginBottom: '0.3rem',
     },
     footerSocial: {
       display: 'flex',
-      gap: '1rem',
-      marginTop: '1rem',
+      gap: isMobile ? '0.75rem' : '1rem',
+      marginTop: isMobile ? '0.75rem' : '1rem',
+      justifyContent: isMobile ? 'center' : 'flex-start',
+      marginLeft: isMobile ? '0rem' : '-2rem',
     },
     socialIcon: {
-      width: '40px',
-      height: '40px',
+      width: isMobile ? '36px' : '40px',
+      height: isMobile ? '36px' : '40px',
       borderRadius: '50%',
       backgroundColor: '#035757',
       display: 'flex',
@@ -66,15 +78,24 @@ const Footer: React.FC = () => {
     },
     mapIframe: {
       border: '0',
-      width: '600px',
-      height: '250px',
+      width: '100%',
+      height: isMobile ? '200px' : '250px',
       maxWidth: '100%',
     },
     youtubeIframe: {
       border: '0',
-      width: '450px',
-      height: '250px',
+      width: '100%',
+      height: isMobile ? '220px' : '250px',
       maxWidth: '100%',
+    },
+    logoContainer: {
+      textAlign: isMobile ? 'center' : 'left',
+      marginBottom: isMobile ? '0.75rem' : '1rem',
+      marginTop: isMobile ? '1rem' : '5rem',
+    },
+    logoImage: {
+      height: isMobile ? '120px' : '200px',
+      marginBottom: '1rem',
     },
   };
 
@@ -96,23 +117,23 @@ const Footer: React.FC = () => {
           <div style={styles.footerGrid}>
             {/* Left Column - Logo and Social Media */}
             <div style={styles.footerSection}>
-              <div style={{ textAlign: 'left', marginBottom: '1rem', marginTop: '5rem' }}>
-                <img src="/SMK LOGO.png" alt="SMK Metland Logo" style={{ height: '200px', marginBottom: '1rem' }} />
+              <div style={styles.logoContainer}>
+                <img src="/SMK LOGO.png" alt="SMK Metland Logo" style={styles.logoImage} />
               </div>
-              <div style={{ ...styles.footerSocial, justifyContent: 'flex-start', marginTop: '2rem', marginLeft: '-2rem' }}>
-                <a href="#" style={styles.socialIcon}>
+              <div style={{ ...styles.footerSocial, marginTop: isMobile ? '0.5rem' : '2rem' }}>
+                <a href="https://api.whatsapp.com/send/?phone=6281293395500&text&type=phone_number&app_absent=0" style={styles.socialIcon}>
                   <img src={WhatsAppIcon} alt="WhatsApp" style={{ width: '20px', height: '20px', filter: 'brightness(0) invert(1)' }} />
                 </a>
-                <a href="#" style={styles.socialIcon}>
+                <a href="https://www.instagram.com/smkmetland/" style={styles.socialIcon}>
                   <img src={InstagramIcon} alt="Instagram" style={{ width: '20px', height: '20px', filter: 'brightness(0) invert(1)' }} />
                 </a>
-                <a href="#" style={styles.socialIcon}>
+                <a href="https://www.facebook.com/SMKMetland/" style={styles.socialIcon}>
                   <img src={FacebookIcon} alt="Facebook" style={{ width: '20px', height: '20px', filter: 'brightness(0) invert(1)' }} />
                 </a>
-                <a href="#" style={styles.socialIcon}>
+                <a href="https://www.youtube.com/channel/UCrxrH9tASSF3FNez-fTMKZA" style={styles.socialIcon}>
                   <img src={YouTubeIcon} alt="YouTube" style={{ width: '20px', height: '20px', filter: 'brightness(0) invert(1)' }} />
                 </a>
-                <a href="#" style={styles.socialIcon}>
+                <a href="https://www.tiktok.com/@smkmetland" style={styles.socialIcon}>
                   <img src={TikTokIcon} alt="TikTok" style={{ width: '20px', height: '20px', filter: 'brightness(0) invert(1)' }} />
                 </a>
               </div>

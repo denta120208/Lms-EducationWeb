@@ -1,4 +1,3 @@
-import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from './contexts/AuthContext';
 import ProtectedRoute from './components/ProtectedRoute';
@@ -10,6 +9,15 @@ import GridView from './pages/GridView';
 import TeacherDashboard from './pages/TeacherDashboard';
 import TeacherCourses from './pages/TeacherCourses';
 import Index from './pages/index';
+import VisiMisiPage from './pages/VisiMisi';
+import NilaiBudayaSekolah from './pages/NilaiBudayaSekolah';
+import Organisasi from './pages/Organisasi';
+import ProgramAkuntansi from './pages/ProgramAkuntansi';
+import ProgramKuliner from './pages/ProgramKuliner';
+import ProgramPerhotelan from './pages/ProgramPerhotelan';
+import ProgramTI from './pages/ProgramTI';
+import ProgramDKV from './pages/ProgramDKV';
+import Ekstrakulikuler from './pages/Ekstrakulikuler';
 import './App.css';
 
 function App() {
@@ -58,6 +66,15 @@ function App() {
             
             {/* Landing page as the default route */}
             <Route path="/" element={<Index />} />
+            <Route path="/visi-misi" element={<VisiMisiPage />} />
+            <Route path="/nilai-budaya-sekolah" element={<NilaiBudayaSekolah />} />
+            <Route path="/organisasi" element={<Organisasi />} />
+            <Route path="/program/akuntansi" element={<ProgramAkuntansi />} />
+            <Route path="/program/kuliner" element={<ProgramKuliner />} />
+            <Route path="/program/perhotelan" element={<ProgramPerhotelan />} />
+            <Route path="/program/ti" element={<ProgramTI />} />
+            <Route path="/program/dkv" element={<ProgramDKV />} />
+            <Route path="/ekstrakulikuler" element={<Ekstrakulikuler />} />
             
             {/* Catch all route - redirect to login */}
             <Route path="*" element={<Navigate to="/login" replace />} />
