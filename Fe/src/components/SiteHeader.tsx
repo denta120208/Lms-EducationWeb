@@ -6,6 +6,11 @@ import InstagramIcon from '../assets/InstaGram.svg';
 import FacebookIcon from '../assets/FaceBook.svg';
 import YouTubeIcon from '../assets/YouTube.svg';
 import TikTokIcon from '../assets/TikTok.svg';
+import WhatsAppIconHover from '../assets/WhatsApp Hover.svg';
+import InstagramIconHover from '../assets/InstaGram Hover.svg';
+import FacebookIconHover from '../assets/FaceBook Hover.svg';
+import YouTubeIconHover from '../assets/YouTube Hover.svg';
+import TikTokIconHover from '../assets/TikTok Hover.svg';
 import EnFlag from '../assets/en.png';
 import IdFlag from '../assets/id 1.png';
 
@@ -48,8 +53,8 @@ const SiteHeader: React.FC<Props> = ({ fixed = true, scrollTargetSelector }) => 
       transition: 'none',
     },
     socialLinks: { display: 'flex', gap: isMobile ? '0.5rem' : '1rem', alignItems: 'center' },
-    socialLink: { color: 'white', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '0.3rem' },
-    socialIconImage: { width: 16, height: 16, filter: 'brightness(0) invert(1)' },
+    socialLink: { color: 'white', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '0.3rem', transition: 'color 0.2s ease' },
+    socialIconImage: { width: 16, height: 16, filter: 'brightness(0) invert(1)', transition: 'filter 0.2s ease' },
     flagButton: {
       width: isMobile ? 16 : 24,
       height: isMobile ? 12 : 16,
@@ -145,6 +150,34 @@ const SiteHeader: React.FC<Props> = ({ fixed = true, scrollTargetSelector }) => 
     );
   };
 
+  const SocialLink: React.FC<{
+    href: string;
+    label: string;
+    icon: string;
+    iconHover: string;
+    isMobile: boolean;
+  }> = ({ href, label, icon, iconHover, isMobile }) => {
+    const [hovered, setHovered] = useState(false);
+    return (
+      <a
+        href={href}
+        style={{ ...styles.socialLink, color: hovered ? '#D4B800' : 'white' }}
+        onMouseEnter={() => setHovered(true)}
+        onMouseLeave={() => setHovered(false)}
+      >
+        <img
+          src={hovered ? iconHover : icon}
+          alt={label}
+          style={{
+            ...styles.socialIconImage,
+            filter: hovered ? 'none' : 'brightness(0) invert(1)'
+          }}
+        />
+        {!isMobile && label}
+      </a>
+    );
+  };
+
   const DropdownItemLink: React.FC<{ onClick?: () => void; children: React.ReactNode }> = ({ onClick, children }) => {
     const [hovered, setHovered] = useState(false);
     return (
@@ -181,11 +214,41 @@ const SiteHeader: React.FC<Props> = ({ fixed = true, scrollTargetSelector }) => 
       {/* Top social bar */}
       <div style={styles.socialBar}>
         <div style={styles.socialLinks}>
-          <a href="https://api.whatsapp.com/send/?phone=6281293395500&text&type=phone_number&app_absent=0" style={styles.socialLink}><img src={WhatsAppIcon} alt="WhatsApp" style={styles.socialIconImage} />{!isMobile && 'Whatsapp'}</a>
-          <a href="https://www.instagram.com/smkmetland/" style={styles.socialLink}><img src={InstagramIcon} alt="Instagram" style={styles.socialIconImage} />{!isMobile && 'Instagram'}</a>
-          <a href="https://www.facebook.com/SMKMetland/" style={styles.socialLink}><img src={FacebookIcon} alt="Facebook" style={styles.socialIconImage} />{!isMobile && 'Facebook'}</a>
-          <a href="https://www.youtube.com/channel/UCrxrH9tASSF3FNez-fTMKZA" style={styles.socialLink}><img src={YouTubeIcon} alt="YouTube" style={styles.socialIconImage} />{!isMobile && 'Youtube'}</a>
-          <a href="https://www.tiktok.com/@smkmetland" style={styles.socialLink}><img src={TikTokIcon} alt="TikTok" style={styles.socialIconImage} />{!isMobile && 'Tiktok'}</a>
+          <SocialLink
+            href="https://api.whatsapp.com/send/?phone=6281293395500&text&type=phone_number&app_absent=0"
+            label="Whatsapp"
+            icon={WhatsAppIcon}
+            iconHover={WhatsAppIconHover}
+            isMobile={isMobile}
+          />
+          <SocialLink
+            href="https://www.instagram.com/smkmetland/"
+            label="Instagram"
+            icon={InstagramIcon}
+            iconHover={InstagramIconHover}
+            isMobile={isMobile}
+          />
+          <SocialLink
+            href="https://www.facebook.com/SMKMetland/"
+            label="Facebook"
+            icon={FacebookIcon}
+            iconHover={FacebookIconHover}
+            isMobile={isMobile}
+          />
+          <SocialLink
+            href="https://www.youtube.com/channel/UCrxrH9tASSF3FNez-fTMKZA"
+            label="Youtube"
+            icon={YouTubeIcon}
+            iconHover={YouTubeIconHover}
+            isMobile={isMobile}
+          />
+          <SocialLink
+            href="https://www.tiktok.com/@smkmetland"
+            label="Tiktok"
+            icon={TikTokIcon}
+            iconHover={TikTokIconHover}
+            isMobile={isMobile}
+          />
         </div>
         <div style={{ display: 'flex', gap: '0.5rem' }}>
           <button style={styles.flagButton}><img src={IdFlag} alt="Bahasa Indonesia" style={styles.flagIcon} /></button>
