@@ -51,6 +51,7 @@ import Img14 from '../assets/Partnership/Bottom/14-150x150.jpg';
 const Index = () => {
   const navigate = useNavigate();
   const [isMobile, setIsMobile] = useState(false);
+  const [hoveredProgram, setHoveredProgram] = useState<string | null>(null);
   
 
   useEffect(() => {
@@ -705,6 +706,8 @@ const Index = () => {
       width: '200px',
       height: '220px',
       minHeight: '220px',
+      cursor: 'pointer',
+      transition: 'transform 0.2s ease, box-shadow 0.2s ease',
     },
     programIconContainer: {
       width: '100px',
@@ -744,6 +747,20 @@ const Index = () => {
       alignItems: 'center',
       justifyContent: 'center',
       clipPath: 'polygon(25% 6.7%, 75% 6.7%, 100% 50%, 75% 93.3%, 25% 93.3%, 0% 50%)',
+    },
+    programCardHover: {
+      transform: 'translateY(-6px)',
+      boxShadow: '0 6px 14px rgba(0, 0, 0, 0.15)'
+    },
+    programHexOuterHover: {
+      backgroundColor: '#035757',
+      transform: 'scale(1.06)'
+    },
+    programHexInnerHover: {
+      backgroundColor: '#ffffff'
+    },
+    programTitleHover: {
+      color: '#035757'
     },
     programHexImage: {
       width: '70%',
@@ -1004,48 +1021,137 @@ const Index = () => {
       {/* Programs Section */}
       <section style={styles.programsSection}>
         <h2 style={styles.programsTitle}>PROGRAM KEAHLIAN</h2>
-        <div style={styles.programsGrid}>
-          <div style={styles.programCard}>
-            <div style={styles.programHexOuter}>
-              <div style={styles.programHexInner}>
-                <img src="/Akutansi.svg" alt="Akuntansi Bisnis" style={styles.programHexImage} />
+          <div style={styles.programsGrid}>
+            <div
+              style={{
+                ...styles.programCard,
+                ...(hoveredProgram === 'akuntansi' ? styles.programCardHover : {})
+              }}
+              onMouseEnter={() => setHoveredProgram('akuntansi')}
+              onMouseLeave={() => setHoveredProgram(null)}
+              onClick={() => navigate('/program/akuntansi')}
+            >
+              <div style={{
+                ...styles.programHexOuter,
+                ...(hoveredProgram === 'akuntansi' ? styles.programHexOuterHover : {})
+              }}>
+                <div style={{
+                  ...styles.programHexInner,
+                  ...(hoveredProgram === 'akuntansi' ? styles.programHexInnerHover : {})
+                }}>
+                  <img src="/Akutansi.svg" alt="Akuntansi Bisnis" style={styles.programHexImage} />
+                </div>
               </div>
+              <h3 style={{
+                ...styles.programTitle,
+                ...(hoveredProgram === 'akuntansi' ? styles.programTitleHover : {})
+              }}>Akuntansi Bisnis</h3>
             </div>
-            <h3 style={styles.programTitle}>Akuntansi Bisnis</h3>
-          </div>
-          <div style={styles.programCard}>
-            <div style={styles.programHexOuter}>
-              <div style={styles.programHexInner}>
-                <img src="/Kuliner.svg" alt="Kuliner" style={styles.programHexImage} />
+
+            <div
+              style={{
+                ...styles.programCard,
+                ...(hoveredProgram === 'kuliner' ? styles.programCardHover : {})
+              }}
+              onMouseEnter={() => setHoveredProgram('kuliner')}
+              onMouseLeave={() => setHoveredProgram(null)}
+              onClick={() => navigate('/program/kuliner')}
+            >
+              <div style={{
+                ...styles.programHexOuter,
+                ...(hoveredProgram === 'kuliner' ? styles.programHexOuterHover : {})
+              }}>
+                <div style={{
+                  ...styles.programHexInner,
+                  ...(hoveredProgram === 'kuliner' ? styles.programHexInnerHover : {})
+                }}>
+                  <img src="/Kuliner.svg" alt="Kuliner" style={styles.programHexImage} />
+                </div>
               </div>
+              <h3 style={{
+                ...styles.programTitle,
+                ...(hoveredProgram === 'kuliner' ? styles.programTitleHover : {})
+              }}>Kuliner</h3>
             </div>
-            <h3 style={styles.programTitle}>Kuliner</h3>
-          </div>
-          <div style={styles.programCard}>
-            <div style={styles.programHexOuter}>
-              <div style={styles.programHexInner}>
-                <img src="/Perhotelan.svg" alt="Perhotelan" style={styles.programHexImage} />
+
+            <div
+              style={{
+                ...styles.programCard,
+                ...(hoveredProgram === 'perhotelan' ? styles.programCardHover : {})
+              }}
+              onMouseEnter={() => setHoveredProgram('perhotelan')}
+              onMouseLeave={() => setHoveredProgram(null)}
+              onClick={() => navigate('/program/perhotelan')}
+            >
+              <div style={{
+                ...styles.programHexOuter,
+                ...(hoveredProgram === 'perhotelan' ? styles.programHexOuterHover : {})
+              }}>
+                <div style={{
+                  ...styles.programHexInner,
+                  ...(hoveredProgram === 'perhotelan' ? styles.programHexInnerHover : {})
+                }}>
+                  <img src="/Perhotelan.svg" alt="Perhotelan" style={styles.programHexImage} />
+                </div>
               </div>
+              <h3 style={{
+                ...styles.programTitle,
+                ...(hoveredProgram === 'perhotelan' ? styles.programTitleHover : {})
+              }}>Perhotelan</h3>
             </div>
-            <h3 style={styles.programTitle}>Perhotelan</h3>
-          </div>
-          <div style={styles.programCard}>
-            <div style={styles.programHexOuter}>
-              <div style={styles.programHexInner}>
-                <img src="/Teknologi Informasi.svg" alt="Teknologi Informasi" style={styles.programHexImage} />
+
+            <div
+              style={{
+                ...styles.programCard,
+                ...(hoveredProgram === 'ti' ? styles.programCardHover : {})
+              }}
+              onMouseEnter={() => setHoveredProgram('ti')}
+              onMouseLeave={() => setHoveredProgram(null)}
+              onClick={() => navigate('/program/ti')}
+            >
+              <div style={{
+                ...styles.programHexOuter,
+                ...(hoveredProgram === 'ti' ? styles.programHexOuterHover : {})
+              }}>
+                <div style={{
+                  ...styles.programHexInner,
+                  ...(hoveredProgram === 'ti' ? styles.programHexInnerHover : {})
+                }}>
+                  <img src="/Teknologi Informasi.svg" alt="Teknologi Informasi" style={styles.programHexImage} />
+                </div>
               </div>
+              <h3 style={{
+                ...styles.programTitle,
+                ...(hoveredProgram === 'ti' ? styles.programTitleHover : {})
+              }}>Teknologi Informasi</h3>
             </div>
-            <h3 style={styles.programTitle}>Teknologi Informasi</h3>
-          </div>
-          <div style={styles.programCard}>
-            <div style={styles.programHexOuter}>
-              <div style={styles.programHexInner}>
-                <img src="/Desain Komunikasi Visual.svg" alt="Desain Komunikasi Visual" style={styles.programHexImage} />
+
+            <div
+              style={{
+                ...styles.programCard,
+                ...(hoveredProgram === 'dkv' ? styles.programCardHover : {})
+              }}
+              onMouseEnter={() => setHoveredProgram('dkv')}
+              onMouseLeave={() => setHoveredProgram(null)}
+              onClick={() => navigate('/program/dkv')}
+            >
+              <div style={{
+                ...styles.programHexOuter,
+                ...(hoveredProgram === 'dkv' ? styles.programHexOuterHover : {})
+              }}>
+                <div style={{
+                  ...styles.programHexInner,
+                  ...(hoveredProgram === 'dkv' ? styles.programHexInnerHover : {})
+                }}>
+                  <img src="/Desain Komunikasi Visual.svg" alt="Desain Komunikasi Visual" style={styles.programHexImage} />
+                </div>
               </div>
+              <h3 style={{
+                ...styles.programTitle,
+                ...(hoveredProgram === 'dkv' ? styles.programTitleHover : {})
+              }}>Desain Komunikasi Visual</h3>
             </div>
-            <h3 style={styles.programTitle}>Desain Komunikasi Visual</h3>
           </div>
-        </div>
       </section>
 
       {/* Partnership Section */}
