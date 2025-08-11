@@ -753,14 +753,14 @@ const Index = () => {
       boxShadow: '0 6px 14px rgba(0, 0, 0, 0.15)'
     },
     programHexOuterHover: {
-      backgroundColor: '#035757',
+      backgroundColor: '#009390',
       transform: 'scale(1.06)'
     },
     programHexInnerHover: {
       backgroundColor: '#ffffff'
     },
     programTitleHover: {
-      color: '#035757'
+      color: '#009390'
     },
     programHexImage: {
       width: '70%',
@@ -1039,7 +1039,7 @@ const Index = () => {
                   ...styles.programHexInner,
                   ...(hoveredProgram === 'akuntansi' ? styles.programHexInnerHover : {})
                 }}>
-                  <img src="/Akutansi.svg" alt="Akuntansi Bisnis" style={styles.programHexImage} />
+                  <img src={hoveredProgram === 'akuntansi' ? '/Akutansi Hover.svg' : '/Akutansi.svg'} alt="Akuntansi Bisnis" style={styles.programHexImage} />
                 </div>
               </div>
               <h3 style={{
@@ -1065,7 +1065,7 @@ const Index = () => {
                   ...styles.programHexInner,
                   ...(hoveredProgram === 'kuliner' ? styles.programHexInnerHover : {})
                 }}>
-                  <img src="/Kuliner.svg" alt="Kuliner" style={styles.programHexImage} />
+                  <img src={hoveredProgram === 'kuliner' ? '/Kuliner Hover.svg' : '/Kuliner.svg'} alt="Kuliner" style={styles.programHexImage} />
                 </div>
               </div>
               <h3 style={{
@@ -1091,7 +1091,7 @@ const Index = () => {
                   ...styles.programHexInner,
                   ...(hoveredProgram === 'perhotelan' ? styles.programHexInnerHover : {})
                 }}>
-                  <img src="/Perhotelan.svg" alt="Perhotelan" style={styles.programHexImage} />
+                  <img src={hoveredProgram === 'perhotelan' ? '/Perhotelan Hover.svg' : '/Perhotelan.svg'} alt="Perhotelan" style={styles.programHexImage} />
                 </div>
               </div>
               <h3 style={{
@@ -1117,7 +1117,7 @@ const Index = () => {
                   ...styles.programHexInner,
                   ...(hoveredProgram === 'ti' ? styles.programHexInnerHover : {})
                 }}>
-                  <img src="/Teknologi Informasi.svg" alt="Teknologi Informasi" style={styles.programHexImage} />
+                  <img src={hoveredProgram === 'ti' ? '/Teknologi Informasi Hover.svg' : '/Teknologi Informasi.svg'} alt="Teknologi Informasi" style={styles.programHexImage} />
                 </div>
               </div>
               <h3 style={{
@@ -1143,7 +1143,7 @@ const Index = () => {
                   ...styles.programHexInner,
                   ...(hoveredProgram === 'dkv' ? styles.programHexInnerHover : {})
                 }}>
-                  <img src="/Desain Komunikasi Visual.svg" alt="Desain Komunikasi Visual" style={styles.programHexImage} />
+                  <img src={hoveredProgram === 'dkv' ? '/Desain Komunikasi Visual Hover.svg' : '/Desain Komunikasi Visual.svg'} alt="Desain Komunikasi Visual" style={styles.programHexImage} />
                 </div>
               </div>
               <h3 style={{
