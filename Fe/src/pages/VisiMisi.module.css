@@ -1,0 +1,4 @@
+.fp-watermark { display: none !important; }
+.fp-controlArrow { filter: drop-shadow(0 4px 8px rgba(0,0,0,0.3)); }
+.fp-nav ul li a span, .fp-slidesNav ul li a span { background: #00bcd4 !important; }
+.fp-section { position: relative; z-index: 1; }
