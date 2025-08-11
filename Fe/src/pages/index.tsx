@@ -47,6 +47,12 @@ import Accor from '../assets/Partnership/Bottom/accor-e1705022947913-150x150.png
 import PhitsanulokLogo from '../assets/Partnership/Bottom/Phitsanulok_Logo-1-150x150.jpg';
 import Img20230612 from '../assets/Partnership/Bottom/IMG-20230612-WA0015-1-150x150.jpg';
 import Img14 from '../assets/Partnership/Bottom/14-150x150.jpg';
+// News assets from sementara
+import ImgCybersecurity from '../assets/sementara/cybersecurity.jpg';
+import ImgParallaxnet from '../assets/sementara/PARALLAXNET.jpg';
+import ImgWorkshop from '../assets/sementara/Workshop Ilustrasi Digital.jpg';
+import ImgLLM from '../assets/sementara/Project-LLM-Siswa.jpg';
+import ImgCollab from '../assets/sementara/Collaboration between Indonesia and Thailand.jpg';
 
 const Index = () => {
   const navigate = useNavigate();
@@ -58,6 +64,7 @@ const Index = () => {
     'JALIN KERJASAMA, METLAND SCHOOL DAN PARALLAXNET USUNG KURIKULUM TECHNOPRENEUR',
     'SMK Metland Cileungsi Bersama Huion Gelar Seminar dan Workshop Ilustrasi Digital',
     'Pembelajaran Large Language Models (LLM) dalam Kurikulum Sekolah Menengah Kejuruan',
+    'Enhancing Digital Literacy through TVET Fostering Synergy and Collaboration between Indonesia and Thailand',
   ];
   const [currentHeadlineIndex, setCurrentHeadlineIndex] = useState<number>(0);
   const [nextHeadlineIndex, setNextHeadlineIndex] = useState<number | null>(null);
@@ -508,7 +515,8 @@ const Index = () => {
       position: 'relative',
       overflow: 'hidden',
       width: '100%',
-      minHeight: isMobile ? '1.3rem' : '1rem',
+      // Allow multiple lines on mobile (approx up to 3 lines)
+      minHeight: isMobile ? '3.9rem' : '1rem',
     },
     trendingSlide: {
       position: 'absolute',
@@ -525,7 +533,7 @@ const Index = () => {
       textAlign: 'center',
       whiteSpace: isMobile ? 'normal' : 'nowrap',
       overflow: 'hidden',
-      textOverflow: 'ellipsis',
+      textOverflow: isMobile ? 'unset' : 'ellipsis',
       lineHeight: isMobile ? '1.3' : '1',
     },
     trendingNav: {
@@ -970,8 +978,8 @@ const Index = () => {
           {/* Featured News */}
           <div style={styles.featuredNews}>
             <img 
-              src="/sekolah.jpg" 
-              alt="Featured News" 
+              src={ImgCybersecurity} 
+              alt="Cybersecurity Di Sekolah : Dimulai Dari Diri Sendiri" 
               style={styles.featuredNewsImage}
             />
             <div style={styles.featuredNewsContent}>
@@ -980,13 +988,13 @@ const Index = () => {
                   <div style={styles.featuredNewsDate}>15, Januari 2025</div>
                 )}
                 <h3 style={styles.featuredNewsTitle}>
-                  Lorem Ipsum Dolor Sit Amet Consectetur Adipiscing Elit
+                Cybersecurity Di Sekolah : Dimulai Dari Diri Sendiri
                 </h3>
                 {isMobile && (
                   <div style={styles.featuredNewsDate}>15, Januari 2025</div>
                 )}
                 <p style={styles.featuredNewsDescription}>
-                  Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
+                Di era digital saat ini, teknologi informasi telah menjadi bagian tak terpisahkan dari kehidupan sehari-hari. Penggunaan internet dan perangkat digital yang semakin meluas membawa berbagai manfaat, namun juga meningkatkan risiko keamanan informasi. Dalam konteks ini, pemahaman dasar tentang cybersecurity (keamanan siber) menjadi sangat penting, terutama bagi siswa Sekolah Menengah Kejuruan (SMK) yang dipersiapkan untuk terjun langsung ke dunia kerja, termasuk di bidang teknologi.
                 </p>
               </div>
               <button style={styles.readMoreButton}>Baca Selengkapnya</button>
@@ -997,45 +1005,45 @@ const Index = () => {
           <div style={styles.newsGrid}>
             <div style={styles.newsCard}>
               <img 
-                src="/sekolah.jpg" 
-                alt="News 1" 
+                src={ImgParallaxnet} 
+                alt="JALIN KERJASAMA, METLAND SCHOOL DAN PARALLAXNET USUNG KURIKULUM TECHNOPRENEUR" 
                 style={styles.newsCardImage}
               />
               <h3 style={styles.newsCardTitle}>
-                Lorem Ipsum Dolor Sit Amet Consectetur Adipiscing Elit Sed Do Eiusmod
+                 JALIN KERJASAMA, METLAND SCHOOL DAN PARALLAXNET USUNG KURIKULUM TECHNOPRENEUR
               </h3>
               <div style={styles.newsCardDate}>06 Agustus 2025</div>
             </div>
             <div style={styles.newsCard}>
               <img 
-                src="/sekolah.jpg" 
-                alt="News 2" 
+                src={ImgWorkshop} 
+                alt="SMK Metland Cileungsi Bersama Huion Gelar Seminar dan Workshop Ilustrasi Digital" 
                 style={styles.newsCardImage}
               />
               <h3 style={styles.newsCardTitle}>
-                Tempor Incididunt Ut Labore Et Dolore Magna Aliqua Ut Enim Ad Minim
+                SMK Metland Cileungsi Bersama Huion Gelar Seminar dan Workshop Ilustrasi Digital
               </h3>
               <div style={styles.newsCardDate}>30 Juli 2025</div>
             </div>
             <div style={styles.newsCard}>
               <img 
-                src="/sekolah.jpg" 
-                alt="News 3" 
+                src={ImgLLM} 
+                alt="Pembelajaran Large Language Models (LLM) dalam Kurikulum Sekolah Menengah Kejuruan" 
                 style={styles.newsCardImage}
               />
               <h3 style={styles.newsCardTitle}>
-                Veniam Quis Nostrud Exercitation Ullamco Laboris Nisi Ut Aliquip Ex
+              Pembelajaran Large Language Models (LLM) dalam Kurikulum Sekolah Menengah Kejuruan
               </h3>
               <div style={styles.newsCardDate}>23 Juli 2025</div>
             </div>
             <div style={styles.newsCard}>
               <img 
-                src="/sekolah.jpg" 
-                alt="News 4" 
+                src={ImgCollab} 
+                alt="Enhancing Digital Literacy through TVET Fostering Synergy and Collaboration between Indonesia and Thailand" 
                 style={styles.newsCardImage}
               />
               <h3 style={styles.newsCardTitle}>
-                Ea Commodo Consequat Duis Aute Irure Dolor In Reprehenderit Voluptate
+              Enhancing Digital Literacy through TVET Fostering Synergy and Collaboration between Indonesia and Thailand
               </h3>
               <div style={styles.newsCardDate}>22 Juli 2025</div>
           </div>

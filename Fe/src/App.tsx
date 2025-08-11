@@ -18,6 +18,7 @@ import ProgramPerhotelan from './pages/ProgramPerhotelan';
 import ProgramTI from './pages/ProgramTI';
 import ProgramDKV from './pages/ProgramDKV';
 import Ekstrakulikuler from './pages/Ekstrakulikuler';
+import BeritaSekolah from './pages/BeritaSekolah';
 import './App.css';
 
 function App() {
@@ -75,6 +76,7 @@ function App() {
             <Route path="/program/ti" element={<ProgramTI />} />
             <Route path="/program/dkv" element={<ProgramDKV />} />
             <Route path="/ekstrakulikuler" element={<Ekstrakulikuler />} />
+            <Route path="/berita" element={<BeritaSekolah />} />
             
             {/* Catch all route - redirect to login */}
             <Route path="*" element={<Navigate to="/login" replace />} />

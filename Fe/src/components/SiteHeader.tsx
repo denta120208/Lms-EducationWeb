@@ -318,7 +318,7 @@ const SiteHeader: React.FC<Props> = ({ fixed = true, scrollTargetSelector }) => 
               <DropdownItemLink onClick={() => navigate('/ekstrakulikuler')}>Ekstrakulikuler</DropdownItemLink>
             </div>
           </div>
-          <div style={styles.navItem}><NavItemLink>BERITA SEKOLAH</NavItemLink></div>
+          <div style={styles.navItem}><NavItemLink onClick={() => navigate('/berita')}>BERITA SEKOLAH</NavItemLink></div>
           <div style={styles.navItem}><NavItemLink onClick={() => (window.location.href = 'https://metlandcollege.com/')}>COLLEGE</NavItemLink></div>
           <div style={styles.navItem}><NavItemLink>E-BOOK</NavItemLink></div>
           <div style={styles.navItem}><NavItemLink>BKK</NavItemLink></div>
