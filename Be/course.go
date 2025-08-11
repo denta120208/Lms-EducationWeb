@@ -210,9 +210,15 @@ func uploadFileHandler(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	// Generate a unique filename
-	filename := fmt.Sprintf("%d_%s", time.Now().UnixNano(), handler.Filename)
-	filename = strings.ReplaceAll(filename, " ", "_")
+	// Generate a unique filename and clean special characters
+	cleanFilename := strings.ReplaceAll(handler.Filename, " ", "_")
+	cleanFilename = strings.ReplaceAll(cleanFilename, "(", "")
+	cleanFilename = strings.ReplaceAll(cleanFilename, ")", "")
+	cleanFilename = strings.ReplaceAll(cleanFilename, "[", "")
+	cleanFilename = strings.ReplaceAll(cleanFilename, "]", "")
+	cleanFilename = strings.ReplaceAll(cleanFilename, "{", "")
+	cleanFilename = strings.ReplaceAll(cleanFilename, "}", "")
+	filename := fmt.Sprintf("%d_%s", time.Now().UnixNano(), cleanFilename)
 
 	// Create the file
 	filePath := filepath.Join(uploadsDir, filename)

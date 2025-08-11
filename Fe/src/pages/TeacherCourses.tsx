@@ -646,7 +646,7 @@ const TeacherCourses = () => {
                   <div style={{
                     ...styles.courseImage,
                     background: course.image_path 
-                      ? `url(${API_BASE_URL}${course.image_path})`
+                      ? `url(${API_BASE_URL}${encodeURI(course.image_path)})`
                       : getBackgroundBySubject(course.subject),
                     backgroundSize: course.image_path ? 'cover' : 'auto',
                     backgroundPosition: 'center',

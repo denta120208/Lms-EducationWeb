@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Static File Debug</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .test-item { margin: 20px 0; padding: 10px; border: 1px solid #ccc; }
+        img { max-width: 300px; margin: 10px 0; }
+    </style>
+</head>
+<body>
+    <h1>Static File Debug Test</h1>
+    
+    <div class="test-item">
+        <h3>Test 1: Direct IMG tag</h3>
+        <img src="/uploads/1754876845488200100_Screenshot_(182).png" alt="Test Image 1" onerror="this.style.border='2px solid red';">
+        <p>URL: <code>/uploads/1754876845488200100_Screenshot_(182).png</code></p>
+    </div>
+    
+    <div class="test-item">
+        <h3>Test 2: With localhost:8080</h3>
+        <img src="http://localhost:8080/uploads/1754876845488200100_Screenshot_(182).png" alt="Test Image 2" onerror="this.style.border='2px solid red';">
+        <p>URL: <code>http://localhost:8080/uploads/1754876845488200100_Screenshot_(182).png</code></p>
+    </div>
+    
+    <div class="test-item">
+        <h3>Test 3: Background Image</h3>
+        <div style="width: 300px; height: 200px; background: url('/uploads/1754876845488200100_Screenshot_(182).png') center/cover; border: 1px solid #000;"></div>
+        <p>Background URL: <code>/uploads/1754876845488200100_Screenshot_(182).png</code></p>
+    </div>
+    
+    <script>
+        // Test fetch API
+        fetch('/uploads/1754876845488200100_Screenshot_(182).png')
+            .then(response => {
+                console.log('Fetch response status:', response.status);
+                console.log('Fetch response headers:', [...response.headers.entries()]);
+                document.getElementById('fetch-result').textContent = 'Status: ' + response.status;
+            })
+            .catch(error => {
+                console.error('Fetch error:', error);
+                document.getElementById('fetch-result').textContent = 'Error: ' + error.message;
+            });
+    </script>
+    
+    <div class="test-item">
+        <h3>Test 4: Fetch API</h3>
+        <p id="fetch-result">Testing...</p>
+    </div>
+</body>
+</html>

@@ -93,6 +93,11 @@ func main() {
 	r.HandleFunc("/api/materials/{materialId:[0-9]+}", teacherAuthMiddleware(deleteMaterialHandler)).Methods("DELETE")
 	r.HandleFunc("/api/materials/{materialId:[0-9]+}", optionsHandler).Methods("OPTIONS")
 	
+	// Debug static file test page
+	r.HandleFunc("/debug", func(w http.ResponseWriter, r *http.Request) {
+		http.ServeFile(w, r, "./debug_static.html")
+	}).Methods("GET")
+	
 	// Serve uploaded files with CORS support
 	r.PathPrefix("/uploads/").Handler(corsFileHandler(http.StripPrefix("/uploads/", http.FileServer(http.Dir("./uploads")))))
 

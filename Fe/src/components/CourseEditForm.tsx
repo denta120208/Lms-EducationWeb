@@ -25,7 +25,7 @@ const CourseEditForm: React.FC<CourseEditFormProps> = ({ course, onClose, onSucc
 
   const [file, setFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(
-    course.image_path ? `http://localhost:8080${course.image_path}` : null
+    course.image_path ? `http://localhost:8080${encodeURI(course.image_path)}` : null
   );
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);

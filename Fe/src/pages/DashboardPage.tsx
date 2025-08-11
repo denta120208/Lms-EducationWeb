@@ -453,7 +453,7 @@ const DashboardPage = () => {
                   <div style={{
                     ...styles.courseImage,
                     background: course.image_path 
-                      ? `url(${API_BASE_URL}${course.image_path})`
+                      ? `url(${API_BASE_URL}${encodeURI(course.image_path)})`
                       : course.title === 'Mathematics' 
                         ? 'linear-gradient(135deg, #1f2937 0%, #111827 100%)' 
                         : course.title === 'Science' 
