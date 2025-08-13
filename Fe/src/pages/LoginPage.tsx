@@ -262,51 +262,53 @@ const LoginPage = () => {
     const isMobile = windowWidth <= 480;
     const isTablet = windowWidth <= 768;
     const isSmallMobile = windowWidth <= 360;
-    
+
     return {
       ...styles,
       container: {
         ...styles.container,
-        padding: isSmallMobile ? '120px 8px 8px 8px' : isMobile ? '140px 12px 12px 12px' : isTablet ? '150px 16px 16px 16px' : '160px 16px 16px 16px',
+        padding: isSmallMobile ? '80px 2vw 8px 2vw' : isMobile ? '100px 4vw 12px 4vw' : isTablet ? '120px 8vw 16px 8vw' : '140px 16px 16px 16px',
         minHeight: '100vh'
       },
       sponsorLogos: {
         ...styles.sponsorLogos,
-        top: isSmallMobile ? '20px' : isMobile ? '30px' : '40px',
-        gap: isSmallMobile ? '15px' : isMobile ? '20px' : '30px'
+        top: isSmallMobile ? '10px' : isMobile ? '20px' : '40px',
+        gap: isSmallMobile ? '10px' : isMobile ? '15px' : '30px'
       },
       logoImage: {
         ...styles.logoImage,
-        height: isSmallMobile ? '60px' : isMobile ? '70px' : '80px'
+        height: isSmallMobile ? '80px' : isMobile ? '100px' : '80px',
+        maxWidth: '90vw',
       },
       loginCard: {
         ...styles.loginCard,
-        padding: isSmallMobile ? '30px' : isMobile ? '40px' : isTablet ? '45px' : '50px',
-        maxWidth: isSmallMobile ? '95%' : isMobile ? '90%' : isTablet ? '550px' : '600px',
-        minWidth: isSmallMobile ? '320px' : '450px'
+        padding: isSmallMobile ? '18px' : isMobile ? '24px' : isTablet ? '32px' : '50px',
+        maxWidth: isSmallMobile ? '100%' : isMobile ? '98%' : isTablet ? '550px' : '600px',
+        minWidth: isSmallMobile ? 'unset' : isMobile ? 'unset' : '450px',
+        width: isSmallMobile ? '100%' : isMobile ? '100%' : 'auto',
       },
       loginTitle: {
         ...styles.loginTitle,
-        fontSize: isSmallMobile ? '24px' : isMobile ? '28px' : '32px'
+        fontSize: isSmallMobile ? '20px' : isMobile ? '24px' : '32px'
       },
       input: {
         ...styles.input,
-        fontSize: isSmallMobile ? '16px' : isMobile ? '16px' : '16px',
-        padding: isSmallMobile ? '16px 18px 16px 48px' : isMobile ? '17px 19px 17px 50px' : '18px 20px 18px 52px'
+        fontSize: isSmallMobile ? '14px' : '16px',
+        padding: isSmallMobile ? '12px 12px 12px 40px' : isMobile ? '15px 16px 15px 44px' : '18px 20px 18px 52px'
       },
       loginButton: {
         ...styles.loginButton,
-        fontSize: isSmallMobile ? '14px' : '16px',
-        padding: isSmallMobile ? '12px 20px' : '14px 24px'
+        fontSize: isSmallMobile ? '13px' : '16px',
+        padding: isSmallMobile ? '10px 12px' : '14px 24px'
       },
       checkbox: {
         ...styles.checkbox,
-        width: isSmallMobile ? '14px' : '16px',
-        height: isSmallMobile ? '14px' : '16px'
+        width: isSmallMobile ? '12px' : '16px',
+        height: isSmallMobile ? '12px' : '16px'
       },
       checkboxLabel: {
         ...styles.checkboxLabel,
-        fontSize: isSmallMobile ? '12px' : '14px'
+        fontSize: isSmallMobile ? '11px' : '14px'
       }
     };
   };
