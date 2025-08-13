@@ -1,6 +1,7 @@
-import React from 'react';
-import { X, BookOpen } from 'lucide-react';
+import React, { useState } from 'react';
+import { X, BookOpen, Brain } from 'lucide-react';
 import CourseMaterialsList from './CourseMaterialsList';
+import QuizStudentView from './QuizStudentView';
 
 interface CourseViewModalProps {
   course: {
@@ -15,6 +16,8 @@ interface CourseViewModalProps {
 }
 
 const CourseViewModal: React.FC<CourseViewModalProps> = ({ course, onClose }) => {
+  const [activeTab, setActiveTab] = useState<'materials' | 'quiz'>('materials');
+
   return (
     <div style={{
       position: 'fixed',
@@ -106,29 +109,82 @@ const CourseViewModal: React.FC<CourseViewModalProps> = ({ course, onClose }) =>
           </div>
         )}
 
-        {/* Course Materials */}
+        {/* Tab Navigation */}
+        <div style={{
+          display: 'flex',
+          backgroundColor: '#f9fafb',
+          borderBottom: '1px solid #e5e7eb'
+        }}>
+          <button
+            onClick={() => setActiveTab('materials')}
+            style={{
+              padding: '12px 24px',
+              border: 'none',
+              backgroundColor: activeTab === 'materials' ? 'white' : 'transparent',
+              color: activeTab === 'materials' ? '#3b82f6' : '#6b7280',
+              borderBottom: activeTab === 'materials' ? '2px solid #3b82f6' : '2px solid transparent',
+              cursor: 'pointer',
+              fontSize: '14px',
+              fontWeight: '500',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px'
+            }}
+          >
+            <BookOpen size={16} />
+            Materials
+          </button>
+          <button
+            onClick={() => setActiveTab('quiz')}
+            style={{
+              padding: '12px 24px',
+              border: 'none',
+              backgroundColor: activeTab === 'quiz' ? 'white' : 'transparent',
+              color: activeTab === 'quiz' ? '#3b82f6' : '#6b7280',
+              borderBottom: activeTab === 'quiz' ? '2px solid #3b82f6' : '2px solid transparent',
+              cursor: 'pointer',
+              fontSize: '14px',
+              fontWeight: '500',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px'
+            }}
+          >
+            <Brain size={16} />
+            Quiz
+          </button>
+        </div>
+
+        {/* Tab Content */}
         <div style={{
           flex: 1,
-          overflow: 'auto',
-          padding: '24px'
+          overflow: 'auto'
         }}>
-          <h3 style={{
-            fontSize: '18px',
-            fontWeight: '600',
-            color: '#374151',
-            margin: '0 0 20px 0',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '8px'
-          }}>
-            <BookOpen size={20} />
-            Course Materials
-          </h3>
-          
-          <CourseMaterialsList 
-            courseId={course.id} 
-            isTeacher={false}
-          />
+          {activeTab === 'materials' && (
+            <div style={{ padding: '24px' }}>
+              <h3 style={{
+                fontSize: '18px',
+                fontWeight: '600',
+                color: '#374151',
+                margin: '0 0 20px 0',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px'
+              }}>
+                <BookOpen size={20} />
+                Course Materials
+              </h3>
+              
+              <CourseMaterialsList 
+                courseId={course.id} 
+                isTeacher={false}
+              />
+            </div>
+          )}
+
+          {activeTab === 'quiz' && (
+            <QuizStudentView courseId={course.id} />
+          )}
         </div>
       </div>
     </div>

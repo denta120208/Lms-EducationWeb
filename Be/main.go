@@ -26,6 +26,11 @@ func main() {
 		fmt.Printf("⚠️  Warning: Failed to clean uploads directory: %v\n", err)
 	}
 
+	// Create quiz tables
+	if err := CreateQuizTables(DB); err != nil {
+		fmt.Printf("⚠️  Warning: Failed to create quiz tables: %v\n", err)
+	}
+
 	// Seed test data
 	if err := SeedTestData(); err != nil {
 		fmt.Printf("⚠️  Warning: Gagal seed data: %v\n", err)
@@ -79,25 +84,43 @@ func main() {
 	r.HandleFunc("/api/dashboard/all-courses", optionsHandler).Methods("OPTIONS")
 	r.HandleFunc("/api/teacher/profile", teacherAuthMiddleware(teacherProfileHandler)).Methods("GET")
 	r.HandleFunc("/api/teacher/profile", optionsHandler).Methods("OPTIONS")
-	
+
 	// File uploads
 	r.HandleFunc("/api/upload", teacherAuthMiddleware(uploadFileHandler)).Methods("POST")
 	r.HandleFunc("/api/upload", optionsHandler).Methods("OPTIONS")
 	r.HandleFunc("/api/upload/material", teacherAuthMiddleware(uploadMaterialFileHandler)).Methods("POST")
 	r.HandleFunc("/api/upload/material", optionsHandler).Methods("OPTIONS")
-	
+
 	// Course materials endpoints
 	r.HandleFunc("/api/courses/{courseId:[0-9]+}/materials", teacherAuthMiddleware(createCourseMaterialHandler)).Methods("POST")
 	r.HandleFunc("/api/courses/{courseId:[0-9]+}/materials", getCourseMaterialsHandler).Methods("GET")
 	r.HandleFunc("/api/courses/{courseId:[0-9]+}/materials", optionsHandler).Methods("OPTIONS")
 	r.HandleFunc("/api/materials/{materialId:[0-9]+}", teacherAuthMiddleware(deleteMaterialHandler)).Methods("DELETE")
 	r.HandleFunc("/api/materials/{materialId:[0-9]+}", optionsHandler).Methods("OPTIONS")
-	
+
+	// Quiz endpoints
+	r.HandleFunc("/api/courses/{courseId:[0-9]+}/quizzes", teacherAuthMiddleware(createQuizHandler)).Methods("POST")
+	r.HandleFunc("/api/courses/{courseId:[0-9]+}/quizzes", getQuizzesByCourseHandler).Methods("GET")
+	r.HandleFunc("/api/courses/{courseId:[0-9]+}/quizzes", optionsHandler).Methods("OPTIONS")
+	r.HandleFunc("/api/quizzes/{quizId:[0-9]+}", getQuizByIDHandler).Methods("GET")
+	r.HandleFunc("/api/quizzes/{quizId:[0-9]+}", optionsHandler).Methods("OPTIONS")
+	r.HandleFunc("/api/upload/quiz-pdf", teacherAuthMiddleware(uploadQuizPDFHandler)).Methods("POST")
+	r.HandleFunc("/api/upload/quiz-pdf", optionsHandler).Methods("OPTIONS")
+
+	// Quiz submission endpoints
+	r.HandleFunc("/api/quiz-submissions", authMiddleware(submitQuizHandler)).Methods("POST")
+	r.HandleFunc("/api/quiz-submissions", optionsHandler).Methods("OPTIONS")
+	r.HandleFunc("/api/quiz-submissions/pdf", authMiddleware(submitQuizPDFHandler)).Methods("POST")
+	r.HandleFunc("/api/quiz-submissions/pdf", optionsHandler).Methods("OPTIONS")
+
 	// Debug static file test page
 	r.HandleFunc("/debug", func(w http.ResponseWriter, r *http.Request) {
 		http.ServeFile(w, r, "./debug_static.html")
 	}).Methods("GET")
-	
+
+	// Debug quiz endpoint
+	r.HandleFunc("/api/debug/quizzes", debugQuizzesHandler).Methods("GET")
+
 	// Serve uploaded files with CORS support
 	r.PathPrefix("/uploads/").Handler(corsFileHandler(http.StripPrefix("/uploads/", http.FileServer(http.Dir("./uploads")))))
 
@@ -200,7 +223,7 @@ func authMiddleware(next http.HandlerFunc) http.HandlerFunc {
 		ctx := context.WithValue(r.Context(), "user_id", claims.StudentID)
 		ctx = context.WithValue(ctx, "user_email", claims.Email)
 		ctx = context.WithValue(ctx, "user_role", claims.Role)
-		
+
 		// Also set in headers for backward compatibility
 		r.Header.Set("X-Student-ID", fmt.Sprintf("%d", claims.StudentID))
 		r.Header.Set("X-Student-Email", claims.Email)
@@ -236,7 +259,7 @@ func teacherAuthMiddleware(next http.HandlerFunc) http.HandlerFunc {
 		ctx := context.WithValue(r.Context(), "user_id", claims.TeacherID)
 		ctx = context.WithValue(ctx, "user_email", claims.Email)
 		ctx = context.WithValue(ctx, "user_role", claims.Role)
-		
+
 		// Also set in headers for backward compatibility
 		r.Header.Set("X-Teacher-ID", fmt.Sprintf("%d", claims.TeacherID))
 		r.Header.Set("X-Teacher-Email", claims.Email)
@@ -254,7 +277,7 @@ func optionsHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization, X-Requested-With")
 	w.Header().Set("Access-Control-Allow-Credentials", "true")
 	w.Header().Set("Access-Control-Max-Age", "86400")
-	
+
 	w.WriteHeader(http.StatusOK)
 }
 
@@ -497,7 +520,7 @@ func teacherDashboardHandler(w http.ResponseWriter, r *http.Request) {
 		log.Printf("Error getting courses: %v", err)
 		basicCourses = []Course{} // Empty array if error
 	}
-	
+
 	// Calculate total courses
 	totalCourses := len(basicCourses)
 
@@ -535,7 +558,7 @@ func teacherProfileHandler(w http.ResponseWriter, r *http.Request) {
 	if email == "" {
 		email = r.Header.Get("X-Teacher-Email") // Fallback to header
 	}
-	
+
 	if email == "" {
 		http.Error(w, "Teacher email not found in request", http.StatusBadRequest)
 		return

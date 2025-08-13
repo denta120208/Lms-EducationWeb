@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
-import { X, Upload, Plus, BookOpen, Settings } from 'lucide-react';
+import { X, Upload, Plus, BookOpen, Settings, Brain } from 'lucide-react';
 import { api } from '../services/api';
 import CourseMaterialForm from './CourseMaterialForm';
 import CourseMaterialsList from './CourseMaterialsList';
+import QuizManagement from './QuizManagement';
 
 interface CourseManagementModalProps {
   course: {
@@ -23,7 +24,7 @@ const CourseManagementModal: React.FC<CourseManagementModalProps> = ({
   onSuccess, 
   onDelete 
 }) => {
-  const [activeTab, setActiveTab] = useState<'details' | 'materials'>('details');
+  const [activeTab, setActiveTab] = useState<'details' | 'materials' | 'quiz'>('details');
   const [showMaterialForm, setShowMaterialForm] = useState(false);
   const [materialsKey, setMaterialsKey] = useState(0);
 
@@ -273,6 +274,25 @@ const CourseManagementModal: React.FC<CourseManagementModalProps> = ({
             >
               <BookOpen size={16} />
               Materials
+            </button>
+            <button
+              onClick={() => setActiveTab('quiz')}
+              style={{
+                padding: '12px 24px',
+                border: 'none',
+                backgroundColor: activeTab === 'quiz' ? 'white' : 'transparent',
+                color: activeTab === 'quiz' ? '#3b82f6' : '#6b7280',
+                borderBottom: activeTab === 'quiz' ? '2px solid #3b82f6' : '2px solid transparent',
+                cursor: 'pointer',
+                fontSize: '14px',
+                fontWeight: '500',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px'
+              }}
+            >
+              <Brain size={16} />
+              Quiz
             </button>
           </div>
 
@@ -536,6 +556,10 @@ const CourseManagementModal: React.FC<CourseManagementModalProps> = ({
                   onRefresh={() => setMaterialsKey(prev => prev + 1)}
                 />
               </div>
+            )}
+
+            {activeTab === 'quiz' && (
+              <QuizManagement courseId={course.id} />
             )}
           </div>
         </div>
