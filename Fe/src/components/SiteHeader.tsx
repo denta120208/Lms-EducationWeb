@@ -20,15 +20,30 @@ const SiteHeader: React.FC<Props> = ({ fixed = true, scrollTargetSelector }) => 
   const navigate = useNavigate();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
+  const [isLandscape, setIsLandscape] = useState(false);
   const [hoveredDropdown, setHoveredDropdown] = useState('');
   const [hoveredSubDropdown, setHoveredSubDropdown] = useState('');
+  // Mobile menu accordions
+  const [isTentangOpen, setIsTentangOpen] = useState(false);
+  const [isProgramOpen, setIsProgramOpen] = useState(false);
+  const [isKurikulumOpen, setIsKurikulumOpen] = useState(false);
+  const [isSaranaOpen, setIsSaranaOpen] = useState(false);
   // Social bar always visible per request
 
   useEffect(() => {
-    const checkMobile = () => setIsMobile(window.innerWidth <= 768);
-    checkMobile();
-    window.addEventListener('resize', checkMobile);
-    return () => window.removeEventListener('resize', checkMobile);
+    const updateViewportFlags = () => {
+      const landscape = window.innerWidth > window.innerHeight;
+      setIsLandscape(landscape);
+      const mobileLike = window.innerWidth <= 768 || window.innerHeight <= 480;
+      setIsMobile(mobileLike);
+    };
+    updateViewportFlags();
+    window.addEventListener('resize', updateViewportFlags);
+    window.addEventListener('orientationchange', updateViewportFlags);
+    return () => {
+      window.removeEventListener('resize', updateViewportFlags);
+      window.removeEventListener('orientationchange', updateViewportFlags);
+    };
   }, []);
 
   // Removed auto-hide on scroll – keep bar visible
@@ -116,9 +131,21 @@ const SiteHeader: React.FC<Props> = ({ fixed = true, scrollTargetSelector }) => 
     },
     mobileMenuButton: { background: 'none', border: 'none', cursor: 'pointer', color: '#035757', padding: '0.5rem', display: isMobile ? 'block' : 'none' },
     mobileMenu: {
-      position: 'fixed', top: 0, right: 0, height: '100vh', width: 280, backgroundColor: 'white', boxShadow: '-4px 0 6px rgba(0,0,0,0.1)',
-      zIndex: 1000, padding: '2rem 1rem', transform: isMenuOpen ? 'translateX(0)' : 'translateX(100%)', transition: 'transform 0.3s ease', display: 'flex', flexDirection: 'column', gap: '1rem'
+      position: 'fixed', top: isMobile ? 32 : 40, right: 0,
+      height: isMobile ? 'calc(100vh - 32px)' : 'calc(100vh - 40px)',
+      width: isLandscape ? 260 : 300,
+      backgroundColor: 'white', boxShadow: '-4px 0 6px rgba(0,0,0,0.1)',
+      zIndex: 1000, padding: '1rem', transform: isMenuOpen ? 'translateX(0)' : 'translateX(100%)', transition: 'transform 0.3s ease', display: 'flex', flexDirection: 'column'
     },
+    mobileMenuHeader: { display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0.5rem 0.25rem', borderBottom: '1px solid #e5e7eb' },
+    mobileMenuTitle: { margin: 0, fontSize: isLandscape ? 14 : 16, fontWeight: 800, color: '#035757' },
+    mobileMenuScroll: { overflowY: 'auto', padding: '0.75rem 0.25rem', display: 'flex', flexDirection: 'column', gap: '0.5rem' },
+    mobileSectionHeader: { display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0.75rem 0.5rem', borderRadius: 8, background: '#f8fafc', cursor: 'pointer' },
+    mobileSectionTitle: { margin: 0, fontSize: isLandscape ? 13 : 14, fontWeight: 700, color: '#035757' },
+    mobileChevron: { transition: 'transform 0.2s ease' },
+    mobileSubLinks: { paddingLeft: '0.5rem', display: 'flex', flexDirection: 'column', gap: '0.25rem' },
+    mobileLink: { color: '#0f172a', textDecoration: 'none', padding: isLandscape ? '0.4rem 0.5rem' : '0.5rem 0.5rem', borderRadius: 6, background: 'white', border: '1px solid #e5e7eb' },
+    mobileDivider: { borderTop: '1px solid #e5e7eb', margin: '0.5rem 0' },
     button: { backgroundColor: '#035757', color: 'white', border: 'none', borderRadius: 6, padding: '0.75rem 1.5rem', fontWeight: 600, cursor: 'pointer' },
   };
 
@@ -333,25 +360,72 @@ const SiteHeader: React.FC<Props> = ({ fixed = true, scrollTargetSelector }) => 
           <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 999 }} onClick={() => setIsMenuOpen(false)} />
         )}
         <div style={styles.mobileMenu}>
-          <a style={styles.navLink} onClick={() => navigate('/')}>BERANDA</a>
-          <a style={styles.navLink} onClick={() => navigate('/sejarah-sekolah')}>SEJARAH SEKOLAH</a>
-          <a style={styles.navLink} onClick={() => navigate('/visi-misi')}>VISI & MISI</a>
-          <a style={styles.navLink} onClick={() => navigate('/nilai-budaya-sekolah')}>NILAI BUDAYA SEKOLAH</a>
-          <a style={styles.navLink}>TENTANG SEKOLAH</a>
-          <a style={styles.navLink} onClick={() => window.location.href = 'https://smkmetlandcibitung.net/'}>KAMPUS CIBITUNG</a>
-          <a style={styles.navLink} onClick={() => navigate('/organisasi')}>ORGANISASI</a>
-          <a style={styles.navLink} onClick={() => navigate('/program/akuntansi')}>AKUNTANSI BISNIS</a>
-          <a style={styles.navLink} onClick={() => navigate('/program/kuliner')}>KULINER</a>
-          <a style={styles.navLink} onClick={() => navigate('/program/perhotelan')}>PERHOTELAN</a>
-          <a style={styles.navLink} onClick={() => navigate('/program/ti')}>TEKNOLOGI INFORMASI</a>
-          <a style={styles.navLink} onClick={() => navigate('/program/dkv')}>DESAIN KOMUNIKASI VISUAL</a>
-          <a style={styles.navLink}>KURIKULUM</a>
-          <a style={styles.navLink} onClick={() => navigate('/ekstrakulikuler')}>EKSTRAKULIKULER</a>
-          <a style={styles.navLink} onClick={() => navigate('/berita')}>BERITA SEKOLAH</a>
-          <a style={styles.navLink} onClick={() => (window.location.href = 'https://metlandcollege.com/')}>COLLEGE</a>
-          <a style={styles.navLink}>E-BOOK</a>
-          <a style={styles.navLink}>BKK</a>
-          <button style={{ ...styles.button, width: '100%', marginTop: '1rem' }} onClick={() => navigate('/login')}>MS Learn</button>
+          <div style={styles.mobileMenuHeader}>
+            <h3 style={styles.mobileMenuTitle}>Menu</h3>
+            <button style={styles.mobileMenuButton} onClick={() => setIsMenuOpen(false)}><X size={22} /></button>
+          </div>
+          <div style={styles.mobileMenuScroll}>
+            <a style={styles.mobileLink} onClick={() => { setIsMenuOpen(false); navigate('/'); }}>Beranda</a>
+
+            <div style={styles.mobileSectionHeader} onClick={() => setIsTentangOpen((v) => !v)}>
+              <h4 style={styles.mobileSectionTitle}>Tentang Sekolah</h4>
+              <ChevronDown size={18} style={{ ...styles.mobileChevron, transform: isTentangOpen ? 'rotate(180deg)' : 'rotate(0)' }} />
+            </div>
+            {isTentangOpen && (
+              <div style={styles.mobileSubLinks}>
+                <a style={styles.mobileLink} onClick={() => { setIsMenuOpen(false); navigate('/sejarah-sekolah'); }}>Sejarah Sekolah</a>
+                <a style={styles.mobileLink} onClick={() => { setIsMenuOpen(false); navigate('/visi-misi'); }}>VISI & MISI</a>
+                <a style={styles.mobileLink} onClick={() => { setIsMenuOpen(false); navigate('/nilai-budaya-sekolah'); }}>Nilai Budaya Sekolah</a>
+                <a style={styles.mobileLink} onClick={() => { setIsMenuOpen(false); window.location.href = 'https://smkmetlandcibitung.net/'; }}>Kampus Cibitung</a>
+              </div>
+            )}
+
+            <div style={styles.mobileSectionHeader} onClick={() => setIsProgramOpen((v) => !v)}>
+              <h4 style={styles.mobileSectionTitle}>Program Keahlian</h4>
+              <ChevronDown size={18} style={{ ...styles.mobileChevron, transform: isProgramOpen ? 'rotate(180deg)' : 'rotate(0)' }} />
+            </div>
+            {isProgramOpen && (
+              <div style={styles.mobileSubLinks}>
+                <a style={styles.mobileLink} onClick={() => { setIsMenuOpen(false); navigate('/program/akuntansi'); }}>Akuntansi Bisnis</a>
+                <a style={styles.mobileLink} onClick={() => { setIsMenuOpen(false); navigate('/program/kuliner'); }}>Kuliner</a>
+                <a style={styles.mobileLink} onClick={() => { setIsMenuOpen(false); navigate('/program/perhotelan'); }}>Perhotelan</a>
+                <a style={styles.mobileLink} onClick={() => { setIsMenuOpen(false); navigate('/program/ti'); }}>Teknologi Informasi</a>
+                <a style={styles.mobileLink} onClick={() => { setIsMenuOpen(false); navigate('/program/dkv'); }}>Desain Komunikasi Visual</a>
+              </div>
+            )}
+
+            <div style={styles.mobileSectionHeader} onClick={() => setIsKurikulumOpen((v) => !v)}>
+              <h4 style={styles.mobileSectionTitle}>Kurikulum</h4>
+              <ChevronDown size={18} style={{ ...styles.mobileChevron, transform: isKurikulumOpen ? 'rotate(180deg)' : 'rotate(0)' }} />
+            </div>
+            {isKurikulumOpen && (
+              <div style={styles.mobileSubLinks}>
+                <a style={styles.mobileLink} onClick={() => { setIsMenuOpen(false); window.location.href = 'https://kurikulum.kemdikbud.go.id/wp-content/uploads/2022/06/Panduan-Pengembangan-Kurikulum-Operasional-di-Satuan-Pendidikan.pdf'; }}>Kurikulum Operasional Sekolah</a>
+                <div>
+                  <div style={{ ...styles.mobileSectionHeader, padding: '0.5rem 0.5rem' }} onClick={() => setIsSaranaOpen((v) => !v)}>
+                    <h4 style={{ ...styles.mobileSectionTitle, fontWeight: 600 }}>Sarana Praktik Siswa</h4>
+                    <ChevronDown size={16} style={{ ...styles.mobileChevron, transform: isSaranaOpen ? 'rotate(180deg)' : 'rotate(0)' }} />
+                  </div>
+                  {isSaranaOpen && (
+                    <div style={{ ...styles.mobileSubLinks, paddingLeft: '0.75rem' }}>
+                      <a style={styles.mobileLink}>ARTISAN BEVERAGES STUDIO</a>
+                      <a style={styles.mobileLink}>METSCHOO DELI</a>
+                      <a style={styles.mobileLink}>PILLO @KALIANA APARTMENT</a>
+                    </div>
+                  )}
+                </div>
+                <a style={styles.mobileLink} onClick={() => { setIsMenuOpen(false); navigate('/organisasi'); }}>Organisasi</a>
+                <a style={styles.mobileLink} onClick={() => { setIsMenuOpen(false); navigate('/ekstrakulikuler'); }}>Ekstrakulikuler</a>
+              </div>
+            )}
+
+            <hr style={styles.mobileDivider as React.CSSProperties} />
+            <a style={styles.mobileLink} onClick={() => { setIsMenuOpen(false); navigate('/berita'); }}>Berita Sekolah</a>
+            <a style={styles.mobileLink} onClick={() => { setIsMenuOpen(false); window.location.href = 'https://metlandcollege.com/'; }}>College</a>
+            <a style={styles.mobileLink}>E-Book</a>
+            <a style={styles.mobileLink}>BKK</a>
+            <button style={{ ...styles.button, width: '100%', marginTop: '0.75rem' }} onClick={() => { setIsMenuOpen(false); navigate('/login'); }}>MS Learn</button>
+          </div>
         </div>
       </header>
     </>

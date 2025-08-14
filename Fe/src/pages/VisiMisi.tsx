@@ -14,6 +14,22 @@ type Target = {
 // Sections are implicit in DOM; no static data array needed
 
 const VisiMisiPage: React.FC = () => {
+  const [isMobile, setIsMobile] = useState(false);
+  const [isLandscape, setIsLandscape] = useState(false);
+  useEffect(() => {
+    const updateViewportFlags = () => {
+      const mobileLike = window.innerWidth <= 768 || window.innerHeight <= 480;
+      setIsMobile(mobileLike);
+      setIsLandscape(window.innerWidth > window.innerHeight);
+    };
+    updateViewportFlags();
+    window.addEventListener('resize', updateViewportFlags);
+    window.addEventListener('orientationchange', updateViewportFlags);
+    return () => {
+      window.removeEventListener('resize', updateViewportFlags);
+      window.removeEventListener('orientationchange', updateViewportFlags);
+    };
+  }, []);
   const styles: Record<string, CSSProperties> = {
     page: {
       minHeight: '100vh',
@@ -86,15 +102,17 @@ const VisiMisiPage: React.FC = () => {
       transform: 'translateY(-20px)',
       textAlign: 'center',
     },
-    paragraph: {
+      paragraph: {
       fontSize: 'clamp(16px, 2.2vw, 20px)',
       lineHeight: 1.7,
       color: '#0f172a',
       marginTop: '16px',
       marginBottom: 0,
-  opacity: 0,
+      opacity: 0,
       transform: 'translateY(10px)',
       textAlign: 'left',
+      wordBreak: 'break-word',
+      overflowWrap: 'anywhere',
     },
     navArrows: {
       position: 'absolute',
@@ -317,9 +335,15 @@ const VisiMisiPage: React.FC = () => {
 
         {/* Section 2: VISI */}
         <section data-section style={{ ...styles.section, ...styles.sectionRight }}>
-          <div style={{ ...styles.textBlock, ...styles.textRight }}>
-            <h2 data-animate="title" style={styles.title}>VISI</h2>
-            <p data-animate="paragraph" style={styles.paragraph}>
+          <div style={{
+            ...styles.textBlock,
+            ...styles.textRight,
+            ...(isMobile && isLandscape
+              ? { maxWidth: 'calc(50vw - 32px)', marginRight: 0, marginLeft: 'auto' }
+              : {})
+          }}>
+            <h2 data-animate="title" style={{ ...styles.title, ...(isMobile && isLandscape ? { textAlign: 'right', fontSize: 22 } : {}) }}>VISI</h2>
+            <p data-animate="paragraph" style={{ ...styles.paragraph, ...(isMobile && isLandscape ? { textAlign: 'right', fontSize: 14, lineHeight: 1.5 } : {}) }}>
               Menjadi SMK Yang Lulusannya Memiliki Performa Karakter Unggul Dan Berkompetensi Berstandar Internasional
             </p>
               </div>
@@ -341,9 +365,15 @@ const VisiMisiPage: React.FC = () => {
 
         {/* Section 3: MISI 1 */}
         <section data-section style={{ ...styles.section, ...styles.sectionLeft }}>
-          <div style={{ ...styles.textBlock, ...styles.textLeft }}>
-            <h2 data-animate="title" style={styles.title}>MISI ke 1</h2>
-            <p data-animate="paragraph" style={styles.paragraph}>
+          <div style={{
+            ...styles.textBlock,
+            ...styles.textLeft,
+            ...(isMobile && isLandscape
+              ? { maxWidth: 'calc(50vw - 32px)', marginLeft: 0, marginRight: 'auto' }
+              : {})
+          }}>
+            <h2 data-animate="title" style={{ ...styles.title, ...(isMobile && isLandscape ? { textAlign: 'left', fontSize: 22 } : {}) }}>MISI ke 1</h2>
+            <p data-animate="paragraph" style={{ ...styles.paragraph, ...(isMobile && isLandscape ? { textAlign: 'left', fontSize: 14, lineHeight: 1.5 } : {}) }}>
               Memberikan layanan pendidikan bagi peserta didik yang berorientasi pada pengembangan knowledge, skill, dan attitude berbasis industri 4.0, serta menguatkan karakter GENERASI CINTA PRESTASI yang sesuai dengan tuntutan dunia industri
             </p>
             </div>
@@ -365,9 +395,15 @@ const VisiMisiPage: React.FC = () => {
 
         {/* Section 4: MISI 2 */}
         <section data-section style={{ ...styles.section, ...styles.sectionRight }}>
-          <div style={{ ...styles.textBlock, ...styles.textRight }}>
-            <h2 data-animate="title" style={styles.title}>MISI ke 2</h2>
-            <p data-animate="paragraph" style={styles.paragraph}>
+          <div style={{
+            ...styles.textBlock,
+            ...styles.textRight,
+            ...(isMobile && isLandscape
+              ? { maxWidth: 'calc(50vw - 32px)', marginRight: 0, marginLeft: 'auto' }
+              : {})
+          }}>
+            <h2 data-animate="title" style={{ ...styles.title, ...(isMobile && isLandscape ? { textAlign: 'right', fontSize: 22 } : {}) }}>MISI ke 2</h2>
+            <p data-animate="paragraph" style={{ ...styles.paragraph, ...(isMobile && isLandscape ? { textAlign: 'right', fontSize: 14, lineHeight: 1.5 } : {}) }}>
               Mengembangkan profesionalisme guru berdasarkan nilai-nilai METLAND SCHOOL TEACHER’S VALUE dan mampu beradaptasi dengan tuntutan industri 4.0
             </p>
               </div>
@@ -389,9 +425,15 @@ const VisiMisiPage: React.FC = () => {
 
         {/* Section 5: MISI 3 */}
         <section data-section style={{ ...styles.section, ...styles.sectionLeft }}>
-          <div style={{ ...styles.textBlock, ...styles.textLeft }}>
-            <h2 data-animate="title" style={styles.title}>MISI ke 3</h2>
-            <p data-animate="paragraph" style={styles.paragraph}>
+          <div style={{
+            ...styles.textBlock,
+            ...styles.textLeft,
+            ...(isMobile && isLandscape
+              ? { maxWidth: 'calc(50vw - 32px)', marginLeft: 0, marginRight: 'auto' }
+              : {})
+          }}>
+            <h2 data-animate="title" style={{ ...styles.title, ...(isMobile && isLandscape ? { textAlign: 'left', fontSize: 22 } : {}) }}>MISI ke 3</h2>
+            <p data-animate="paragraph" style={{ ...styles.paragraph, ...(isMobile && isLandscape ? { textAlign: 'left', fontSize: 14, lineHeight: 1.5 } : {}) }}>
               Mengembangkan jaringan kerjasama kemitraan dengan DUDI dan perguruan tinggi vokasi baik di dalam maupun di luar negeri untuk pengembangan program akademik
             </p>
               </div>
@@ -413,9 +455,15 @@ const VisiMisiPage: React.FC = () => {
 
         {/* Section 6: MISI 4 */}
         <section data-section style={{ ...styles.section, ...styles.sectionRight }}>
-          <div style={{ ...styles.textBlock, ...styles.textRight }}>
-            <h2 data-animate="title" style={styles.title}>MISI ke 4</h2>
-            <p data-animate="paragraph" style={styles.paragraph}>
+          <div style={{
+            ...styles.textBlock,
+            ...styles.textRight,
+            ...(isMobile && isLandscape
+              ? { maxWidth: 'calc(50vw - 32px)', marginRight: 0, marginLeft: 'auto' }
+              : {})
+          }}>
+            <h2 data-animate="title" style={{ ...styles.title, ...(isMobile && isLandscape ? { textAlign: 'right', fontSize: 22 } : {}) }}>MISI ke 4</h2>
+            <p data-animate="paragraph" style={{ ...styles.paragraph, ...(isMobile && isLandscape ? { textAlign: 'right', fontSize: 14, lineHeight: 1.5 } : {}) }}>
               Mengembangkan jaringan kerjasama dengan DUDI di dalam dan di luar negeri untuk mewujudkan zero unemployment lulusan
             </p>
               </div>

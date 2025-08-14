@@ -82,6 +82,10 @@ const Footer: React.FC = () => {
     widgetBlock: {
       marginBottom: '1rem',
     },
+    youtubeBlock: {
+      marginBottom: '1rem',
+      marginTop: isMobile ? '0' : '4rem',
+    },
     mapIframe: {
       border: '0',
       width: '100%',
@@ -193,7 +197,7 @@ const Footer: React.FC = () => {
               <FooterNavLink label="Desain Komunikasi Visual" to="/program/dkv" />
               <FooterNavLink label="Teknologi Informasi" to="/program/ti" />
               
-              <div style={styles.widgetBlock}>
+              <div style={styles.youtubeBlock as React.CSSProperties}>
                 <iframe 
                   src="https://www.youtube.com/embed/lAVuAJWvEmE?si=I8LyXg6jPtYRiao8" 
                   title="YouTube video player" 

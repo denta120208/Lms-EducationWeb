@@ -57,6 +57,7 @@ import ImgCollab from '../assets/sementara/Collaboration between Indonesia and T
 const Index = () => {
   const navigate = useNavigate();
   const [isMobile, setIsMobile] = useState(false);
+  const [isLandscape, setIsLandscape] = useState(false);
   const [hoveredProgram, setHoveredProgram] = useState<string | null>(null);
   // Trending headlines and animation state
   const trendingHeadlines: string[] = [
@@ -106,20 +107,24 @@ const Index = () => {
   
 
   useEffect(() => {
-    const checkMobile = () => {
-      setIsMobile(window.innerWidth <= 768);
+    const updateViewportFlags = () => {
+      const mobileLike = window.innerWidth <= 768 || window.innerHeight <= 480;
+      setIsMobile(mobileLike);
+      setIsLandscape(window.innerWidth > window.innerHeight);
     };
-    
-    checkMobile();
-    window.addEventListener('resize', checkMobile);
-    
-    return () => window.removeEventListener('resize', checkMobile);
+    updateViewportFlags();
+    window.addEventListener('resize', updateViewportFlags);
+    window.addEventListener('orientationchange', updateViewportFlags);
+    return () => {
+      window.removeEventListener('resize', updateViewportFlags);
+      window.removeEventListener('orientationchange', updateViewportFlags);
+    };
   }, []);
 
   // Removed social bar/auto-hide logic
 
   const handleSignUpClick = () => {
-    navigate('/login');
+    navigate('/ppdb');
   };
 
   // Removed dropdown/nav handlers
@@ -402,7 +407,7 @@ const Index = () => {
       alignItems: 'center',
       justifyContent: 'flex-end',
       textAlign: 'center',
-      padding: '4rem 2rem',
+      padding: isMobile ? '2rem 1rem' : '4rem 2rem',
     },
     heroOverlay: {
       position: 'absolute',
@@ -436,7 +441,7 @@ const Index = () => {
       whiteSpace: isMobile ? 'normal' : 'nowrap',
     },
     heroSubtitle: {
-      fontSize: isMobile ? '1.1rem' : '1.5rem',
+      fontSize: isMobile ? '1rem' : '1.5rem',
       color: 'white',
       marginBottom: '0',
       maxWidth: '600px',
@@ -577,29 +582,32 @@ const Index = () => {
       padding: isMobile ? '1.5rem' : '2rem',
       boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
       border: '1px solid #e0e0e0',
-      alignItems: 'flex-start',
+      alignItems: 'stretch',
     },
     featuredNewsImage: {
-      width: isMobile ? '268.2px' : '569.7px',
-      height: isMobile ? '155px' : '356.63px',
+      width: isMobile ? (isLandscape ? '268.2px' : '100%') : '569.7px',
+      height: isMobile ? (isLandscape ? '155px' : 'auto') : '356.63px',
+      aspectRatio: isMobile ? (isLandscape ? undefined : '16 / 9') : undefined,
       objectFit: 'cover',
       borderRadius: '0.5rem',
       backgroundColor: '#f0f0f0',
+      display: 'block',
+      margin: isMobile ? '0' : '0',
     },
     featuredNewsContent: {
       flex: 1,
       display: 'flex',
       flexDirection: 'column',
       justifyContent: 'space-between',
-      height: isMobile ? 'auto' : '356.63px',
+      height: 'auto',
     },
     featuredNewsDate: {
       fontSize: '0.8rem',
       color: '#64748b',
       marginTop: isMobile ? '-0.25rem' : '0',
       marginBottom: '0.5rem',
-      textAlign: isMobile ? 'left' : 'left',
-      display: 'block',
+      textAlign: 'left',
+      display: isMobile ? 'block' : 'block',
     },
     featuredNewsTitle: {
       fontSize: isMobile ? '0.9rem' : '1.3rem',
@@ -607,6 +615,8 @@ const Index = () => {
       color: '#000000',
       marginBottom: '1rem',
       lineHeight: 1.3,
+      wordBreak: 'break-word',
+      overflowWrap: 'anywhere',
     },
     featuredNewsDescription: {
       fontSize: '0.95rem',
@@ -614,6 +624,8 @@ const Index = () => {
       color: '#000000',
       marginBottom: '1.5rem',
       display: isMobile ? 'none' : 'block',
+      wordBreak: 'break-word',
+      overflowWrap: 'anywhere',
     },
     readMoreButton: {
       backgroundColor: '#f8f9fa',
@@ -705,8 +717,8 @@ const Index = () => {
     },
     infographicsGrid: {
       display: 'grid',
-      gridTemplateColumns: isMobile ? '1fr' : 'repeat(3, 1fr)',
-      gap: isMobile ? '2rem' : '3rem',
+      gridTemplateColumns: isMobile ? (isLandscape ? 'repeat(3, 1fr)' : '1fr') : 'repeat(3, 1fr)',
+      gap: isMobile ? (isLandscape ? '1rem' : '2rem') : '3rem',
       maxWidth: isMobile ? '1200px' : '700px',
       margin: '0 auto',
     },
@@ -751,12 +763,11 @@ const Index = () => {
     },
     programsGrid: {
       display: 'grid',
-      gridTemplateColumns: isMobile ? '1fr' : 'repeat(5, 1fr)',
-      gap: '2rem',
+      gridTemplateColumns: isMobile ? (isLandscape ? 'repeat(5, 1fr)' : '1fr') : 'repeat(5, 1fr)',
+      gap: '1rem',
       maxWidth: '1200px',
-      margin: isMobile ? '0 auto' : '0 auto',
-      justifyItems: isMobile ? 'center' : 'center',
-      justifyContent: isMobile ? 'center' : 'center',
+      margin: '0 auto',
+      justifyItems: 'center',
       alignItems: 'start',
     },
     programCard: {
@@ -769,8 +780,8 @@ const Index = () => {
       backgroundColor: 'white',
       borderRadius: '0.5rem',
       boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
-      width: '200px',
-      height: '220px',
+      width: isMobile && isLandscape ? '100%' : '200px',
+      height: 'auto',
       minHeight: '220px',
       cursor: 'pointer',
     },
@@ -1253,6 +1264,7 @@ const Index = () => {
             <div style={styles.sliderRow}>
               <Slider
                 dots={false}
+                arrows={false}
                 infinite={true}
                 slidesToShow={isMobile ? 3 : 6}
                 slidesToScroll={1}
@@ -1283,6 +1295,7 @@ const Index = () => {
             <div style={styles.sliderRow}>
               <Slider
                 dots={false}
+                arrows={false}
                 infinite={true}
                 slidesToShow={isMobile ? 3 : 6}
                 slidesToScroll={1}

@@ -146,6 +146,10 @@ const BeritaSekolah: React.FC = () => {
       fontWeight: 700,
       cursor: 'pointer',
       whiteSpace: 'nowrap',
+      textAlign: 'center',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
     },
     clearBtn: {
       backgroundColor: '#f1f5f9',

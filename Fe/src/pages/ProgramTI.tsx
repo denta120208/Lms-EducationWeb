@@ -2,6 +2,9 @@ import React, { useEffect, useState } from 'react';
 import type { CSSProperties } from 'react';
 import SiteHeader from '../components/SiteHeader';
 import Footer from '../components/Footer';
+import Slider from 'react-slick';
+import 'slick-carousel/slick/slick.css';
+import 'slick-carousel/slick/slick-theme.css';
 
 const ProgramTI: React.FC = () => {
   const [isMobile, setIsMobile] = useState(false);
@@ -41,6 +44,12 @@ const ProgramTI: React.FC = () => {
     'Menjadi Web Application Developer, UI/UX Desain, Developer Website untuk bidang Frontend dan Backend, Developer aplikasi mobile, Internet of Things.',
   ];
 
+  const rawGallery = import.meta.glob('../assets/sementara/Teknologi Informasi/*', { eager: true, as: 'url' }) as Record<string, string>;
+  const galleryImages = Object.entries(rawGallery).map(([path, url]) => ({
+    url,
+    name: (path.split('/')?.pop() || '').replace(/[-_]/g, ' '),
+  }));
+
   const styles: Record<string, CSSProperties> = {
     page: { minHeight: '100vh', background: '#fff', color: '#0f172a', fontFamily: 'Inter, sans-serif' },
     container: { maxWidth: 1200, margin: '0 auto', padding: '0 1rem', paddingTop: isMobile ? 96 : 104 },
@@ -52,6 +61,10 @@ const ProgramTI: React.FC = () => {
     table: { width: '100%', borderCollapse: 'collapse', marginTop: 8 } as CSSProperties,
     thtd: { border: '1px solid #e5e7eb', padding: '8px 10px', fontSize: isMobile ? 13 : 14 } as CSSProperties,
     h3: { margin: 0, color: '#035757', fontWeight: 800 } as CSSProperties,
+    galleryGrid: { display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(3, minmax(0, 1fr))', gap: isMobile ? '0.5rem' : '0.75rem' },
+    galleryCard: { background: '#fff', border: '1px solid #e2e8f0', borderRadius: 12, padding: '0.5rem', display: 'flex', alignItems: 'center', justifyContent: 'center' },
+    galleryImg: { width: '100%', height: isMobile ? 160 : 200, objectFit: 'cover', borderRadius: 8 },
+    sliderWrap: { maxWidth: 1200, margin: '0 auto' },
   };
 
   return (
@@ -61,6 +74,31 @@ const ProgramTI: React.FC = () => {
         <section style={styles.hero}>
           <h1 style={styles.title}>Pengembangan Perangkat Lunak dan GIM</h1>
         </section>
+        {galleryImages.length > 0 ? (
+          <section style={styles.section}>
+            {isMobile ? (
+              <div style={styles.sliderWrap}>
+                <Slider dots={true} arrows={false} infinite={true} slidesToShow={1} slidesToScroll={1} speed={500} adaptiveHeight={true}>
+                  {galleryImages.map((img) => (
+                    <div key={img.url}>
+                      <div style={styles.galleryCard}>
+                        <img src={img.url} alt={img.name} style={styles.galleryImg as React.CSSProperties} />
+                      </div>
+                    </div>
+                  ))}
+                </Slider>
+              </div>
+            ) : (
+              <div style={styles.galleryGrid}>
+                {galleryImages.map((img) => (
+                  <div key={img.url} style={styles.galleryCard}>
+                    <img src={img.url} alt={img.name} style={styles.galleryImg as React.CSSProperties} />
+                  </div>
+                ))}
+              </div>
+            )}
+          </section>
+        ) : null}
 
         <section style={styles.section}>
           <p style={styles.paragraph}>
