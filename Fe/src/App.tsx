@@ -10,6 +10,8 @@ import TeacherDashboard from './pages/TeacherDashboard';
 import TeacherCourses from './pages/TeacherCourses';
 import Index from './pages/index';
 import VisiMisiPage from './pages/VisiMisi';
+import SejarahSekolah from './pages/SejarahSekolah';
+import ScrollToTop from './components/ScrollToTop';
 import NilaiBudayaSekolah from './pages/NilaiBudayaSekolah';
 import Organisasi from './pages/Organisasi';
 import ProgramAkuntansi from './pages/ProgramAkuntansi';
@@ -26,6 +28,7 @@ function App() {
     <AuthProvider>
       <Router>
         <div className="App">
+          <ScrollToTop />
           <Routes>
             {/* Authentication routes */}
             <Route path="/login" element={<LoginPage />} />
@@ -68,6 +71,7 @@ function App() {
             {/* Landing page as the default route */}
             <Route path="/" element={<Index />} />
             <Route path="/visi-misi" element={<VisiMisiPage />} />
+            <Route path="/sejarah-sekolah" element={<SejarahSekolah />} />
             <Route path="/nilai-budaya-sekolah" element={<NilaiBudayaSekolah />} />
             <Route path="/organisasi" element={<Organisasi />} />
             <Route path="/program/akuntansi" element={<ProgramAkuntansi />} />

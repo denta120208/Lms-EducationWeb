@@ -1,10 +1,16 @@
 import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import type { CSSProperties } from 'react';
 import WhatsAppIcon from '../assets/WhatsApp.svg';
 import InstagramIcon from '../assets/InstaGram.svg';
 import FacebookIcon from '../assets/FaceBook.svg';
 import YouTubeIcon from '../assets/YouTube.svg';
 import TikTokIcon from '../assets/TikTok.svg';
+import WhatsAppIconHover from '../assets/WhatsApp Hover.svg';
+import InstagramIconHover from '../assets/InstaGram Hover.svg';
+import FacebookIconHover from '../assets/FaceBook Hover.svg';
+import YouTubeIconHover from '../assets/YouTube Hover.svg';
+import TikTokIconHover from '../assets/TikTok Hover.svg';
 
 const Footer: React.FC = () => {
   const [windowWidth, setWindowWidth] = useState<number>(typeof window !== 'undefined' ? window.innerWidth : 1024);
@@ -99,6 +105,55 @@ const Footer: React.FC = () => {
     },
   };
 
+  const navigate = useNavigate();
+
+  const SocialIconLink: React.FC<{ href: string; icon: string; iconHover: string; label: string }> = ({ href, icon, iconHover, label }) => {
+    const [hovered, setHovered] = useState(false);
+    return (
+      <a
+        href={href}
+        aria-label={label}
+        style={{
+          ...styles.socialIcon,
+          backgroundColor: hovered ? '#026b6b' : '#035757',
+          transform: hovered ? 'translateY(-2px)' : 'translateY(0)',
+          boxShadow: hovered ? '0 4px 10px rgba(0,0,0,0.25)' : 'none',
+          transition: 'background-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease',
+        }}
+        onMouseEnter={() => setHovered(true)}
+        onMouseLeave={() => setHovered(false)}
+      >
+        <img
+          src={hovered ? iconHover : icon}
+          alt={label}
+          style={{ width: '20px', height: '20px', filter: hovered ? 'none' : 'brightness(0) invert(1)' }}
+        />
+      </a>
+    );
+  };
+
+  const FooterNavLink: React.FC<{ label: string; to: string }> = ({ label, to }) => {
+    const [hovered, setHovered] = useState(false);
+    return (
+      <a
+        onClick={() => navigate(to)}
+        style={{
+          ...styles.footerText,
+          color: hovered ? '#ffffff' : '#b0c4c4',
+          cursor: 'pointer',
+          textDecoration: 'none',
+          display: 'inline-block',
+          paddingLeft: hovered ? '0.25rem' : 0,
+          transition: 'all 0.2s ease',
+        }}
+        onMouseEnter={() => setHovered(true)}
+        onMouseLeave={() => setHovered(false)}
+      >
+        {label}
+      </a>
+    );
+  };
+
   return (
     <>
       {/* Footer */}
@@ -121,32 +176,22 @@ const Footer: React.FC = () => {
                 <img src="/SMK LOGO.png" alt="SMK Metland Logo" style={styles.logoImage} />
               </div>
               <div style={{ ...styles.footerSocial, marginTop: isMobile ? '0.5rem' : '2rem' }}>
-                <a href="https://api.whatsapp.com/send/?phone=6281293395500&text&type=phone_number&app_absent=0" style={styles.socialIcon}>
-                  <img src={WhatsAppIcon} alt="WhatsApp" style={{ width: '20px', height: '20px', filter: 'brightness(0) invert(1)' }} />
-                </a>
-                <a href="https://www.instagram.com/smkmetland/" style={styles.socialIcon}>
-                  <img src={InstagramIcon} alt="Instagram" style={{ width: '20px', height: '20px', filter: 'brightness(0) invert(1)' }} />
-                </a>
-                <a href="https://www.facebook.com/SMKMetland/" style={styles.socialIcon}>
-                  <img src={FacebookIcon} alt="Facebook" style={{ width: '20px', height: '20px', filter: 'brightness(0) invert(1)' }} />
-                </a>
-                <a href="https://www.youtube.com/channel/UCrxrH9tASSF3FNez-fTMKZA" style={styles.socialIcon}>
-                  <img src={YouTubeIcon} alt="YouTube" style={{ width: '20px', height: '20px', filter: 'brightness(0) invert(1)' }} />
-                </a>
-                <a href="https://www.tiktok.com/@smkmetland" style={styles.socialIcon}>
-                  <img src={TikTokIcon} alt="TikTok" style={{ width: '20px', height: '20px', filter: 'brightness(0) invert(1)' }} />
-                </a>
+                <SocialIconLink href="https://api.whatsapp.com/send/?phone=6281293395500&text&type=phone_number&app_absent=0" icon={WhatsAppIcon} iconHover={WhatsAppIconHover} label="WhatsApp" />
+                <SocialIconLink href="https://www.instagram.com/smkmetland/" icon={InstagramIcon} iconHover={InstagramIconHover} label="Instagram" />
+                <SocialIconLink href="https://www.facebook.com/SMKMetland/" icon={FacebookIcon} iconHover={FacebookIconHover} label="Facebook" />
+                <SocialIconLink href="https://www.youtube.com/channel/UCrxrH9tASSF3FNez-fTMKZA" icon={YouTubeIcon} iconHover={YouTubeIconHover} label="YouTube" />
+                <SocialIconLink href="https://www.tiktok.com/@smkmetland" icon={TikTokIcon} iconHover={TikTokIconHover} label="TikTok" />
               </div>
             </div>
             
             {/* Center Column - Programs and YouTube */}
             <div style={styles.footerSection}>
               <h4 style={styles.footerTitle}>PROGRAM KEAHLIAN</h4>
-              <p style={styles.footerText}>Akuntansi Bisnis</p>
-              <p style={styles.footerText}>Perhotelan</p>
-              <p style={styles.footerText}>Kuliner</p>
-              <p style={styles.footerText}>Desain Komunikasi Visual</p>
-              <p style={styles.footerText}>Teknologi Informasi</p>
+              <FooterNavLink label="Akuntansi Bisnis" to="/program/akuntansi" />
+              <FooterNavLink label="Perhotelan" to="/program/perhotelan" />
+              <FooterNavLink label="Kuliner" to="/program/kuliner" />
+              <FooterNavLink label="Desain Komunikasi Visual" to="/program/dkv" />
+              <FooterNavLink label="Teknologi Informasi" to="/program/ti" />
               
               <div style={styles.widgetBlock}>
                 <iframe 

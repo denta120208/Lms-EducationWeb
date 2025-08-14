@@ -266,7 +266,7 @@ const SiteHeader: React.FC<Props> = ({ fixed = true, scrollTargetSelector }) => 
               <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}>TENTANG SEKOLAH <ChevronDown size={16} /></span>
             </NavItemLink>
             <div style={hoveredDropdown === 'tentang' ? styles.dropdownVisible : styles.dropdown}>
-              <DropdownItemLink>Sejarah Sekolah</DropdownItemLink>
+              <DropdownItemLink onClick={() => navigate('/sejarah-sekolah')}>Sejarah Sekolah</DropdownItemLink>
               <DropdownItemLink onClick={() => navigate('/visi-misi')}>VISI & MISI</DropdownItemLink>
               <DropdownItemLink onClick={() => navigate('/nilai-budaya-sekolah')}>Nilai Budaya Sekolah</DropdownItemLink>
               <DropdownItemLink onClick={() => window.location.href = 'https://smkmetlandcibitung.net/'}>Kampus Cibitung</DropdownItemLink>
@@ -334,6 +334,7 @@ const SiteHeader: React.FC<Props> = ({ fixed = true, scrollTargetSelector }) => 
         )}
         <div style={styles.mobileMenu}>
           <a style={styles.navLink} onClick={() => navigate('/')}>BERANDA</a>
+          <a style={styles.navLink} onClick={() => navigate('/sejarah-sekolah')}>SEJARAH SEKOLAH</a>
           <a style={styles.navLink} onClick={() => navigate('/visi-misi')}>VISI & MISI</a>
           <a style={styles.navLink} onClick={() => navigate('/nilai-budaya-sekolah')}>NILAI BUDAYA SEKOLAH</a>
           <a style={styles.navLink}>TENTANG SEKOLAH</a>
@@ -346,7 +347,7 @@ const SiteHeader: React.FC<Props> = ({ fixed = true, scrollTargetSelector }) => 
           <a style={styles.navLink} onClick={() => navigate('/program/dkv')}>DESAIN KOMUNIKASI VISUAL</a>
           <a style={styles.navLink}>KURIKULUM</a>
           <a style={styles.navLink} onClick={() => navigate('/ekstrakulikuler')}>EKSTRAKULIKULER</a>
-          <a style={styles.navLink}>BERITA SEKOLAH</a>
+          <a style={styles.navLink} onClick={() => navigate('/berita')}>BERITA SEKOLAH</a>
           <a style={styles.navLink} onClick={() => (window.location.href = 'https://metlandcollege.com/')}>COLLEGE</a>
           <a style={styles.navLink}>E-BOOK</a>
           <a style={styles.navLink}>BKK</a>

@@ -1050,7 +1050,7 @@ const Index = () => {
           </div>
 
           {/* News Index Button */}
-          <button style={styles.newsIndexButton}>
+          <button style={styles.newsIndexButton} onClick={() => navigate('/berita')}>
             Indeks Berita →
           </button>
         </div>
