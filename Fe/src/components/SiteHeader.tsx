@@ -336,9 +336,9 @@ const SiteHeader: React.FC<Props> = ({ fixed = true, scrollTargetSelector }) => 
                   <ChevronDown size={16} style={{ transform: 'rotate(-90deg)' }} />
                 </div>
                 <div style={hoveredSubDropdown === 'sarana' ? styles.subDropdownVisible : styles.subDropdown}>
-                  <DropdownItemLink>ARTISAN BEVERAGES STUDIO</DropdownItemLink>
+                  <DropdownItemLink onClick={() => navigate('/artisan-beverages')}>ARTISAN BEVERAGES STUDIO</DropdownItemLink>
                   <DropdownItemLink>METSCHOO DELI</DropdownItemLink>
-                  <DropdownItemLink>PILLO @KALIANA APARTMENT</DropdownItemLink>
+                  <DropdownItemLink onClick={() => navigate('/pillo')}>PILLO @KALIANA APARTMENT</DropdownItemLink>
                 </div>
               </div>
               <DropdownItemLink onClick={() => navigate('/organisasi')}>Organisasi</DropdownItemLink>
@@ -347,7 +347,7 @@ const SiteHeader: React.FC<Props> = ({ fixed = true, scrollTargetSelector }) => 
           </div>
           <div style={styles.navItem}><NavItemLink onClick={() => navigate('/berita')}>BERITA SEKOLAH</NavItemLink></div>
           <div style={styles.navItem}><NavItemLink onClick={() => (window.location.href = 'https://metlandcollege.com/')}>COLLEGE</NavItemLink></div>
-          <div style={styles.navItem}><NavItemLink>E-BOOK</NavItemLink></div>
+          <div style={styles.navItem}><NavItemLink onClick={() => (window.location.href = 'https://drive.google.com/drive/folders/1chDNsAuxdzavXbc9pe788lmAOZDAF9Av')}>E-BOOK</NavItemLink></div>
           <div style={styles.navItem}><NavItemLink>BKK</NavItemLink></div>
           <button style={styles.button} onClick={() => navigate('/login')}>MS Learn</button>
         </nav>
@@ -410,7 +410,7 @@ const SiteHeader: React.FC<Props> = ({ fixed = true, scrollTargetSelector }) => 
                     <div style={{ ...styles.mobileSubLinks, paddingLeft: '0.75rem' }}>
                       <a style={styles.mobileLink}>ARTISAN BEVERAGES STUDIO</a>
                       <a style={styles.mobileLink}>METSCHOO DELI</a>
-                      <a style={styles.mobileLink}>PILLO @KALIANA APARTMENT</a>
+                      <a style={styles.mobileLink} onClick={() => { setIsMenuOpen(false); navigate('/pillo'); }}>PILLO @KALIANA APARTMENT</a>
                     </div>
                   )}
                 </div>
@@ -422,7 +422,7 @@ const SiteHeader: React.FC<Props> = ({ fixed = true, scrollTargetSelector }) => 
             <hr style={styles.mobileDivider as React.CSSProperties} />
             <a style={styles.mobileLink} onClick={() => { setIsMenuOpen(false); navigate('/berita'); }}>Berita Sekolah</a>
             <a style={styles.mobileLink} onClick={() => { setIsMenuOpen(false); window.location.href = 'https://metlandcollege.com/'; }}>College</a>
-            <a style={styles.mobileLink}>E-Book</a>
+            <a style={styles.mobileLink} onClick={() => { setIsMenuOpen(false); window.location.href = 'https://drive.google.com/drive/folders/1chDNsAuxdzavXbc9pe788lmAOZDAF9Av'; }}>E-Book</a>
             <a style={styles.mobileLink}>BKK</a>
             <button style={{ ...styles.button, width: '100%', marginTop: '0.75rem' }} onClick={() => { setIsMenuOpen(false); navigate('/login'); }}>MS Learn</button>
           </div>

@@ -22,6 +22,8 @@ import ProgramDKV from './pages/ProgramDKV';
 import Ekstrakulikuler from './pages/Ekstrakulikuler';
 import BeritaSekolah from './pages/BeritaSekolah';
 import PPDBPage from './pages/PPDB';
+import PilloKaliana from './pages/PilloKaliana';
+import ArtisanBeveragesStudio from './pages/ArtisanBeveragesStudio';
 import './App.css';
 
 function App() {
@@ -83,6 +85,8 @@ function App() {
             <Route path="/ekstrakulikuler" element={<Ekstrakulikuler />} />
             <Route path="/berita" element={<BeritaSekolah />} />
             <Route path="/ppdb" element={<PPDBPage />} />
+            <Route path="/pillo" element={<PilloKaliana />} />
+            <Route path="/artisan-beverages" element={<ArtisanBeveragesStudio />} />
             
             {/* Catch all route - redirect to login */}
             <Route path="*" element={<Navigate to="/login" replace />} />

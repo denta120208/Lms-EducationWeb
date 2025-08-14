@@ -127,7 +127,7 @@ const PPDBPage: React.FC = () => {
               <SocialIconLinkPPDB href="https://www.tiktok.com/@smkmetland" icon={TikTokIcon} iconHover={TikTokIconHover} label="TikTok" />
             </div>
             <div style={styles.ctaRow}>
-              <a href={suratPernyataan || 'https://smkmetland.net/ppdb/index.php/pendaftaran/'} target="_blank" rel="noreferrer" style={{ textDecoration: 'none' }}>
+              <a href="https://drive.google.com/drive/folders/1tb_h5SPYDxlkkIYFzBxVL0sxyQgbxwCz" target="_blank" rel="noreferrer" style={{ textDecoration: 'none' }}>
                 <button
                   onMouseEnter={(e) => { const el = e.currentTarget as HTMLButtonElement; el.style.backgroundColor = '#026b6b'; el.style.color = '#D4B800'; }}
                   onMouseLeave={(e) => { const el = e.currentTarget as HTMLButtonElement; el.style.backgroundColor = '#035757'; el.style.color = '#ffffff'; }}
@@ -136,7 +136,7 @@ const PPDBPage: React.FC = () => {
                   UNDUH SURAT PERNYATAAN
                 </button>
               </a>
-              <a href="https://smkmetland.net/ppdb/index.php/pendaftaran/" target="_blank" rel="noreferrer" style={{ textDecoration: 'none' }}>
+              <a href="https://ppdbsmkmetlandcileungsi.net/registration/registrations" target="_blank" rel="noreferrer" style={{ textDecoration: 'none' }}>
                 <button
                   onMouseEnter={(e) => { const el = e.currentTarget as HTMLButtonElement; el.style.backgroundColor = '#026b6b'; el.style.color = '#D4B800'; }}
                   onMouseLeave={(e) => { const el = e.currentTarget as HTMLButtonElement; el.style.backgroundColor = '#035757'; el.style.color = '#ffffff'; }}
