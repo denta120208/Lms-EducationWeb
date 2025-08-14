@@ -4,15 +4,20 @@ import SiteHeader from '../components/SiteHeader';
 import Footer from '../components/Footer';
 
 const activities = [
-  'Modeling',
-  'Teater',
-  'Fotografi',
-  'E-Sport',
-  'Musik',
-  'Japanese Club',
-  'Taekwondo',
   'Basket',
   'Futsal',
+  'Volly',
+  'Taekwondo',
+  'Flair bartending',
+  'Seni lukis',
+  'Ilustrasi Digital',
+  'Paskibra',
+  'Badminton',
+  'KKR',
+  'Musik',
+  'Seni Tari',
+  'Script Writing',
+  'Modelling',
 ];
 
 const Ekstrakulikuler: React.FC = () => {
