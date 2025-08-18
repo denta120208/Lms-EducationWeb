@@ -337,7 +337,7 @@ const SiteHeader: React.FC<Props> = ({ fixed = true, scrollTargetSelector }) => 
                 </div>
                 <div style={hoveredSubDropdown === 'sarana' ? styles.subDropdownVisible : styles.subDropdown}>
                   <DropdownItemLink onClick={() => navigate('/artisan-beverages')}>ARTISAN BEVERAGES STUDIO</DropdownItemLink>
-                  <DropdownItemLink>METSCHOO DELI</DropdownItemLink>
+                  <DropdownItemLink onClick={() => navigate('/metschoo-deli')}>METSCHOO DELI</DropdownItemLink>
                   <DropdownItemLink onClick={() => navigate('/pillo')}>PILLO @KALIANA APARTMENT</DropdownItemLink>
                 </div>
               </div>
@@ -408,8 +408,8 @@ const SiteHeader: React.FC<Props> = ({ fixed = true, scrollTargetSelector }) => 
                   </div>
                   {isSaranaOpen && (
                     <div style={{ ...styles.mobileSubLinks, paddingLeft: '0.75rem' }}>
-                      <a style={styles.mobileLink}>ARTISAN BEVERAGES STUDIO</a>
-                      <a style={styles.mobileLink}>METSCHOO DELI</a>
+                      <a style={styles.mobileLink} onClick={() => { setIsMenuOpen(false); navigate('/artisan-beverages'); }}>ARTISAN BEVERAGES STUDIO</a>
+                      <a style={styles.mobileLink} onClick={() => { setIsMenuOpen(false); navigate('/metschoo-deli'); }}>METSCHOO DELI</a>
                       <a style={styles.mobileLink} onClick={() => { setIsMenuOpen(false); navigate('/pillo'); }}>PILLO @KALIANA APARTMENT</a>
                     </div>
                   )}

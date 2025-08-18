@@ -1,4 +1,4 @@
-import { useRef, useEffect, useMemo, useState } from 'react';
+import React, { Suspense, useRef, useEffect, useMemo, useState } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
 import { useTexture } from '@react-three/drei';
 import * as THREE from 'three';
@@ -16,6 +16,18 @@ type LogoMeshProps = {
   target: LogoTarget;
   initial?: boolean;
 };
+
+// Preload texture to avoid blank logo on first mount under lazy loading
+try {
+  const anyUseTexture = useTexture as any;
+  if (anyUseTexture && typeof anyUseTexture.preload === 'function') {
+    anyUseTexture.preload('/SMK LOGO.png');
+  } else {
+    // Fallback browser preload
+    const img = new Image();
+    img.src = '/SMK LOGO.png';
+  }
+} catch {}
 
 function LogoMesh({ textureUrl = '/SMK LOGO.png', target, initial }: LogoMeshProps) {
   const groupRef = useRef<THREE.Group>(null);
@@ -97,7 +109,9 @@ export default function LogoScene({ target }: LogoSceneProps) {
     >
       <ambientLight intensity={0.7} />
       <directionalLight position={[5, 5, 5]} intensity={1.2} />
-      <LogoMesh target={target} initial />
+      <Suspense fallback={null}>
+        <LogoMesh target={target} initial />
+      </Suspense>
     </Canvas>
   );
 }

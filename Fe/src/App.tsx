@@ -1,30 +1,35 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { Suspense, lazy } from 'react';
 import { AuthProvider } from './contexts/AuthContext';
 import ProtectedRoute from './components/ProtectedRoute';
-import LoginPage from './pages/LoginPage';
-import SignUpPage from './pages/SignUp';
-import DashboardPage from './pages/DashboardPage';
-import HomePage from './pages/Home';
-import GridView from './pages/GridView';
-import TeacherDashboard from './pages/TeacherDashboard';
-import TeacherCourses from './pages/TeacherCourses';
-import Index from './pages/index';
-import VisiMisiPage from './pages/VisiMisi';
-import SejarahSekolah from './pages/SejarahSekolah';
 import ScrollToTop from './components/ScrollToTop';
-import NilaiBudayaSekolah from './pages/NilaiBudayaSekolah';
-import Organisasi from './pages/Organisasi';
-import ProgramAkuntansi from './pages/ProgramAkuntansi';
-import ProgramKuliner from './pages/ProgramKuliner';
-import ProgramPerhotelan from './pages/ProgramPerhotelan';
-import ProgramTI from './pages/ProgramTI';
-import ProgramDKV from './pages/ProgramDKV';
-import Ekstrakulikuler from './pages/Ekstrakulikuler';
-import BeritaSekolah from './pages/BeritaSekolah';
-import PPDBPage from './pages/PPDB';
-import PilloKaliana from './pages/PilloKaliana';
-import ArtisanBeveragesStudio from './pages/ArtisanBeveragesStudio';
+import BackToTop from './components/BackToTop';
 import './App.css';
+
+// Lazy-loaded pages
+const LoginPage = lazy(() => import('./pages/LoginPage'));
+const SignUpPage = lazy(() => import('./pages/SignUp'));
+const DashboardPage = lazy(() => import('./pages/DashboardPage'));
+const HomePage = lazy(() => import('./pages/Home'));
+const GridView = lazy(() => import('./pages/GridView'));
+const TeacherDashboard = lazy(() => import('./pages/TeacherDashboard'));
+const TeacherCourses = lazy(() => import('./pages/TeacherCourses'));
+const Index = lazy(() => import('./pages/index'));
+const VisiMisiPage = lazy(() => import('./pages/VisiMisi'));
+const SejarahSekolah = lazy(() => import('./pages/SejarahSekolah'));
+const NilaiBudayaSekolah = lazy(() => import('./pages/NilaiBudayaSekolah'));
+const Organisasi = lazy(() => import('./pages/Organisasi'));
+const ProgramAkuntansi = lazy(() => import('./pages/ProgramAkuntansi'));
+const ProgramKuliner = lazy(() => import('./pages/ProgramKuliner'));
+const ProgramPerhotelan = lazy(() => import('./pages/ProgramPerhotelan'));
+const ProgramTI = lazy(() => import('./pages/ProgramTI'));
+const ProgramDKV = lazy(() => import('./pages/ProgramDKV'));
+const Ekstrakulikuler = lazy(() => import('./pages/Ekstrakulikuler'));
+const BeritaSekolah = lazy(() => import('./pages/BeritaSekolah'));
+const PPDBPage = lazy(() => import('./pages/PPDB'));
+const PilloKaliana = lazy(() => import('./pages/PilloKaliana'));
+const ArtisanBeveragesStudio = lazy(() => import('./pages/ArtisanBeveragesStudio'));
+const MetschooDeli = lazy(() => import('./pages/MetschooDeli'));
 
 function App() {
   return (
@@ -32,6 +37,7 @@ function App() {
       <Router>
         <div className="App">
           <ScrollToTop />
+          <Suspense fallback={null}>
           <Routes>
             {/* Authentication routes */}
             <Route path="/login" element={<LoginPage />} />
@@ -87,10 +93,13 @@ function App() {
             <Route path="/ppdb" element={<PPDBPage />} />
             <Route path="/pillo" element={<PilloKaliana />} />
             <Route path="/artisan-beverages" element={<ArtisanBeveragesStudio />} />
+            <Route path="/metschoo-deli" element={<MetschooDeli />} />
             
             {/* Catch all route - redirect to login */}
             <Route path="*" element={<Navigate to="/login" replace />} />
           </Routes>
+          </Suspense>
+          <BackToTop />
         </div>
       </Router>
     </AuthProvider>
