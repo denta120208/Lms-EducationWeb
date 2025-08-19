@@ -77,9 +77,10 @@ const CourseMaterialForm: React.FC<CourseMaterialFormProps> = ({ courseId, onClo
           } else {
             throw new Error('File upload failed');
           }
-        } catch (uploadErr) {
+        } catch (uploadErr: any) {
           console.error('File upload failed:', uploadErr);
-          setError('Failed to upload file');
+          const errorMessage = uploadErr.response?.data?.message || uploadErr.response?.data || 'Failed to upload file';
+          setError(typeof errorMessage === 'string' ? errorMessage : 'Failed to upload file');
           return;
         }
       }
@@ -113,13 +114,13 @@ const CourseMaterialForm: React.FC<CourseMaterialFormProps> = ({ courseId, onClo
   const getFileAccept = () => {
     switch (type) {
       case 'image':
-        return 'image/jpeg,image/png,image/gif,image/webp';
+        return 'image/jpeg,image/png,image/gif,image/webp,image/bmp,image/svg+xml';
       case 'pdf':
-        return 'application/pdf';
+        return 'application/pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt,.rtf,.csv';
       case 'video':
-        return 'video/mp4,video/avi,video/mov,video/wmv,video/flv,video/webm';
+        return 'video/mp4,video/avi,video/mov,video/wmv,video/flv,video/webm,video/mkv,video/m4v,video/3gp,video/mpg,video/mpeg,audio/mp3,audio/wav,audio/flac,audio/aac,audio/ogg,audio/wma,audio/m4a';
       default:
-        return '';
+        return '*/*';
     }
   };
 
@@ -128,11 +129,11 @@ const CourseMaterialForm: React.FC<CourseMaterialFormProps> = ({ courseId, onClo
       case 'image':
         return '15MB';
       case 'pdf':
-        return '50MB';
+        return '100MB';
       case 'video':
-        return '50MB';
+        return '100MB';
       default:
-        return '';
+        return '100MB';
     }
   };
 
@@ -345,7 +346,7 @@ const CourseMaterialForm: React.FC<CourseMaterialFormProps> = ({ courseId, onClo
                   color: '#374151',
                 }}
               >
-                {type === 'image' ? 'Image File' : type === 'pdf' ? 'PDF File' : 'Video File'} *
+                {type === 'image' ? 'Image File' : type === 'pdf' ? 'Document File (PDF, Word, Excel, PowerPoint, etc.)' : 'Video/Audio File'} *
               </label>
               
               <label
@@ -367,7 +368,7 @@ const CourseMaterialForm: React.FC<CourseMaterialFormProps> = ({ courseId, onClo
                 }}
               >
                 {getTypeIcon(type)}
-                {file ? file.name : `Choose ${type} file`}
+                {file ? file.name : `Choose ${type === 'pdf' ? 'document' : type} file`}
                 <Upload size={16} />
                 <input
                   id="file"

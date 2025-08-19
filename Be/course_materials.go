@@ -3,8 +3,10 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"io"
 	"log"
 	"net/http"
+	"os"
 	"path/filepath"
 	"strconv"
 	"strings"
@@ -52,12 +54,12 @@ func createCourseMaterialsTable() error {
 			FOREIGN KEY (course_id) REFERENCES courses(id) ON DELETE CASCADE
 		)
 	`
-	
+
 	_, err := DB.Exec(query)
 	if err != nil {
 		return fmt.Errorf("failed to create course_materials table: %v", err)
 	}
-	
+
 	log.Println("✅ Course materials table created/verified successfully!")
 	return nil
 }
@@ -283,7 +285,7 @@ func deleteMaterialHandler(w http.ResponseWriter, r *http.Request) {
 			WHERE cm.id = ? AND c.teacher_id = ?
 		)
 	`, materialID, teacherID).Scan(&materialExists)
-	
+
 	if err != nil || !materialExists {
 		http.Error(w, "Material not found or access denied", http.StatusForbidden)
 		return
@@ -320,7 +322,7 @@ func uploadMaterialFileHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Parse the multipart form
-	err := r.ParseMultipartForm(50 << 20) // 50 MB max for materials
+	err := r.ParseMultipartForm(100 << 20) // 100 MB max for materials
 	if err != nil {
 		log.Printf("Error parsing multipart form: %v", err)
 		http.Error(w, "Error parsing form", http.StatusBadRequest)
@@ -337,9 +339,9 @@ func uploadMaterialFileHandler(w http.ResponseWriter, r *http.Request) {
 	defer file.Close()
 
 	// Validate file size
-	if handler.Size > 50<<20 { // 50 MB in bytes
+	if handler.Size > 100<<20 { // 100 MB in bytes
 		log.Printf("File too large: %d bytes", handler.Size)
-		http.Error(w, "File too large. Maximum size is 50MB", http.StatusBadRequest)
+		http.Error(w, "File too large. Maximum size is 100MB", http.StatusBadRequest)
 		return
 	}
 
@@ -349,28 +351,107 @@ func uploadMaterialFileHandler(w http.ResponseWriter, r *http.Request) {
 
 	// Check if the file extension is allowed
 	allowedExts := map[string]bool{
+		// Images
 		".jpg":  true,
 		".jpeg": true,
 		".png":  true,
 		".gif":  true,
 		".webp": true,
+		".bmp":  true,
+		".svg":  true,
+		// Documents
 		".pdf":  true,
+		".doc":  true,
+		".docx": true,
+		".xls":  true,
+		".xlsx": true,
+		".ppt":  true,
+		".pptx": true,
+		".txt":  true,
+		".rtf":  true,
+		".odt":  true,
+		".ods":  true,
+		".odp":  true,
+		// Videos
 		".mp4":  true,
 		".avi":  true,
 		".mov":  true,
 		".wmv":  true,
 		".flv":  true,
 		".webm": true,
+		".mkv":  true,
+		".m4v":  true,
+		".3gp":  true,
+		".mpg":  true,
+		".mpeg": true,
+		// Audio
+		".mp3":  true,
+		".wav":  true,
+		".flac": true,
+		".aac":  true,
+		".ogg":  true,
+		".wma":  true,
+		".m4a":  true,
+		// Archives
+		".zip": true,
+		".rar": true,
+		".7z":  true,
+		".tar": true,
+		".gz":  true,
+		// Other
+		".csv":  true,
+		".json": true,
+		".xml":  true,
 	}
 
 	if !allowedExts[fileExt] {
 		log.Printf("Invalid file type: %s", fileExt)
-		http.Error(w, "Invalid file type. Allowed types: JPG, PNG, GIF, WEBP, PDF, MP4, AVI, MOV, WMV, FLV, WEBM", http.StatusBadRequest)
+		http.Error(w, "Invalid file type. Please upload a valid document, image, video, audio, or archive file.", http.StatusBadRequest)
 		return
 	}
 
 	log.Printf("Material file upload: name=%s, size=%d bytes, type=%s", fileName, handler.Size, fileExt)
 
-	// Use the same upload logic as the existing uploadFileHandler
-	uploadFileHandler(w, r)
+	// Create uploads directory if it doesn't exist
+	uploadsDir := "./uploads/materials"
+	if err := os.MkdirAll(uploadsDir, 0755); err != nil {
+		log.Printf("Error creating uploads directory: %v", err)
+		http.Error(w, "Error creating upload directory", http.StatusInternalServerError)
+		return
+	}
+
+	// Generate unique filename
+	timestamp := time.Now().Unix()
+	uniqueFileName := fmt.Sprintf("%d_%s", timestamp, fileName)
+	filePath := filepath.Join(uploadsDir, uniqueFileName)
+
+	// Create the file
+	dst, err := os.Create(filePath)
+	if err != nil {
+		log.Printf("Error creating file: %v", err)
+		http.Error(w, "Error creating file", http.StatusInternalServerError)
+		return
+	}
+	defer dst.Close()
+
+	// Copy the uploaded file to the destination
+	_, err = io.Copy(dst, file)
+	if err != nil {
+		log.Printf("Error copying file: %v", err)
+		http.Error(w, "Error saving file", http.StatusInternalServerError)
+		return
+	}
+
+	// Create the URL path for the file
+	urlPath := "/uploads/materials/" + uniqueFileName
+	log.Printf("Material uploaded successfully. Path: %s", urlPath)
+
+	response := map[string]interface{}{
+		"success":   true,
+		"file_path": urlPath,
+		"message":   "File uploaded successfully",
+	}
+
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(response)
 }

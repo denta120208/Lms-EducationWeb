@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { Plus, FileText, Clock, Users, Edit, Trash2, Download, Upload, CheckCircle } from 'lucide-react';
+import { Plus, FileText, Clock, Users, Edit, Trash2, Download, Upload, CheckCircle, BarChart3 } from 'lucide-react';
 import { api } from '../services/api';
+import QuizResults from './QuizResults';
 
 interface Quiz {
   id: number;
@@ -40,6 +41,8 @@ interface QuizManagementProps {
 const QuizManagement: React.FC<QuizManagementProps> = ({ courseId }) => {
   const [quizzes, setQuizzes] = useState<Quiz[]>([]);
   const [showCreateForm, setShowCreateForm] = useState(false);
+  const [selectedQuizForResults, setSelectedQuizForResults] = useState<Quiz | null>(null);
+  const [editingQuiz, setEditingQuiz] = useState<Quiz | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -66,6 +69,29 @@ const QuizManagement: React.FC<QuizManagementProps> = ({ courseId }) => {
     fetchQuizzes();
   };
 
+  const handleEditQuiz = (quiz: Quiz) => {
+    setEditingQuiz(quiz);
+  };
+
+  const handleQuizUpdated = () => {
+    setEditingQuiz(null);
+    fetchQuizzes();
+  };
+
+  const handleDeleteQuiz = async (quizId: number) => {
+    if (!window.confirm('Are you sure you want to delete this quiz? This action cannot be undone.')) {
+      return;
+    }
+
+    try {
+      await api.delete(`/api/quizzes/${quizId}`);
+      fetchQuizzes();
+    } catch (err: any) {
+      console.error('Error deleting quiz:', err);
+      setError('Failed to delete quiz');
+    }
+  };
+
   if (loading) {
     return (
       <div style={{ 
@@ -77,6 +103,27 @@ const QuizManagement: React.FC<QuizManagementProps> = ({ courseId }) => {
       }}>
         Loading quizzes...
       </div>
+    );
+  }
+
+  if (selectedQuizForResults) {
+    return (
+      <QuizResults
+        quizId={selectedQuizForResults.id}
+        quizTitle={selectedQuizForResults.title}
+        onBack={() => setSelectedQuizForResults(null)}
+      />
+    );
+  }
+
+  if (editingQuiz) {
+    return (
+      <QuizForm
+        courseId={courseId}
+        quiz={editingQuiz}
+        onSuccess={handleQuizUpdated}
+        onCancel={() => setEditingQuiz(null)}
+      />
     );
   }
 
@@ -126,7 +173,7 @@ const QuizManagement: React.FC<QuizManagementProps> = ({ courseId }) => {
       )}
 
       {showCreateForm && (
-        <QuizCreateForm
+        <QuizForm
           courseId={courseId}
           onSuccess={handleCreateSuccess}
           onCancel={() => setShowCreateForm(false)}
@@ -148,7 +195,14 @@ const QuizManagement: React.FC<QuizManagementProps> = ({ courseId }) => {
       ) : (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
           {quizzes.map((quiz) => (
-            <QuizCard key={quiz.id} quiz={quiz} onUpdate={fetchQuizzes} />
+            <QuizCard 
+              key={quiz.id} 
+              quiz={quiz} 
+              onUpdate={fetchQuizzes}
+              onViewResults={() => setSelectedQuizForResults(quiz)}
+              onEdit={() => handleEditQuiz(quiz)}
+              onDelete={() => handleDeleteQuiz(quiz.id)}
+            />
           ))}
         </div>
       )}
@@ -157,7 +211,13 @@ const QuizManagement: React.FC<QuizManagementProps> = ({ courseId }) => {
 };
 
 // Quiz Card Component
-const QuizCard: React.FC<{ quiz: Quiz; onUpdate: () => void }> = ({ quiz, onUpdate }) => {
+const QuizCard: React.FC<{ 
+  quiz: Quiz; 
+  onUpdate: () => void; 
+  onViewResults: () => void;
+  onEdit: () => void;
+  onDelete: () => void;
+}> = ({ quiz, onUpdate, onViewResults, onEdit, onDelete }) => {
   return (
     <div style={{
       border: '1px solid #e5e7eb',
@@ -210,6 +270,20 @@ const QuizCard: React.FC<{ quiz: Quiz; onUpdate: () => void }> = ({ quiz, onUpda
         </div>
 
         <div style={{ display: 'flex', gap: '8px' }}>
+          <button
+            onClick={onViewResults}
+            style={{
+              padding: '6px',
+              backgroundColor: '#ede9fe',
+              border: '1px solid #c4b5fd',
+              borderRadius: '4px',
+              cursor: 'pointer',
+              color: '#7c3aed'
+            }}
+            title="View Results"
+          >
+            <BarChart3 size={16} />
+          </button>
           {quiz.quiz_type === 'pdf' && quiz.pdf_file_path && (
             <button
               onClick={() => window.open(`http://localhost:8080${quiz.pdf_file_path}`, '_blank')}
@@ -227,6 +301,7 @@ const QuizCard: React.FC<{ quiz: Quiz; onUpdate: () => void }> = ({ quiz, onUpda
             </button>
           )}
           <button
+            onClick={onEdit}
             style={{
               padding: '6px',
               backgroundColor: '#f3f4f6',
@@ -240,6 +315,7 @@ const QuizCard: React.FC<{ quiz: Quiz; onUpdate: () => void }> = ({ quiz, onUpda
             <Edit size={16} />
           </button>
           <button
+            onClick={onDelete}
             style={{
               padding: '6px',
               backgroundColor: '#fef2f2',
@@ -258,24 +334,43 @@ const QuizCard: React.FC<{ quiz: Quiz; onUpdate: () => void }> = ({ quiz, onUpda
   );
 };
 
-// Quiz Create Form Component
-const QuizCreateForm: React.FC<{
+// Quiz Form Component (Create/Edit)
+const QuizForm: React.FC<{
   courseId: number;
+  quiz?: Quiz | null;
   onSuccess: () => void;
   onCancel: () => void;
-}> = ({ courseId, onSuccess, onCancel }) => {
+}> = ({ courseId, quiz, onSuccess, onCancel }) => {
+  const isEditing = !!quiz;
   const [formData, setFormData] = useState({
-    title: '',
-    description: '',
-    quiz_type: 'interactive' as 'interactive' | 'pdf',
-    time_limit: '',
-    total_points: '100',
-    due_date: ''
+    title: quiz?.title || '',
+    description: quiz?.description || '',
+    quiz_type: (quiz?.quiz_type as 'interactive' | 'pdf') || 'interactive',
+    time_limit: quiz?.time_limit?.toString() || '',
+    total_points: quiz?.total_points?.toString() || '100',
+    due_date: quiz?.due_date ? new Date(quiz.due_date).toISOString().slice(0, 16) : ''
   });
   const [questions, setQuestions] = useState<any[]>([]);
   const [pdfFile, setPdfFile] = useState<File | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  // Load quiz questions if editing
+  useEffect(() => {
+    if (isEditing && quiz && quiz.quiz_type === 'interactive') {
+      const loadQuestions = async () => {
+        try {
+          const response = await api.get(`/api/quizzes/${quiz.id}`);
+          if (response.data.questions) {
+            setQuestions(response.data.questions);
+          }
+        } catch (err) {
+          console.error('Error loading quiz questions:', err);
+        }
+      };
+      loadQuestions();
+    }
+  }, [isEditing, quiz]);
 
   const addQuestion = () => {
     setQuestions([...questions, {
@@ -325,7 +420,7 @@ const QuizCreateForm: React.FC<{
         pdfFilePath = uploadResponse.data.file_path;
       }
 
-      // Create quiz
+      // Create or update quiz
       const quizData = {
         title: formData.title,
         description: formData.description,
@@ -335,14 +430,19 @@ const QuizCreateForm: React.FC<{
         total_points: parseInt(formData.total_points),
         due_date: formData.due_date || null,
         pdf_file_path: pdfFilePath,
+        is_active: true,
         questions: formData.quiz_type === 'interactive' ? questions : []
       };
 
-      await api.post(`/api/courses/${courseId}/quizzes`, quizData);
+      if (isEditing && quiz) {
+        await api.put(`/api/quizzes/${quiz.id}`, quizData);
+      } else {
+        await api.post(`/api/courses/${courseId}/quizzes`, quizData);
+      }
       onSuccess();
     } catch (err: any) {
-      console.error('Error creating quiz:', err);
-      setError(err.response?.data?.message || 'Failed to create quiz');
+      console.error(`Error ${isEditing ? 'updating' : 'creating'} quiz:`, err);
+      setError(err.response?.data?.message || `Failed to ${isEditing ? 'update' : 'create'} quiz`);
     } finally {
       setLoading(false);
     }
@@ -363,7 +463,7 @@ const QuizCreateForm: React.FC<{
         marginBottom: '20px' 
       }}>
         <h4 style={{ margin: 0, color: '#1f2937', fontSize: '16px', fontWeight: '600' }}>
-          Create New Quiz
+          {isEditing ? 'Edit Quiz' : 'Create New Quiz'}
         </h4>
         <button
           onClick={onCancel}
@@ -616,7 +716,7 @@ const QuizCreateForm: React.FC<{
                 fontSize: '14px'
               }}
             >
-              {loading ? 'Creating...' : 'Create Quiz'}
+              {loading ? (isEditing ? 'Updating...' : 'Creating...') : (isEditing ? 'Update Quiz' : 'Create Quiz')}
             </button>
           </div>
         </div>

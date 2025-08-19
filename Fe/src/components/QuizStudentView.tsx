@@ -60,6 +60,17 @@ const QuizStudentView: React.FC<QuizStudentViewProps> = ({ courseId }) => {
   };
 
   const handleQuizSelect = async (quiz: Quiz) => {
+    // Check if student has already submitted this quiz
+    try {
+      const submissionCheck = await api.get(`/api/quiz-submissions/check/${quiz.id}`);
+      if (submissionCheck.data.has_submitted) {
+        alert('You have already submitted this quiz. You can view your results in the Quiz Results section.');
+        return;
+      }
+    } catch (err) {
+      console.error('Error checking submission status:', err);
+    }
+
     if (quiz.quiz_type === 'interactive') {
       try {
         const response = await api.get(`/api/quizzes/${quiz.id}`);
@@ -307,8 +318,14 @@ const QuizTaking: React.FC<{
           answers: answers
         };
         
-        // Note: You'll need to implement this endpoint
-        await api.post('/api/quiz-submissions', submission);
+        const response = await api.post('/api/quiz-submissions', submission);
+        
+        // Show success message with grading info
+        if (response.data.auto_graded) {
+          alert(`Quiz submitted successfully!\n\nYour Score: ${response.data.score}/${response.data.total_points}\n\nAll questions were automatically graded.`);
+        } else {
+          alert('Quiz submitted successfully!\n\nYour quiz contains essay questions that need to be graded by your teacher. You will be notified when grading is complete.');
+        }
       }
 
       onSubmit();

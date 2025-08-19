@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Home, Grid3X3, BookOpen, User, Bell, LogOut, AlertCircle } from 'lucide-react';
+import { Home, Grid3X3, BookOpen, User, Bell, LogOut, AlertCircle, Award } from 'lucide-react';
 import { api, API_BASE_URL } from '../services/api';
 import { useAuth } from '../contexts/AuthContext';
 import CourseViewModal from '../components/CourseViewModal';
+import StudentQuizResults from '../components/StudentQuizResults';
 
 const DashboardPage = () => {
   const navigate = useNavigate();
@@ -58,6 +59,7 @@ const DashboardPage = () => {
   const [courses, setCourses] = useState<any[]>([]);
   const [selectedCourse, setSelectedCourse] = useState<any | null>(null);
   const [showCourseView, setShowCourseView] = useState(false);
+  const [currentView, setCurrentView] = useState<'courses' | 'quiz-results'>('courses');
   console.log('Courses to display:', courses.length, courses);
 
   const handleCourseClick = (course: any) => {
@@ -345,8 +347,23 @@ const DashboardPage = () => {
         >
           <Grid3X3 size={isSmallMobile ? 20 : 24} color="white" />
         </div>
-        <div style={styles.sidebarIcon}>
+        <div 
+          style={currentView === 'courses' ? styles.sidebarIcon : styles.sidebarIconHover}
+          onMouseEnter={(e) => (e.currentTarget as HTMLElement).style.backgroundColor = '#2563eb'}
+          onMouseLeave={(e) => (e.currentTarget as HTMLElement).style.backgroundColor = currentView === 'courses' ? '#2563eb' : 'transparent'}
+          onClick={() => setCurrentView('courses')}
+          title="My Courses"
+        >
           <BookOpen size={isSmallMobile ? 20 : 24} color="white" />
+        </div>
+        <div 
+          style={currentView === 'quiz-results' ? styles.sidebarIcon : styles.sidebarIconHover}
+          onMouseEnter={(e) => (e.currentTarget as HTMLElement).style.backgroundColor = '#2563eb'}
+          onMouseLeave={(e) => (e.currentTarget as HTMLElement).style.backgroundColor = currentView === 'quiz-results' ? '#2563eb' : 'transparent'}
+          onClick={() => setCurrentView('quiz-results')}
+          title="Quiz Results"
+        >
+          <Award size={isSmallMobile ? 20 : 24} color="white" />
         </div>
       </div>
 
@@ -391,32 +408,34 @@ const DashboardPage = () => {
             </div>
           )}
 
-          <h2 style={styles.coursesTitle}>My Courses</h2>
-          
-          {/* Loading State */}
-          {isLoading ? (
-            <div style={{
-              display: 'flex',
-              justifyContent: 'center',
-              alignItems: 'center',
-              height: '200px',
-              flexDirection: 'column' as 'column',
-              gap: '16px'
-            }}>
-              <div style={{
-                width: '40px',
-                height: '40px',
-                border: '4px solid #e5e7eb',
-                borderTop: '4px solid #3b82f6',
-                borderRadius: '50%',
-                animation: 'spin 1s linear infinite'
-              }}></div>
-              <p style={{ color: '#6b7280', margin: 0 }}>Loading courses...</p>
-            </div>
-          ) : (
+          {currentView === 'courses' ? (
             <>
-              {/* Course Overview Section */}
-              <div style={styles.courseOverview}>
+              <h2 style={styles.coursesTitle}>My Courses</h2>
+              
+              {/* Loading State */}
+              {isLoading ? (
+                <div style={{
+                  display: 'flex',
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                  height: '200px',
+                  flexDirection: 'column' as 'column',
+                  gap: '16px'
+                }}>
+                  <div style={{
+                    width: '40px',
+                    height: '40px',
+                    border: '4px solid #e5e7eb',
+                    borderTop: '4px solid #3b82f6',
+                    borderRadius: '50%',
+                    animation: 'spin 1s linear infinite'
+                  }}></div>
+                  <p style={{ color: '#6b7280', margin: 0 }}>Loading courses...</p>
+                </div>
+              ) : (
+                <>
+                  {/* Course Overview Section */}
+                  <div style={styles.courseOverview}>
             <h3 style={styles.overviewTitle}>Course overview</h3>
             
             {/* Filter and Search */}
@@ -573,8 +592,12 @@ const DashboardPage = () => {
               ))}
             </div>
           </div>
+                </>
+              )}
             </>
-          )}
+          ) : currentView === 'quiz-results' ? (
+            <StudentQuizResults />
+          ) : null}
         </div>
       </div>
       

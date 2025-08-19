@@ -103,6 +103,8 @@ func main() {
 	r.HandleFunc("/api/courses/{courseId:[0-9]+}/quizzes", getQuizzesByCourseHandler).Methods("GET")
 	r.HandleFunc("/api/courses/{courseId:[0-9]+}/quizzes", optionsHandler).Methods("OPTIONS")
 	r.HandleFunc("/api/quizzes/{quizId:[0-9]+}", getQuizByIDHandler).Methods("GET")
+	r.HandleFunc("/api/quizzes/{quizId:[0-9]+}", teacherAuthMiddleware(updateQuizHandler)).Methods("PUT")
+	r.HandleFunc("/api/quizzes/{quizId:[0-9]+}", teacherAuthMiddleware(deleteQuizHandler)).Methods("DELETE")
 	r.HandleFunc("/api/quizzes/{quizId:[0-9]+}", optionsHandler).Methods("OPTIONS")
 	r.HandleFunc("/api/upload/quiz-pdf", teacherAuthMiddleware(uploadQuizPDFHandler)).Methods("POST")
 	r.HandleFunc("/api/upload/quiz-pdf", optionsHandler).Methods("OPTIONS")
@@ -110,8 +112,20 @@ func main() {
 	// Quiz submission endpoints
 	r.HandleFunc("/api/quiz-submissions", authMiddleware(submitQuizHandler)).Methods("POST")
 	r.HandleFunc("/api/quiz-submissions", optionsHandler).Methods("OPTIONS")
+	r.HandleFunc("/api/quiz-submissions/check/{quizId}", authMiddleware(checkQuizSubmissionHandler)).Methods("GET")
+	r.HandleFunc("/api/quiz-submissions/check/{quizId}", optionsHandler).Methods("OPTIONS")
 	r.HandleFunc("/api/quiz-submissions/pdf", authMiddleware(submitQuizPDFHandler)).Methods("POST")
 	r.HandleFunc("/api/quiz-submissions/pdf", optionsHandler).Methods("OPTIONS")
+
+	// Quiz grading and results endpoints
+	r.HandleFunc("/api/quizzes/{quizId:[0-9]+}/submissions", teacherAuthMiddleware(getQuizSubmissionsHandler)).Methods("GET")
+	r.HandleFunc("/api/quizzes/{quizId:[0-9]+}/submissions", optionsHandler).Methods("OPTIONS")
+	r.HandleFunc("/api/quiz-submissions/grade", teacherAuthMiddleware(gradeEssayHandler)).Methods("POST")
+	r.HandleFunc("/api/quiz-submissions/grade", optionsHandler).Methods("OPTIONS")
+	r.HandleFunc("/api/student/quiz-results", authMiddleware(getStudentQuizResultsHandler)).Methods("GET")
+	r.HandleFunc("/api/student/quiz-results", optionsHandler).Methods("OPTIONS")
+	r.HandleFunc("/api/student/quiz-results/{submissionId:[0-9]+}", authMiddleware(getStudentQuizDetailHandler)).Methods("GET")
+	r.HandleFunc("/api/student/quiz-results/{submissionId:[0-9]+}", optionsHandler).Methods("OPTIONS")
 
 	// Debug static file test page
 	r.HandleFunc("/debug", func(w http.ResponseWriter, r *http.Request) {
@@ -123,6 +137,11 @@ func main() {
 
 	// Serve uploaded files with CORS support
 	r.PathPrefix("/uploads/").Handler(corsFileHandler(http.StripPrefix("/uploads/", http.FileServer(http.Dir("./uploads")))))
+
+	// Create uploads directories if they don't exist
+	os.MkdirAll("./uploads", 0755)
+	os.MkdirAll("./uploads/materials", 0755)
+	os.MkdirAll("./uploads/quiz-pdfs", 0755)
 
 	// Endpoint dasar (dummy)
 	r.HandleFunc("/api/users", func(w http.ResponseWriter, r *http.Request) {
