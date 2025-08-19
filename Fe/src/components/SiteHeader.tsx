@@ -11,12 +11,11 @@ import InstagramIconHover from '../assets/InstaGram Hover.svg';
 import FacebookIconHover from '../assets/FaceBook Hover.svg';
 import YouTubeIconHover from '../assets/YouTube Hover.svg';
 import TikTokIconHover from '../assets/TikTok Hover.svg';
-import EnFlag from '../assets/en.png';
-import IdFlag from '../assets/id 1.png';
+// Removed flag buttons in favor of Google Translate widget
 
-type Props = { fixed?: boolean; scrollTargetSelector?: string };
+type Props = { fixed?: boolean };
 
-const SiteHeader: React.FC<Props> = ({ fixed = true, scrollTargetSelector }) => {
+const SiteHeader: React.FC<Props> = ({ fixed = true }) => {
   const navigate = useNavigate();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
@@ -43,6 +42,87 @@ const SiteHeader: React.FC<Props> = ({ fixed = true, scrollTargetSelector }) => 
     return () => {
       window.removeEventListener('resize', updateViewportFlags);
       window.removeEventListener('orientationchange', updateViewportFlags);
+    };
+  }, []);
+
+  // Preload social hover icons to avoid first-hover delay
+  useEffect(() => {
+    const urls = [
+      WhatsAppIconHover,
+      InstagramIconHover,
+      FacebookIconHover,
+      YouTubeIconHover,
+      TikTokIconHover,
+    ];
+    urls.forEach((src) => {
+      const img = new Image();
+      img.src = src as unknown as string;
+    });
+  }, []);
+
+  // Google Translate widget injection
+  useEffect(() => {
+    // Hide the top Google banner that shifts the page
+    const style = document.createElement('style');
+    style.innerHTML = '.goog-te-banner-frame{display:none!important} body{top:0!important} .goog-logo-link{display:none!important} .goog-te-gadget span{display:none!important} .goog-te-gadget{font-size:0!important} .goog-te-gadget .goog-te-gadget-simple{display:none!important} .goog-te-combo option[value=""]{display:none!important}';
+    document.head.appendChild(style);
+
+    (window as any).googleTranslateElementInit = () => {
+      try {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const googleAny: any = (window as any).google;
+        if (googleAny && googleAny.translate && document.getElementById('google_translate_element')) {
+          // eslint-disable-next-line new-cap
+          new googleAny.translate.TranslateElement(
+            {
+              pageLanguage: 'id',
+              includedLanguages: 'id,en',
+              autoDisplay: false,
+              layout: googleAny.translate.TranslateElement.InlineLayout.SIMPLE,
+            },
+            'google_translate_element'
+          );
+
+          // Remove the placeholder option "Select Language"
+          const tryCleanPlaceholder = () => {
+            const combo = document.querySelector('.goog-te-combo') as HTMLSelectElement | null;
+            if (!combo) return false;
+            const emptyOption = combo.querySelector('option[value=""]') as HTMLOptionElement | null;
+            if (emptyOption) emptyOption.remove();
+            // Ensure a concrete selection so the UI doesn't show placeholder text
+            const hasValue = combo.value && combo.value !== '';
+            if (!hasValue) {
+              const idOption = Array.from(combo.options).find((o) => o.value === 'id');
+              if (idOption) {
+                combo.value = 'id';
+                combo.dispatchEvent(new Event('change'));
+              }
+            }
+            return true;
+          };
+          let attempts = 0;
+          const id = window.setInterval(() => {
+            attempts += 1;
+            if (tryCleanPlaceholder() || attempts > 10) window.clearInterval(id);
+          }, 300);
+        }
+      } catch {
+        // no-op
+      }
+    };
+
+    const existing = document.querySelector('script[src*="translate_a/element.js"]') as HTMLScriptElement | null;
+    if (!existing) {
+      const script = document.createElement('script');
+      script.src = 'https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit';
+      script.async = true;
+      document.body.appendChild(script);
+    } else if ((window as any).googleTranslateElementInit) {
+      (window as any).googleTranslateElementInit();
+    }
+
+    return () => {
+      // keep script/style for subsequent navigations
     };
   }, []);
 
@@ -147,6 +227,25 @@ const SiteHeader: React.FC<Props> = ({ fixed = true, scrollTargetSelector }) => 
     mobileLink: { color: '#0f172a', textDecoration: 'none', padding: isLandscape ? '0.4rem 0.5rem' : '0.5rem 0.5rem', borderRadius: 6, background: 'white', border: '1px solid #e5e7eb' },
     mobileDivider: { borderTop: '1px solid #e5e7eb', margin: '0.5rem 0' },
     button: { backgroundColor: '#035757', color: 'white', border: 'none', borderRadius: 6, padding: '0.75rem 1.5rem', fontWeight: 600, cursor: 'pointer' },
+    translateElement: { display: 'flex', alignItems: 'center', transform: isMobile ? 'scale(0.85)' : 'scale(0.95)', transformOrigin: 'left center' },
+    ppdbButton: {
+      backgroundColor: '#ffffff',
+      color: '#0b3b3b',
+      border: 'none',
+      borderRadius: 6,
+      padding: isMobile ? '0.2rem 0.5rem' : '0.25rem 0.6rem',
+      fontWeight: 800,
+      fontSize: isMobile ? 12 : 13,
+      lineHeight: 1,
+      // Override global tap-target rule on small screens
+      minHeight: 0,
+      minWidth: 0,
+      height: isMobile ? 24 : 26,
+      display: 'inline-flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      cursor: 'pointer',
+    },
   };
 
   const baseColor = '#035757';
@@ -274,9 +373,9 @@ const SiteHeader: React.FC<Props> = ({ fixed = true, scrollTargetSelector }) => 
             isMobile={isMobile}
           />
         </div>
-        <div style={{ display: 'flex', gap: '0.5rem' }}>
-          <button style={styles.flagButton}><img src={IdFlag} alt="Bahasa Indonesia" style={styles.flagIcon} /></button>
-          <button style={styles.flagButton}><img src={EnFlag} alt="English" style={styles.flagIcon} /></button>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+          <div id="google_translate_element" style={styles.translateElement} />
+          <button style={styles.ppdbButton} onClick={() => navigate('/ppdb')}>PPDB</button>
         </div>
       </div>
 

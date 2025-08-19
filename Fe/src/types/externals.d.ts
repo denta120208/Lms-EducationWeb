@@ -14,3 +14,12 @@ declare module 'gsap/ScrollTrigger' {
   export default ScrollTrigger;
 }
 
+// Globals for Google Translate
+declare global {
+  interface Window {
+    googleTranslateElementInit?: () => void;
+  }
+  const google: any;
+}
+export {};
+

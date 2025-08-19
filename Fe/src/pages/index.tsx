@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { GraduationCap, Users, BookOpen } from 'lucide-react';
+import { GraduationCap, Users, BookOpen, Megaphone } from 'lucide-react';
 import type { CSSProperties } from 'react';
 import CountUp from 'react-countup';
 import Slider from 'react-slick';
@@ -105,6 +105,21 @@ const Index = () => {
     return () => window.clearInterval(id);
   }, [isTrendingAnimating, nextHeadlineIndex, currentHeadlineIndex]);
   
+  // Preload hover icons to eliminate first-hover delay on Program Keahlian
+  useEffect(() => {
+    const urls = [
+      '/Akutansi Hover.svg',
+      '/Kuliner Hover.svg',
+      '/Perhotelan Hover.svg',
+      '/Teknologi Informasi Hover.svg',
+      '/Desain Komunikasi Visual Hover.svg',
+    ];
+    urls.forEach((src) => {
+      const img = new Image();
+      img.src = src;
+    });
+  }, []);
+
 
   useEffect(() => {
     const updateViewportFlags = () => {
@@ -555,6 +570,63 @@ const Index = () => {
       borderRadius: '0.25rem',
       transition: 'background-color 0.2s',
     },
+    // MS Learn Bar (below Trending)
+    msLearnSection: {
+      backgroundColor: '#2d6f6f',
+      padding: isMobile ? '0.75rem 1rem' : '1rem 2rem',
+      width: '100vw',
+      marginLeft: 'calc(-50vw + 50%)',
+      marginRight: 'calc(-50vw + 50%)',
+    },
+    msLearnBox: {
+      width: '100%',
+      maxWidth: 'none',
+      margin: 0,
+      display: 'grid',
+      gridTemplateColumns: 'auto 1fr auto',
+      alignItems: 'center',
+      gap: isMobile ? '0.75rem' : '1rem',
+    },
+    msLearnIcon: {
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      width: isMobile ? '38px' : '44px',
+      height: isMobile ? '38px' : '44px',
+      borderRadius: '8px',
+      backgroundColor: '#fbbf24',
+      boxShadow: '0 1px 2px rgba(0,0,0,0.15) inset',
+      flexShrink: 0,
+    },
+    msLearnContent: {
+      flex: 1,
+      display: 'flex',
+      flexDirection: 'column',
+      alignItems: 'center',
+      justifyContent: 'center',
+      textAlign: 'center',
+      gap: '0.5rem',
+    },
+    msLearnTitle: {
+      color: '#fde68a',
+      fontSize: isMobile ? '0.8rem' : '0.95rem',
+      fontWeight: 600,
+      lineHeight: 1.2,
+    },
+    msLearnButton: {
+      backgroundColor: '#0f5f5f',
+      color: '#ffffff',
+      border: '1px solid #22d3ee',
+      borderRadius: '0.5rem',
+      padding: isMobile ? '0.35rem 0.85rem' : '0.5rem 1.1rem',
+      fontSize: isMobile ? '0.8rem' : '0.95rem',
+      fontWeight: 700,
+      cursor: 'pointer',
+    },
+    msLearnSpacer: {
+      width: isMobile ? '38px' : '44px',
+      height: 0,
+    },
     // News Section
     newsSection: {
       padding: '4rem 2rem',
@@ -978,6 +1050,20 @@ const Index = () => {
         <div style={styles.trendingNav}>
           <button style={styles.trendingNavButton} onClick={() => triggerTrending('prev')}>&lt;</button>
           <button style={styles.trendingNavButton} onClick={() => triggerTrending('next')}>&gt;</button>
+        </div>
+      </section>
+
+      {/* MS Learn Bar below Trending */}
+      <section style={styles.msLearnSection}>
+        <div style={styles.msLearnBox}>
+          <div style={styles.msLearnIcon}>
+            <Megaphone size={isMobile ? 20 : 22} color="#000000" />
+          </div>
+          <div style={styles.msLearnContent}>
+            <div style={styles.msLearnTitle}>SMK Metland kini memiliki portal pembelajaran! Belajar tanpa ribet, langsung dari MS Learn!</div>
+            <button style={styles.msLearnButton} onClick={() => navigate('/login')}>MS Learn</button>
+          </div>
+          <div style={styles.msLearnSpacer} />
         </div>
       </section>
 
