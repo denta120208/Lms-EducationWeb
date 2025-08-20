@@ -30,6 +30,8 @@ const PPDBPage = lazy(() => import('./pages/PPDB'));
 const PilloKaliana = lazy(() => import('./pages/PilloKaliana'));
 const ArtisanBeveragesStudio = lazy(() => import('./pages/ArtisanBeveragesStudio'));
 const MetschooDeli = lazy(() => import('./pages/MetschooDeli'));
+import AdminLogin from './pages/admin/AdminLogin';
+import AdminDashboard from './pages/admin/Dashboard';
 
 function App() {
   return (
@@ -94,6 +96,8 @@ function App() {
             <Route path="/pillo" element={<PilloKaliana />} />
             <Route path="/artisan-beverages" element={<ArtisanBeveragesStudio />} />
             <Route path="/metschoo-deli" element={<MetschooDeli />} />
+            <Route path="/admin/login" element={<AdminLogin />} />
+            <Route path="/admin/dashboard" element={<AdminDashboard />} />
             
             {/* Catch all route - redirect to login */}
             <Route path="*" element={<Navigate to="/login" replace />} />

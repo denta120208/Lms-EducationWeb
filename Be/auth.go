@@ -59,10 +59,30 @@ type TeacherLoginResponse struct {
 	Message string  `json:"message"`
 }
 
+// Admin structures
+type AdminUser struct {
+	ID       int    `json:"id"`
+	Username string `json:"username"`
+	Email    string `json:"email"`
+	Password string `json:"password,omitempty"`
+}
+
+type AdminLoginRequest struct {
+	Username string `json:"username"`
+	Password string `json:"password"`
+}
+
+type AdminLoginResponse struct {
+	Token   string    `json:"token"`
+	Admin   AdminUser `json:"admin"`
+	Message string    `json:"message"`
+}
+
 // Claims struct untuk JWT claims
 type Claims struct {
 	StudentID int    `json:"student_id"`
 	TeacherID int    `json:"teacher_id"`
+	AdminID   int    `json:"admin_id"`
 	Email     string `json:"email"`
 	Role      string `json:"role"` // "student" atau "teacher"
 	jwt.RegisteredClaims
@@ -116,6 +136,25 @@ func GenerateTeacherJWT(teacherID int, email string) (string, error) {
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 	return token.SignedString(jwtSecret)
+}
+
+// GenerateAdminJWT - generate JWT token untuk admin
+func GenerateAdminJWT(adminID int, email string) (string, error) {
+    expirationTime := time.Now().Add(24 * time.Hour)
+
+    claims := &Claims{
+        AdminID: adminID,
+        Email:   email,
+        Role:    "admin",
+        RegisteredClaims: jwt.RegisteredClaims{
+            ExpiresAt: jwt.NewNumericDate(expirationTime),
+            IssuedAt:  jwt.NewNumericDate(time.Now()),
+            Issuer:    "lms-garage",
+        },
+    }
+
+    token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+    return token.SignedString(jwtSecret)
 }
 
 // ValidateJWT - validasi JWT token

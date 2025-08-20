@@ -11,6 +11,13 @@ export const api = axios.create({
 // Add request interceptor to include auth token
 api.interceptors.request.use(
   (config) => {
+    if (config.url?.startsWith('/api/admin')) {
+      const adminToken = localStorage.getItem('admin_token');
+      if (adminToken) {
+        config.headers.Authorization = `Bearer ${adminToken}`;
+        return config;
+      }
+    }
     const token = localStorage.getItem('token');
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
@@ -53,6 +60,17 @@ export interface RegisterRequest {
   password: string;
 }
 
+export interface AdminLoginRequest {
+  username: string;
+  password: string;
+}
+
+export interface AdminLoginResponse {
+  token: string;
+  admin: { id: number; username: string; email: string };
+  message: string;
+}
+
 export interface ApiError {
   message: string;
   status: number;
@@ -64,7 +82,7 @@ export const tokenManager = {
     return localStorage.getItem('token');
   },
   
-  setToken: (token: string, isTeacher = false): void => {
+  setToken: (token: string, _isTeacher = false): void => {
     localStorage.setItem('token', token);
     // Set token in axios defaults
     api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
@@ -198,6 +216,10 @@ export const authAPI = {
     } catch (error: any) {
       throw error.response?.data?.message || 'Failed to login';
     }
+  },
+  adminLogin: async (credentials: AdminLoginRequest): Promise<AdminLoginResponse> => {
+    const res = await api.post('/api/admin/login', credentials);
+    return res.data;
   },
   
   teacherLogin: async (credentials: LoginRequest): Promise<TeacherLoginResponse> => {

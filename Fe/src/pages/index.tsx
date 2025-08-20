@@ -60,13 +60,13 @@ const Index = () => {
   const [isLandscape, setIsLandscape] = useState(false);
   const [hoveredProgram, setHoveredProgram] = useState<string | null>(null);
   // Trending headlines and animation state
-  const trendingHeadlines: string[] = [
+  const [trendingHeadlines, setTrendingHeadlines] = useState<string[]>([
     'Cybersecurity Di Sekolah : Dimulai Dari Diri Sendiri',
     'JALIN KERJASAMA, METLAND SCHOOL DAN PARALLAXNET USUNG KURIKULUM TECHNOPRENEUR',
     'SMK Metland Cileungsi Bersama Huion Gelar Seminar dan Workshop Ilustrasi Digital',
     'Pembelajaran Large Language Models (LLM) dalam Kurikulum Sekolah Menengah Kejuruan',
     'Enhancing Digital Literacy through TVET Fostering Synergy and Collaboration between Indonesia and Thailand',
-  ];
+  ]);
   const [currentHeadlineIndex, setCurrentHeadlineIndex] = useState<number>(0);
   const [nextHeadlineIndex, setNextHeadlineIndex] = useState<number | null>(null);
   const [isTrendingAnimating, setIsTrendingAnimating] = useState<boolean>(false);
@@ -97,6 +97,26 @@ const Index = () => {
 
   // Auto-rotate trending headlines every 3 seconds
   useEffect(() => {
+    // Eager load public site settings
+    fetch('http://localhost:8080/api/site/settings')
+      .then(res => res.ok ? res.json() : null)
+      .then((data) => {
+        if (!data) return;
+        try {
+          if (data.ms_learn_title) {
+            const t = JSON.parse(data.ms_learn_title);
+            if (t?.text) {
+              const el = document.getElementById('ms_learn_title_text');
+              if (el) el.textContent = t.text;
+            }
+          }
+          if (data.trending_headlines) {
+            const th = JSON.parse(data.trending_headlines);
+            if (Array.isArray(th?.items) && th.items.length) setTrendingHeadlines(th.items);
+          }
+        } catch {}
+      }).catch(() => {});
+
     const id = window.setInterval(() => {
       if (!isTrendingAnimating && nextHeadlineIndex === null) {
         triggerTrending('next');
@@ -147,6 +167,7 @@ const Index = () => {
   // Removed submenu handlers
 
   const styles: Record<string, CSSProperties> = {
+    adminLink: { color: '#035757', fontSize: '0.85rem', cursor: 'pointer', textDecoration: 'underline' },
     container: {
       minHeight: '100vh',
       width: '100%',
@@ -1060,7 +1081,7 @@ const Index = () => {
             <Megaphone size={isMobile ? 20 : 22} color="#000000" />
           </div>
           <div style={styles.msLearnContent}>
-            <div style={styles.msLearnTitle}>SMK Metland kini memiliki portal pembelajaran! Belajar tanpa ribet, langsung dari MS Learn!</div>
+            <div id="ms_learn_title_text" style={styles.msLearnTitle}>SMK Metland kini memiliki portal pembelajaran! Belajar tanpa ribet, langsung dari MS Learn!</div>
             <button style={styles.msLearnButton} onClick={() => navigate('/login')}>MS Learn</button>
           </div>
           <div style={styles.msLearnSpacer} />

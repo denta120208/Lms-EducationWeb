@@ -10,6 +10,7 @@ import (
 )
 
 var DB *sql.DB
+var DB2 *sql.DB // second database for admin dashboard
 
 func InitDB() error {
 	// Load .env file if exists
@@ -69,6 +70,52 @@ func InitDB() error {
 		fmt.Printf("⚠️  Warning: Gagal membuat tabel course_materials: %v\n", err)
 	}
 
+	// Initialize second database connection (admin dashboard)
+	if err := initSecondDB(); err != nil {
+		fmt.Printf("⚠️  Warning: Gagal koneksi DB2 (admin dashboard): %v\n", err)
+	}
+
+	return nil
+}
+
+func initSecondDB() error {
+	user := os.Getenv("DB2_USER")
+	pass := os.Getenv("DB2_PASS")
+	host := os.Getenv("DB2_HOST")
+	port := os.Getenv("DB2_PORT")
+	name := os.Getenv("DB2_NAME")
+
+	if user == "" { user = "root" }
+	if pass == "" { pass = "" }
+	if host == "" { host = "localhost" }
+	if port == "" { port = "3306" }
+	if name == "" { name = "admin_dashboard" }
+
+	fmt.Printf("🔗 Mencoba koneksi ke DB2: %s@%s:%s/%s\n", user, host, port, name)
+	dsn := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?parseTime=true&charset=utf8mb4&collation=utf8mb4_unicode_ci", user, pass, host, port, name)
+	db2, err := sql.Open("mysql", dsn)
+	if err != nil { return err }
+	db2.SetMaxOpenConns(10)
+	db2.SetMaxIdleConns(10)
+	if err := db2.Ping(); err != nil { return err }
+	DB2 = db2
+
+	// Ensure admin_users and site_settings tables exist
+	_, err = DB2.Exec(`CREATE TABLE IF NOT EXISTS admin_users (
+		id INT AUTO_INCREMENT PRIMARY KEY,
+		username VARCHAR(100) NOT NULL UNIQUE,
+		password VARCHAR(255) NOT NULL,
+		email VARCHAR(150) UNIQUE,
+		created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+		updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+	)`)
+	if err != nil { return fmt.Errorf("create admin_users failed: %v", err) }
+	_, err = DB2.Exec(`CREATE TABLE IF NOT EXISTS site_settings (
+		` + "`key`" + ` VARCHAR(100) PRIMARY KEY,
+		` + "`value`" + ` JSON
+	)`)
+	if err != nil { return fmt.Errorf("create site_settings failed: %v", err) }
+	fmt.Println("✅ DB2 terhubung dan tabel admin_users siap!")
 	return nil
 }
 
@@ -161,5 +208,16 @@ func createTables() error {
 	}
 
 	fmt.Println("✅ Tabel database berhasil dibuat/diverifikasi!")
+
+	// Ensure default admin exists in DB2 (username: admin, password: admin123)
+	if DB2 != nil {
+		var count int
+		_ = DB2.QueryRow("SELECT COUNT(*) FROM admin_users").Scan(&count)
+		if count == 0 {
+			pwd, _ := HashPassword("admin123")
+			_, _ = DB2.Exec("INSERT INTO admin_users (username, password, email) VALUES (?, ?, ?)", "admin", pwd, "admin@example.com")
+			fmt.Println("👤 Default admin user created in DB2 (admin/admin123)")
+		}
+	}
 	return nil
 }

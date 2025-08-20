@@ -51,6 +51,10 @@ func main() {
 	r.HandleFunc("/api/auth/register", registerHandler).Methods("POST")
 	r.HandleFunc("/api/auth/register", optionsHandler).Methods("OPTIONS")
 
+	// Admin authentication (DB2)
+	r.HandleFunc("/api/admin/login", adminLoginHandler).Methods("POST")
+	r.HandleFunc("/api/admin/login", optionsHandler).Methods("OPTIONS")
+
 	// Teacher authentication endpoints
 	r.HandleFunc("/api/auth/teacher/login", teacherLoginHandler).Methods("POST")
 	r.HandleFunc("/api/auth/teacher/login", optionsHandler).Methods("OPTIONS")
@@ -299,6 +303,63 @@ func optionsHandler(w http.ResponseWriter, r *http.Request) {
 
 	w.WriteHeader(http.StatusOK)
 }
+
+// Admin auth middleware
+func adminAuthMiddleware(next http.HandlerFunc) http.HandlerFunc {
+    return func(w http.ResponseWriter, r *http.Request) {
+        authHeader := r.Header.Get("Authorization")
+        if authHeader == "" { http.Error(w, "Authorization header required", http.StatusUnauthorized); return }
+        tokenString := strings.Replace(authHeader, "Bearer ", "", 1)
+        claims, err := ValidateJWT(tokenString)
+        if err != nil || claims.Role != "admin" { http.Error(w, "Admin access required", http.StatusForbidden); return }
+        ctx := context.WithValue(r.Context(), "admin_id", claims.AdminID)
+        next.ServeHTTP(w, r.WithContext(ctx))
+    }
+}
+
+// Admin Login Handler (DB2)
+func adminLoginHandler(w http.ResponseWriter, r *http.Request) {
+    w.Header().Set("Content-Type", "application/json")
+
+    if DB2 == nil {
+        http.Error(w, "Admin DB not configured", http.StatusServiceUnavailable)
+        return
+    }
+
+    var req AdminLoginRequest
+    if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+        http.Error(w, "Invalid request body", http.StatusBadRequest)
+        return
+    }
+    if req.Username == "" || req.Password == "" {
+        http.Error(w, "Username and password are required", http.StatusBadRequest)
+        return
+    }
+
+    // Query admin from DB2
+    var admin AdminUser
+    row := DB2.QueryRow("SELECT id, username, email, password FROM admin_users WHERE username = ?", req.Username)
+    if err := row.Scan(&admin.ID, &admin.Username, &admin.Email, &admin.Password); err != nil {
+        http.Error(w, "Username atau password salah", http.StatusUnauthorized)
+        return
+    }
+    if !CheckPasswordHash(req.Password, admin.Password) {
+        http.Error(w, "Username atau password salah", http.StatusUnauthorized)
+        return
+    }
+
+    token, err := GenerateAdminJWT(admin.ID, admin.Email)
+    if err != nil {
+        http.Error(w, "Failed to generate token", http.StatusInternalServerError)
+        return
+    }
+
+    admin.Password = ""
+    resp := AdminLoginResponse{ Token: token, Admin: admin, Message: "Login berhasil" }
+    json.NewEncoder(w).Encode(resp)
+}
+
+// Admin settings endpoints removed per request
 
 // Login Handler
 func loginHandler(w http.ResponseWriter, r *http.Request) {
