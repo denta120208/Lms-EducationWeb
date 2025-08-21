@@ -48,8 +48,8 @@ import Accor from '../assets/Partnership/Bottom/accor-e1705022947913-150x150.png
 import PhitsanulokLogo from '../assets/Partnership/Bottom/Phitsanulok_Logo-1-150x150.jpg';
 import Img20230612 from '../assets/Partnership/Bottom/IMG-20230612-WA0015-1-150x150.jpg';
 import Img14 from '../assets/Partnership/Bottom/14-150x150.jpg';
-// News assets from sementara
-import ImgCybersecurity from '../assets/sementara/cybersecurity.jpg';
+// Placeholder for news images
+const DEFAULT_NEWS_IMAGE = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgZmlsbD0iI2YwZjBmMCIvPjx0ZXh0IHg9IjUwJSIgeT0iNTAlIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iMTQiIGZpbGw9IiM2NjY2NjYiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGR5PSIuM2VtIj5ObyBJbWFnZTwvdGV4dD48L3N2Zz4=';
 
 const Index = () => {
   const navigate = useNavigate();
@@ -1116,11 +1116,11 @@ const Index = () => {
                     return (
                       <>
                         <img
-                          src={featured.image_url || ImgCybersecurity}
+                          src={featured.image_url || DEFAULT_NEWS_IMAGE}
                           alt={featured.title}
                           style={styles.featuredNewsImage}
                           onError={(e) => {
-                            e.currentTarget.src = ImgCybersecurity;
+                            e.currentTarget.src = DEFAULT_NEWS_IMAGE;
                           }}
                         />
                         <div style={styles.featuredNewsContent}>
@@ -1151,11 +1151,11 @@ const Index = () => {
                 {newsList.filter(news => news.is_featured !== 1).slice(0, 6).map((news) => (
                   <div key={news.id} style={styles.newsCard}>
                     <img
-                      src={news.image_url || ImgCybersecurity}
+                      src={news.image_url || DEFAULT_NEWS_IMAGE}
                       alt={news.title}
                       style={styles.newsCardImage}
                       onError={(e) => {
-                        e.currentTarget.src = ImgCybersecurity;
+                        e.currentTarget.src = DEFAULT_NEWS_IMAGE;
                       }}
                     />
                     <h3 style={styles.newsCardTitle}>{news.title}</h3>

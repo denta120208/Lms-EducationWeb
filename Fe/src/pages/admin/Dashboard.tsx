@@ -14,6 +14,8 @@ type NewsItem = {
 	is_featured: number;
 };
 
+const DEFAULT_NEWS_IMAGE = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgZmlsbD0iI2YwZjBmMCIvPjx0ZXh0IHg9IjUwJSIgeT0iNTAlIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iMTQiIGZpbGw9IiM2NjY2NjYiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGR5PSIuM2VtIj5ObyBJbWFnZTwvdGV4dD48L3N2Zz4=';
+
 type SectionKey =
 	| 'overview'
 	| 'infographics'
@@ -376,7 +378,7 @@ const AdminDashboard: React.FC = () => {
 			{/* Sidebar */}
 			<aside style={sidebarComputed}>
 				<div style={styles.brand}>
-					<img src="/SMK LOGO.png" alt="Metland School" style={styles.brandImg} />
+					<img src={DEFAULT_NEWS_IMAGE} alt="Metland School" style={styles.brandImg} />
 					<div style={styles.brandText}>Metland Admin</div>
 				</div>
 				<nav style={styles.nav}>
@@ -472,11 +474,11 @@ const AdminDashboard: React.FC = () => {
 											}}
 										>
 											<img
-												src={news.image_url || '/SMK LOGO.png'}
+												src={news.image_url || DEFAULT_NEWS_IMAGE}
 												alt={news.title}
 												style={styles.newsImage}
 												onError={(e) => {
-													e.currentTarget.src = '/SMK LOGO.png';
+													e.currentTarget.src = DEFAULT_NEWS_IMAGE;
 												}}
 											/>
 											<div style={styles.newsContent}>
@@ -723,7 +725,7 @@ const AdminDashboard: React.FC = () => {
 								{(imagePreview || newsForm.image_url) && (
 									<div style={{ textAlign: 'center' }}>
 										<img
-											src={imagePreview || newsForm.image_url}
+											src={imagePreview || newsForm.image_url || DEFAULT_NEWS_IMAGE}
 											alt="Preview"
 											style={{
 												maxWidth: '200px',

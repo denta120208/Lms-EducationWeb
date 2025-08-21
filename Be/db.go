@@ -140,16 +140,14 @@ func initSecondDB() error {
 	var newsCount int
 	err = DB2.QueryRow("SELECT COUNT(*) FROM news").Scan(&newsCount)
 	if err == nil && newsCount == 0 {
-		_, _ = DB2.Exec(`INSERT INTO news (title, content, date, image_url, is_featured) VALUES
+		_, _ = DB2.Exec(`INSERT INTO news (title, content, date, is_featured) VALUES
 			('Cybersecurity Di Sekolah : Dimulai Dari Diri Sendiri',
 			 'Di era digital saat ini, teknologi informasi telah menjadi bagian tak terpisahkan dari kehidupan sehari-hari. Penggunaan internet dan perangkat digital yang semakin meluas membawa berbagai manfaat, namun juga meningkatkan risiko keamanan informasi.',
 			 '15 Januari 2025',
-			 '/assets/sementara/cybersecurity.jpg',
 			 1),
 			('Kerja Sama SMK Metland dengan Industri Teknologi',
 			 'SMK Metland menjalin kerja sama strategis dengan perusahaan teknologi terkemuka untuk meningkatkan kompetensi siswa di bidang teknologi informasi dan komunikasi.',
 			 '12 Januari 2025',
-			 '/assets/sementara/collaboration.jpg',
 			 0)`)
 	}
 
