@@ -1,13 +1,17 @@
 package main
 
 import (
+	"database/sql"
 	"context"
 	"encoding/json"
 	"fmt"
+	"io"
 	"log"
 	"net/http"
 	"os"
+	"path/filepath"
 	"strings"
+	"time"
 
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/gorilla/mux"
@@ -54,6 +58,30 @@ func main() {
 	// Admin authentication (DB2)
 	r.HandleFunc("/api/admin/login", adminLoginHandler).Methods("POST")
 	r.HandleFunc("/api/admin/login", optionsHandler).Methods("OPTIONS")
+
+	// Admin infographics (CRUD minimal)
+	r.HandleFunc("/api/admin/infographics", adminAuthMiddleware(adminUpsertInfographicsHandler)).Methods("PUT")
+	r.HandleFunc("/api/admin/infographics", optionsHandler).Methods("OPTIONS")
+
+	// Public infographics (read-only)
+	r.HandleFunc("/api/site/infographics", publicInfographicsHandler).Methods("GET")
+	r.HandleFunc("/api/site/infographics", optionsHandler).Methods("OPTIONS")
+
+	// Admin news (CRUD)
+	r.HandleFunc("/api/admin/news", adminAuthMiddleware(createNewsHandler)).Methods("POST")
+	r.HandleFunc("/api/admin/news", optionsHandler).Methods("OPTIONS")
+	r.HandleFunc("/api/admin/news/{id}", adminAuthMiddleware(updateNewsHandler)).Methods("PUT")
+	r.HandleFunc("/api/admin/news/{id}", optionsHandler).Methods("OPTIONS")
+	r.HandleFunc("/api/admin/news/{id}", adminAuthMiddleware(deleteNewsHandler)).Methods("DELETE")
+	r.HandleFunc("/api/admin/news/{id}", optionsHandler).Methods("OPTIONS")
+
+	// News image upload
+	r.HandleFunc("/api/upload/news-image", adminAuthMiddleware(uploadNewsImageHandler)).Methods("POST")
+	r.HandleFunc("/api/upload/news-image", optionsHandler).Methods("OPTIONS")
+
+	// Public news (read-only)
+	r.HandleFunc("/api/site/news", publicNewsHandler).Methods("GET")
+	r.HandleFunc("/api/site/news", optionsHandler).Methods("OPTIONS")
 
 	// Teacher authentication endpoints
 	r.HandleFunc("/api/auth/teacher/login", teacherLoginHandler).Methods("POST")
@@ -357,6 +385,262 @@ func adminLoginHandler(w http.ResponseWriter, r *http.Request) {
     admin.Password = ""
     resp := AdminLoginResponse{ Token: token, Admin: admin, Message: "Login berhasil" }
     json.NewEncoder(w).Encode(resp)
+}
+
+// Admin: upsert infographics values
+func adminUpsertInfographicsHandler(w http.ResponseWriter, r *http.Request) {
+    if DB2 == nil { http.Error(w, "DB2 not configured", http.StatusInternalServerError); return }
+    type payload struct { Siswa *int `json:"siswa"`; Guru *int `json:"guru"`; Tendik *int `json:"tendik"` }
+    var p payload
+    if err := json.NewDecoder(r.Body).Decode(&p); err != nil { http.Error(w, "Invalid payload", http.StatusBadRequest); return }
+    // Build update parts
+    setParts := []string{}
+    args := []interface{}{}
+    if p.Siswa != nil { setParts = append(setParts, "siswa = ?"); args = append(args, *p.Siswa) }
+    if p.Guru != nil { setParts = append(setParts, "guru = ?"); args = append(args, *p.Guru) }
+    if p.Tendik != nil { setParts = append(setParts, "tendik = ?"); args = append(args, *p.Tendik) }
+    if len(setParts) == 0 { http.Error(w, "No fields to update", http.StatusBadRequest); return }
+    query := "UPDATE infographics SET " + strings.Join(setParts, ", ") + " WHERE id = 1"
+    if _, err := DB2.Exec(query, args...); err != nil { http.Error(w, "Failed to update", http.StatusInternalServerError); return }
+    w.Header().Set("Content-Type", "application/json")
+    w.Write([]byte(`{"message":"updated"}`))
+}
+
+// Public: read infographics
+func publicInfographicsHandler(w http.ResponseWriter, r *http.Request) {
+    if DB2 == nil { http.Error(w, "DB2 not configured", http.StatusServiceUnavailable); return }
+    type resp struct { Siswa *int `json:"siswa"`; Guru *int `json:"guru"`; Tendik *int `json:"tendik"` }
+    var out resp
+    row := DB2.QueryRow("SELECT siswa, guru, tendik FROM infographics WHERE id = 1")
+    var s, g, t sql.NullInt64
+    if err := row.Scan(&s, &g, &t); err == nil {
+        if s.Valid { v := int(s.Int64); out.Siswa = &v }
+        if g.Valid { v := int(g.Int64); out.Guru = &v }
+        if t.Valid { v := int(t.Int64); out.Tendik = &v }
+    }
+    w.Header().Set("Content-Type", "application/json")
+    json.NewEncoder(w).Encode(out)
+}
+
+// Admin: create news
+func createNewsHandler(w http.ResponseWriter, r *http.Request) {
+    if DB2 == nil { http.Error(w, "DB2 not configured", http.StatusInternalServerError); return }
+    type payload struct {
+        Title string `json:"title"`
+        Content string `json:"content"`
+        Date string `json:"date"`
+        ImageURL string `json:"image_url"`
+        IsFeatured int `json:"is_featured"`
+    }
+    var p payload
+    if err := json.NewDecoder(r.Body).Decode(&p); err != nil { http.Error(w, "Invalid payload", http.StatusBadRequest); return }
+
+    result, err := DB2.Exec("INSERT INTO news (title, content, date, image_url, is_featured) VALUES (?, ?, ?, ?, ?)",
+        p.Title, p.Content, p.Date, p.ImageURL, p.IsFeatured)
+    if err != nil { http.Error(w, "Failed to create news", http.StatusInternalServerError); return }
+
+    id, _ := result.LastInsertId()
+    w.Header().Set("Content-Type", "application/json")
+    json.NewEncoder(w).Encode(map[string]interface{}{"message": "created", "id": id})
+}
+
+// Admin: update news
+func updateNewsHandler(w http.ResponseWriter, r *http.Request) {
+    if DB2 == nil { http.Error(w, "DB2 not configured", http.StatusInternalServerError); return }
+
+    vars := mux.Vars(r)
+    id := vars["id"]
+    if id == "" { http.Error(w, "ID required", http.StatusBadRequest); return }
+
+    type payload struct {
+        Title string `json:"title"`
+        Content string `json:"content"`
+        Date string `json:"date"`
+        ImageURL string `json:"image_url"`
+        IsFeatured int `json:"is_featured"`
+    }
+    var p payload
+    if err := json.NewDecoder(r.Body).Decode(&p); err != nil { http.Error(w, "Invalid payload", http.StatusBadRequest); return }
+
+    _, err := DB2.Exec("UPDATE news SET title=?, content=?, date=?, image_url=?, is_featured=? WHERE id=?",
+        p.Title, p.Content, p.Date, p.ImageURL, p.IsFeatured, id)
+    if err != nil { http.Error(w, "Failed to update news", http.StatusInternalServerError); return }
+
+    w.Header().Set("Content-Type", "application/json")
+    w.Write([]byte(`{"message":"updated"}`))
+}
+
+// Admin: delete news
+func deleteNewsHandler(w http.ResponseWriter, r *http.Request) {
+    if DB2 == nil { http.Error(w, "DB2 not configured", http.StatusInternalServerError); return }
+
+    vars := mux.Vars(r)
+    id := vars["id"]
+    if id == "" { http.Error(w, "ID required", http.StatusBadRequest); return }
+
+    _, err := DB2.Exec("DELETE FROM news WHERE id=?", id)
+    if err != nil { http.Error(w, "Failed to delete news", http.StatusInternalServerError); return }
+
+    w.Header().Set("Content-Type", "application/json")
+    w.Write([]byte(`{"message":"deleted"}`))
+}
+
+// Public: read news
+func publicNewsHandler(w http.ResponseWriter, r *http.Request) {
+    if DB2 == nil {
+        http.Error(w, "DB2 not configured", http.StatusServiceUnavailable)
+        return
+    }
+
+    rows, err := DB2.Query("SELECT id, title, content, date, image_url, is_featured FROM news ORDER BY created_at DESC")
+    if err != nil {
+        http.Error(w, "Failed to fetch news", http.StatusInternalServerError)
+        return
+    }
+    defer rows.Close()
+
+    type newsItem struct {
+        ID int `json:"id"`
+        Title string `json:"title"`
+        Content string `json:"content"`
+        Date string `json:"date"`
+        ImageURL string `json:"image_url"`
+        IsFeatured int `json:"is_featured"`
+    }
+
+    var news []newsItem
+    for rows.Next() {
+        var n newsItem
+        var imgURL sql.NullString
+        err := rows.Scan(&n.ID, &n.Title, &n.Content, &n.Date, &imgURL, &n.IsFeatured)
+        if err != nil {
+            continue
+        }
+        if imgURL.Valid {
+            n.ImageURL = imgURL.String
+        }
+        news = append(news, n)
+    }
+
+    w.Header().Set("Content-Type", "application/json")
+    json.NewEncoder(w).Encode(news)
+}
+
+// uploadNewsImageHandler handles image uploads for news
+func uploadNewsImageHandler(w http.ResponseWriter, r *http.Request) {
+    // Set CORS headers first
+    w.Header().Set("Access-Control-Allow-Origin", "http://localhost:5173")
+    w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
+    w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization, X-Requested-With")
+    w.Header().Set("Access-Control-Allow-Credentials", "true")
+    w.Header().Set("Access-Control-Max-Age", "86400")
+
+    // Handle preflight OPTIONS request
+    if r.Method == "OPTIONS" {
+        w.WriteHeader(http.StatusOK)
+        return
+    }
+
+    if DB2 == nil {
+        http.Error(w, "DB2 not configured", http.StatusServiceUnavailable)
+        return
+    }
+
+    w.Header().Set("Content-Type", "application/json")
+
+    // Check if admin is authenticated
+    _, ok := r.Context().Value("admin_id").(int)
+    if !ok {
+        http.Error(w, "Unauthorized", http.StatusUnauthorized)
+        return
+    }
+
+    // Parse the multipart form
+    err := r.ParseMultipartForm(10 << 20) // 10 MB max for news images
+    if err != nil {
+        log.Printf("Error parsing multipart form: %v", err)
+        http.Error(w, "Error parsing form", http.StatusBadRequest)
+        return
+    }
+
+    // Get the file from the form
+    file, handler, err := r.FormFile("file")
+    if err != nil {
+        log.Printf("Error getting file: %v", err)
+        http.Error(w, "Error retrieving file", http.StatusBadRequest)
+        return
+    }
+    defer file.Close()
+
+    // Validate file size (5MB max for images)
+    if handler.Size > 5<<20 {
+        log.Printf("File too large: %d bytes", handler.Size)
+        http.Error(w, "File too large. Maximum size is 5MB", http.StatusBadRequest)
+        return
+    }
+
+    // Validate file type (only images for news)
+    fileName := handler.Filename
+    fileExt := strings.ToLower(filepath.Ext(fileName))
+
+    allowedExts := map[string]bool{
+        ".jpg":  true,
+        ".jpeg": true,
+        ".png":  true,
+        ".gif":  true,
+        ".webp": true,
+    }
+
+    if !allowedExts[fileExt] {
+        log.Printf("Invalid file type: %s", fileExt)
+        http.Error(w, "Invalid file type. Only image files (jpg, jpeg, png, gif, webp) are allowed.", http.StatusBadRequest)
+        return
+    }
+
+    log.Printf("News image upload: name=%s, size=%d bytes, type=%s", fileName, handler.Size, fileExt)
+
+    // Create uploads directory if it doesn't exist
+    uploadsDir := "./uploads/news"
+    if err := os.MkdirAll(uploadsDir, 0755); err != nil {
+        log.Printf("Error creating uploads directory: %v", err)
+        http.Error(w, "Error creating upload directory", http.StatusInternalServerError)
+        return
+    }
+
+    // Generate unique filename
+    timestamp := time.Now().Unix()
+    uniqueFileName := fmt.Sprintf("%d_%s", timestamp, fileName)
+    filePath := filepath.Join(uploadsDir, uniqueFileName)
+
+    // Create the file
+    dst, err := os.Create(filePath)
+    if err != nil {
+        log.Printf("Error creating file: %v", err)
+        http.Error(w, "Error creating file", http.StatusInternalServerError)
+        return
+    }
+    defer dst.Close()
+
+    // Copy the uploaded file to the destination
+    _, err = io.Copy(dst, file)
+    if err != nil {
+        log.Printf("Error copying file: %v", err)
+        http.Error(w, "Error saving file", http.StatusInternalServerError)
+        return
+    }
+
+    // Create the URL path for the file
+    urlPath := "/uploads/news/" + uniqueFileName
+    log.Printf("News image uploaded successfully. Path: %s", urlPath)
+
+    response := map[string]interface{}{
+        "success":   true,
+        "file_path": urlPath,
+        "message":   "Image uploaded successfully",
+    }
+
+    w.WriteHeader(http.StatusOK)
+    json.NewEncoder(w).Encode(response)
 }
 
 // Admin settings endpoints removed per request

@@ -9,6 +9,7 @@ import 'slick-carousel/slick/slick-theme.css';
 import SiteHeader from '../components/SiteHeader';
 // Social bar removed
 import Footer from '../components/Footer';
+import { siteAPI, type NewsItem } from '../services/api';
 
 // Import partnership images
 // Top row images
@@ -49,18 +50,18 @@ import Img20230612 from '../assets/Partnership/Bottom/IMG-20230612-WA0015-1-150x
 import Img14 from '../assets/Partnership/Bottom/14-150x150.jpg';
 // News assets from sementara
 import ImgCybersecurity from '../assets/sementara/cybersecurity.jpg';
-import ImgParallaxnet from '../assets/sementara/PARALLAXNET.jpg';
-import ImgWorkshop from '../assets/sementara/Workshop Ilustrasi Digital.jpg';
-import ImgLLM from '../assets/sementara/Project-LLM-Siswa.jpg';
-import ImgCollab from '../assets/sementara/Collaboration between Indonesia and Thailand.jpg';
 
 const Index = () => {
   const navigate = useNavigate();
   const [isMobile, setIsMobile] = useState(false);
   const [isLandscape, setIsLandscape] = useState(false);
   const [hoveredProgram, setHoveredProgram] = useState<string | null>(null);
+  const [infoSiswa, setInfoSiswa] = useState<number | null>(null);
+  const [infoGuru, setInfoGuru] = useState<number | null>(null);
+  const [infoTendik, setInfoTendik] = useState<number | null>(null);
+  const [newsList, setNewsList] = useState<NewsItem[]>([]);
   // Trending headlines and animation state
-  const [trendingHeadlines, setTrendingHeadlines] = useState<string[]>([
+  const [trendingHeadlines] = useState<string[]>([
     'Cybersecurity Di Sekolah : Dimulai Dari Diri Sendiri',
     'JALIN KERJASAMA, METLAND SCHOOL DAN PARALLAXNET USUNG KURIKULUM TECHNOPRENEUR',
     'SMK Metland Cileungsi Bersama Huion Gelar Seminar dan Workshop Ilustrasi Digital',
@@ -97,26 +98,6 @@ const Index = () => {
 
   // Auto-rotate trending headlines every 3 seconds
   useEffect(() => {
-    // Eager load public site settings
-    fetch('http://localhost:8080/api/site/settings')
-      .then(res => res.ok ? res.json() : null)
-      .then((data) => {
-        if (!data) return;
-        try {
-          if (data.ms_learn_title) {
-            const t = JSON.parse(data.ms_learn_title);
-            if (t?.text) {
-              const el = document.getElementById('ms_learn_title_text');
-              if (el) el.textContent = t.text;
-            }
-          }
-          if (data.trending_headlines) {
-            const th = JSON.parse(data.trending_headlines);
-            if (Array.isArray(th?.items) && th.items.length) setTrendingHeadlines(th.items);
-          }
-        } catch {}
-      }).catch(() => {});
-
     const id = window.setInterval(() => {
       if (!isTrendingAnimating && nextHeadlineIndex === null) {
         triggerTrending('next');
@@ -138,6 +119,33 @@ const Index = () => {
       const img = new Image();
       img.src = src;
     });
+  }, []);
+
+  // Fetch public infographics for animated counts
+  useEffect(() => {
+    fetch('http://localhost:8080/api/site/infographics')
+      .then((r) => (r.ok ? r.json() : null))
+      .then((d) => {
+        if (!d) return;
+        setInfoSiswa(typeof d.siswa === 'number' && d.siswa >= 0 ? d.siswa : null);
+        setInfoGuru(typeof d.guru === 'number' && d.guru >= 0 ? d.guru : null);
+        setInfoTendik(typeof d.tendik === 'number' && d.tendik >= 0 ? d.tendik : null);
+      })
+      .catch(() => {
+        // keep nulls → shows '?'
+      });
+  }, []);
+
+  // Fetch news from backend
+  useEffect(() => {
+    siteAPI.getNews()
+      .then((news) => {
+        setNewsList(news || []); // Ensure we always set an array even if API returns null
+      })
+      .catch((error) => {
+        console.error('Failed to fetch news:', error);
+        setNewsList([]);
+      });
   }, []);
 
 
@@ -1094,78 +1102,74 @@ const Index = () => {
           <h2 style={styles.newsTitle}>RILIS BERITA</h2>
           
           {/* Featured News */}
-          <div style={styles.featuredNews}>
-            <img 
-              src={ImgCybersecurity} 
-              alt="Cybersecurity Di Sekolah : Dimulai Dari Diri Sendiri" 
-              style={styles.featuredNewsImage}
-            />
-            <div style={styles.featuredNewsContent}>
-              <div>
-                {!isMobile && (
-                  <div style={styles.featuredNewsDate}>15, Januari 2025</div>
-                )}
-                <h3 style={styles.featuredNewsTitle}>
-                Cybersecurity Di Sekolah : Dimulai Dari Diri Sendiri
-                </h3>
-                {isMobile && (
-                  <div style={styles.featuredNewsDate}>15, Januari 2025</div>
-                )}
-                <p style={styles.featuredNewsDescription}>
-                Di era digital saat ini, teknologi informasi telah menjadi bagian tak terpisahkan dari kehidupan sehari-hari. Penggunaan internet dan perangkat digital yang semakin meluas membawa berbagai manfaat, namun juga meningkatkan risiko keamanan informasi. Dalam konteks ini, pemahaman dasar tentang cybersecurity (keamanan siber) menjadi sangat penting, terutama bagi siswa Sekolah Menengah Kejuruan (SMK) yang dipersiapkan untuk terjun langsung ke dunia kerja, termasuk di bidang teknologi.
-                </p>
-              </div>
-              <button style={styles.readMoreButton}>Baca Selengkapnya</button>
+          {newsList.length === 0 ? (
+            <div style={{ textAlign: 'center', padding: '40px', color: '#64748b' }}>
+              Berita sedang dimuat...
             </div>
-          </div>
+          ) : (
+            <>
+              {/* Show featured news first if available */}
+              {newsList.filter(news => news.is_featured === 1).length > 0 && (
+                <div style={styles.featuredNews}>
+                  {(() => {
+                    const featured = newsList.find(news => news.is_featured === 1) || newsList[0];
+                    return (
+                      <>
+                        <img
+                          src={featured.image_url || ImgCybersecurity}
+                          alt={featured.title}
+                          style={styles.featuredNewsImage}
+                          onError={(e) => {
+                            e.currentTarget.src = ImgCybersecurity;
+                          }}
+                        />
+                        <div style={styles.featuredNewsContent}>
+                          <div>
+                            {!isMobile && (
+                              <div style={styles.featuredNewsDate}>{featured.date}</div>
+                            )}
+                            <h3 style={styles.featuredNewsTitle}>{featured.title}</h3>
+                            {isMobile && (
+                              <div style={styles.featuredNewsDate}>{featured.date}</div>
+                            )}
+                            <p style={styles.featuredNewsDescription}>
+                              {featured.content.length > 200
+                                ? featured.content.substring(0, 200) + '...'
+                                : featured.content}
+                            </p>
+                          </div>
+                          <button style={styles.readMoreButton}>Baca Selengkapnya</button>
+                        </div>
+                      </>
+                    );
+                  })()}
+                </div>
+              )}
 
-          {/* News Grid */}
-          <div style={styles.newsGrid}>
-            <div style={styles.newsCard}>
-              <img 
-                src={ImgParallaxnet} 
-                alt="JALIN KERJASAMA, METLAND SCHOOL DAN PARALLAXNET USUNG KURIKULUM TECHNOPRENEUR" 
-                style={styles.newsCardImage}
-              />
-              <h3 style={styles.newsCardTitle}>
-                 JALIN KERJASAMA, METLAND SCHOOL DAN PARALLAXNET USUNG KURIKULUM TECHNOPRENEUR
-              </h3>
-              <div style={styles.newsCardDate}>06 Agustus 2025</div>
-            </div>
-            <div style={styles.newsCard}>
-              <img 
-                src={ImgWorkshop} 
-                alt="SMK Metland Cileungsi Bersama Huion Gelar Seminar dan Workshop Ilustrasi Digital" 
-                style={styles.newsCardImage}
-              />
-              <h3 style={styles.newsCardTitle}>
-                SMK Metland Cileungsi Bersama Huion Gelar Seminar dan Workshop Ilustrasi Digital
-              </h3>
-              <div style={styles.newsCardDate}>30 Juli 2025</div>
-            </div>
-            <div style={styles.newsCard}>
-              <img 
-                src={ImgLLM} 
-                alt="Pembelajaran Large Language Models (LLM) dalam Kurikulum Sekolah Menengah Kejuruan" 
-                style={styles.newsCardImage}
-              />
-              <h3 style={styles.newsCardTitle}>
-              Pembelajaran Large Language Models (LLM) dalam Kurikulum Sekolah Menengah Kejuruan
-              </h3>
-              <div style={styles.newsCardDate}>23 Juli 2025</div>
-            </div>
-            <div style={styles.newsCard}>
-              <img 
-                src={ImgCollab} 
-                alt="Enhancing Digital Literacy through TVET Fostering Synergy and Collaboration between Indonesia and Thailand" 
-                style={styles.newsCardImage}
-              />
-              <h3 style={styles.newsCardTitle}>
-              Enhancing Digital Literacy through TVET Fostering Synergy and Collaboration between Indonesia and Thailand
-              </h3>
-              <div style={styles.newsCardDate}>22 Juli 2025</div>
-          </div>
-          </div>
+              {/* News Grid - Exclude featured news */}
+              <div style={styles.newsGrid}>
+                {newsList.filter(news => news.is_featured !== 1).slice(0, 6).map((news) => (
+                  <div key={news.id} style={styles.newsCard}>
+                    <img
+                      src={news.image_url || ImgCybersecurity}
+                      alt={news.title}
+                      style={styles.newsCardImage}
+                      onError={(e) => {
+                        e.currentTarget.src = ImgCybersecurity;
+                      }}
+                    />
+                    <h3 style={styles.newsCardTitle}>{news.title}</h3>
+                    <div style={styles.newsCardDate}>{news.date}</div>
+                    {news.is_featured === 1 && (
+                      <div style={{ background: '#fef3c7', color: '#92400e', padding: '2px 6px', borderRadius: 4, fontSize: 10, fontWeight: 700, display: 'inline-block', marginTop: 4 }}>
+                        Featured
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </>
+          )}
 
           {/* News Index Button */}
           <button style={styles.newsIndexButton} onClick={() => navigate('/berita')}>
@@ -1183,42 +1187,33 @@ const Index = () => {
               <div style={styles.programIconContainer}>
                 <Users size={64} color="#69727d" />
               </div>
-              <CountUp 
-                end={683} 
-                duration={2.5}
-                style={styles.infographicNumber}
-                enableScrollSpy={true}
-                scrollSpyDelay={500}
-                scrollSpyOnce={true}
-              />
+              {infoSiswa === null ? (
+                <span style={styles.infographicNumber as any}>?</span>
+              ) : (
+                <CountUp end={infoSiswa} duration={2} style={styles.infographicNumber} enableScrollSpy scrollSpyOnce />
+              )}
               <div style={styles.infographicLabel}>Siswa</div>
             </div>
             <div style={styles.infographicCard}>
               <div style={styles.programIconContainer}>
                 <BookOpen size={64} color="#69727d" />
               </div>
-              <CountUp 
-                end={75} 
-                duration={2.5}
-                style={styles.infographicNumber}
-                enableScrollSpy={true}
-                scrollSpyDelay={500}
-                scrollSpyOnce={true}
-              />
+              {infoGuru === null ? (
+                <span style={styles.infographicNumber as any}>?</span>
+              ) : (
+                <CountUp end={infoGuru} duration={2} style={styles.infographicNumber} enableScrollSpy scrollSpyOnce />
+              )}
               <div style={styles.infographicLabel}>Guru</div>
             </div>
             <div style={styles.infographicCard}>
               <div style={styles.programIconContainer}>
             <GraduationCap size={64} color="#69727d" />
               </div>
-              <CountUp 
-                end={28} 
-                duration={2.5}
-                style={styles.infographicNumber}
-                enableScrollSpy={true}
-                scrollSpyDelay={500}
-                scrollSpyOnce={true}
-              />
+              {infoTendik === null ? (
+                <span style={styles.infographicNumber as any}>?</span>
+              ) : (
+                <CountUp end={infoTendik} duration={2} style={styles.infographicNumber} enableScrollSpy scrollSpyOnce />
+              )}
               <div style={styles.infographicLabel}>Tendik</div>
             </div>
           </div>

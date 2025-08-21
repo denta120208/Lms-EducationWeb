@@ -309,7 +309,7 @@ const VisiMisiPage: React.FC = () => {
   return (
     <div style={styles.page}>
       <div style={styles.overlay} />
-      <SiteHeader scrollTargetSelector="#vm-scroll" />
+      <SiteHeader />
       <LogoScene target={target} />
 
       <div id="vm-scroll" ref={containerRef} style={styles.scrollContainer}>

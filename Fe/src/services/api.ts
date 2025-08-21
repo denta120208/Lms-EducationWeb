@@ -71,6 +71,21 @@ export interface AdminLoginResponse {
   message: string;
 }
 
+export interface Infographics {
+  siswa?: number;
+  guru?: number;
+  tendik?: number;
+}
+
+export interface NewsItem {
+  id: number;
+  title: string;
+  content: string;
+  date: string;
+  image_url: string;
+  is_featured: number;
+}
+
 export interface ApiError {
   message: string;
   status: number;
@@ -258,6 +273,47 @@ export const authAPI = {
   getDashboard: async () => {
     return await apiCall('/api/dashboard');
   }
+};
+
+export const siteAPI = {
+  getInfographics: async (): Promise<Infographics> => {
+    const res = await api.get('/api/site/infographics');
+    return res.data;
+  },
+  getNews: async (): Promise<NewsItem[]> => {
+    const res = await api.get('/api/site/news');
+    return res.data;
+  },
+};
+
+export const adminAPI = {
+  updateInfographics: async (payload: Infographics): Promise<{ message: string }> => {
+    const res = await api.put('/api/admin/infographics', payload);
+    return res.data;
+  },
+  createNews: async (payload: Omit<NewsItem, 'id'>): Promise<{ message: string; id: number }> => {
+    const res = await api.post('/api/admin/news', payload);
+    return res.data;
+  },
+  updateNews: async (id: number, payload: Omit<NewsItem, 'id'>): Promise<{ message: string }> => {
+    const res = await api.put(`/api/admin/news/${id}`, payload);
+    return res.data;
+  },
+  deleteNews: async (id: number): Promise<{ message: string }> => {
+    const res = await api.delete(`/api/admin/news/${id}`);
+    return res.data;
+  },
+  uploadNewsImage: async (file: File): Promise<{ success: boolean; file_path: string; message: string }> => {
+    const formData = new FormData();
+    formData.append('file', file);
+
+    const res = await api.post('/api/upload/news-image', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+    return res.data;
+  },
 };
 
 // Health check

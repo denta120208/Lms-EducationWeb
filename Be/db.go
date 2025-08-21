@@ -110,11 +110,49 @@ func initSecondDB() error {
 		updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 	)`)
 	if err != nil { return fmt.Errorf("create admin_users failed: %v", err) }
-	_, err = DB2.Exec(`CREATE TABLE IF NOT EXISTS site_settings (
-		` + "`key`" + ` VARCHAR(100) PRIMARY KEY,
-		` + "`value`" + ` JSON
+	// site_settings dihapus sesuai permintaan – tidak digunakan lagi
+	_, err = DB2.Exec(`CREATE TABLE IF NOT EXISTS infographics (
+		id INT PRIMARY KEY CHECK (id = 1),
+		siswa INT DEFAULT 0,
+		guru INT DEFAULT 0,
+		tendik INT DEFAULT 0,
+		updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 	)`)
-	if err != nil { return fmt.Errorf("create site_settings failed: %v", err) }
+	if err != nil { return fmt.Errorf("create infographics failed: %v", err) }
+	_, _ = DB2.Exec("INSERT IGNORE INTO infographics (id, siswa, guru, tendik) VALUES (1, 0, 0, 0)")
+
+	// Create news table
+	_, err = DB2.Exec(`CREATE TABLE IF NOT EXISTS news (
+		id INT AUTO_INCREMENT PRIMARY KEY,
+		title VARCHAR(255) NOT NULL,
+		content TEXT NOT NULL,
+		date VARCHAR(50) NOT NULL,
+		image_url VARCHAR(500),
+		is_featured TINYINT(1) DEFAULT 0,
+		created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+		updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+	)`)
+	if err != nil {
+		return fmt.Errorf("create news failed: %v", err)
+	}
+
+	// Insert sample news data if table is empty
+	var newsCount int
+	err = DB2.QueryRow("SELECT COUNT(*) FROM news").Scan(&newsCount)
+	if err == nil && newsCount == 0 {
+		_, _ = DB2.Exec(`INSERT INTO news (title, content, date, image_url, is_featured) VALUES
+			('Cybersecurity Di Sekolah : Dimulai Dari Diri Sendiri',
+			 'Di era digital saat ini, teknologi informasi telah menjadi bagian tak terpisahkan dari kehidupan sehari-hari. Penggunaan internet dan perangkat digital yang semakin meluas membawa berbagai manfaat, namun juga meningkatkan risiko keamanan informasi.',
+			 '15 Januari 2025',
+			 '/assets/sementara/cybersecurity.jpg',
+			 1),
+			('Kerja Sama SMK Metland dengan Industri Teknologi',
+			 'SMK Metland menjalin kerja sama strategis dengan perusahaan teknologi terkemuka untuk meningkatkan kompetensi siswa di bidang teknologi informasi dan komunikasi.',
+			 '12 Januari 2025',
+			 '/assets/sementara/collaboration.jpg',
+			 0)`)
+	}
+
 	fmt.Println("✅ DB2 terhubung dan tabel admin_users siap!")
 	return nil
 }
